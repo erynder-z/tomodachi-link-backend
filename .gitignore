@@ -31,6 +31,8 @@ npm-debug.log
 
 .DS_Store
 
+dist
+dist-ssr
+*.local
 .env
-
 .*.json
