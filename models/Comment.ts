@@ -23,4 +23,4 @@ const CommentSchema: Schema = new Schema(
     { versionKey: false }
 );
 
-export default mongoose.model<CommentModelType>('Post', CommentSchema);
+export default mongoose.model<CommentModelType>('Comment', CommentSchema);
