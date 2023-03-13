@@ -36,3 +36,4 @@ dist-ssr
 *.local
 .env
 .*.json
+.eslintignore
