@@ -3,4 +3,4 @@ import { signupRoute } from './signup';
 
 export const routes = express.Router();
 
-routes.use(signupRoute);
+routes.use('/api/v1', signupRoute);

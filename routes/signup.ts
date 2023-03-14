@@ -1,10 +1,6 @@
-import { Request, Response, NextFunction, Router } from 'express';
+import { Router } from 'express';
+import signup from '../controllers/signup-controller';
 
 export const signupRoute = Router();
 
-signupRoute.get(
-  '/',
-  function (req: Request, res: Response, next: NextFunction) {
-    res.send('Signup under construction!');
-  }
-);
+signupRoute.post('/signup', signup);
