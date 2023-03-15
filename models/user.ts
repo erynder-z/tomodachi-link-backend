@@ -18,7 +18,7 @@ export type UserType = {
     pending_friend_requests: Types.ObjectId[];
 };
 
-type UserModelType = UserType & Document;
+export type UserModelType = UserType & Document;
 
 const UserSchema: Schema = new Schema(
     {
