@@ -49,4 +49,43 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     )(req, res, next);
 };
 
-export { login };
+const checkToken = async (req: Request, res: Response) => {
+    try {
+        const bearerHeader = req.headers['authorization'];
+        if (!bearerHeader) {
+            return res.status(400).json({
+                error: { message: 'Authorization header is missing' },
+            });
+        }
+
+        const bearer = bearerHeader.split(' ');
+        if (bearer.length !== 2 || bearer[0] !== 'Bearer') {
+            return res.status(400).json({
+                error: { message: 'Authorization header is malformed' },
+            });
+        }
+
+        const token = bearer[1];
+        if (!token) {
+            return res
+                .status(400)
+                .json({ error: { message: 'Token is missing' } });
+        }
+
+        const secret = process.env.TOKEN_SECRET_KEY as string;
+        const decoded = jwt.verify(token, secret);
+        if (!decoded || typeof decoded !== 'object') {
+            return res
+                .status(400)
+                .json({ error: { message: 'Token is invalid' } });
+        }
+
+        res.status(200).json({ user: decoded.user });
+    } catch (error) {
+        return res
+            .status(400)
+            .json({ error: { message: 'Error while checking token' } });
+    }
+};
+
+export { login, checkToken };
