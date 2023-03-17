@@ -6,6 +6,7 @@ import errorMiddleware from './middleware/error-handler';
 import logger from 'morgan';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import cors from 'cors';
 import { initializePassport } from './passport/initializePassport';
 import { initializeMongoDB } from './mongodb/initializeMongoDB';
 import passport from 'passport';
@@ -15,6 +16,8 @@ dotenv.config();
 
 initializeMongoDB();
 initializePassport();
+
+app.use(cors()); // TODO: configure cors
 
 app.use(passport.initialize());
 app.use(bodyParser.json());
