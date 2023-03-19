@@ -1,4 +1,6 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
+import path from 'path';
+import fs from 'fs';
 
 export type UserType = {
     first_name: string;
@@ -26,7 +28,17 @@ const UserSchema: Schema = new Schema(
         last_name: { type: String, required: true },
         username: { type: String, required: true },
         userpic: {
-            data: Buffer,
+            data: {
+                type: Buffer,
+                default: () => {
+                    return fs.readFileSync(
+                        path.resolve(
+                            __dirname,
+                            '../../public/images/defaultUserpic.png'
+                        )
+                    );
+                },
+            },
             contentType: String,
         },
         email: { type: String, required: true },
