@@ -7,9 +7,11 @@ const getUserData = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = await User.findOne({ _id: id }, { password: 0 });
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            return res
+                .status(404)
+                .json({ error: { message: 'User not found' } });
         }
-        return res.json(user);
+        return res.json({ user });
     } catch (err) {
         return next(err);
     }
