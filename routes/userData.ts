@@ -5,7 +5,7 @@ import * as userDataController from '../controllers/userDataController';
 export const userDataRoute = Router();
 
 userDataRoute.get(
-    '/:id',
+    '/userdata',
     passport.authenticate('jwt', { session: false }),
     userDataController.getUserData
 );
