@@ -9,3 +9,9 @@ userDataRoute.get(
     passport.authenticate('jwt', { session: false }),
     userDataController.getUserData
 );
+
+userDataRoute.put(
+    '/userdata',
+    passport.authenticate('jwt', { session: false }),
+    userDataController.updateUserData
+);
