@@ -1,10 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
-import { validationResult } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 import User, { UserModelType } from '../models/user';
 import { validateEmail } from './validators/profileUpdateValidators/validateEmail';
 import { validateFirstName } from './validators/profileUpdateValidators/validateFirstName';
 import { validateLastName } from './validators/profileUpdateValidators/validateLastName';
 import { validatePassword } from './validators/profileUpdateValidators/validatePassword';
+import bcrypt from 'bcrypt';
+import { validateCurrentPassword } from './validators/passwordUpdateValidators/validateCurrentPassword';
+import { validateNewPassword } from './validators/passwordUpdateValidators/validateNewPassword';
+import { validateConfirmNewPassword } from './validators/passwordUpdateValidators/validateConfirmNewPassword';
 
 const getUserData = async (req: Request, res: Response, next: NextFunction) => {
     if (req.user) {
@@ -71,4 +75,48 @@ const updateUserData = [
     },
 ];
 
-export { getUserData, updateUserData };
+const updateUserPassword = [
+    validateCurrentPassword(),
+    validateNewPassword(),
+    validateConfirmNewPassword(),
+
+    async (req: Request, res: Response, next: NextFunction) => {
+        const errors = validationResult(req);
+
+        const reqUser = new User({
+            password: req.body.new_password,
+        });
+
+        if (!errors.isEmpty()) {
+            res.status(400).json({
+                message: 'Failed to update user!',
+                errors: errors.array(),
+                reqUser,
+            });
+
+            return;
+        }
+
+        try {
+            const hashedPassword = await bcrypt.hash(reqUser.password, 10);
+            reqUser.password = hashedPassword;
+
+            if (req.user) {
+                const user = req.user as UserModelType;
+                const id = user._id;
+
+                const updatedUser = await User.findByIdAndUpdate(
+                    id,
+                    { password: hashedPassword },
+                    { new: true }
+                );
+
+                res.status(200).json(updatedUser);
+            }
+        } catch (err) {
+            return next(err);
+        }
+    },
+];
+
+export { getUserData, updateUserData, updateUserPassword };

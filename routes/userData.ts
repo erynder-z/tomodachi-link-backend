@@ -15,3 +15,9 @@ userDataRoute.put(
     passport.authenticate('jwt', { session: false }),
     userDataController.updateUserData
 );
+
+userDataRoute.patch(
+    '/password',
+    passport.authenticate('jwt', { session: false }),
+    userDataController.updateUserPassword
+);
