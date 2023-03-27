@@ -20,9 +20,10 @@ const getUserData = async (req: Request, res: Response, next: NextFunction) => {
             if (!user) {
                 return res
                     .status(404)
-                    .json({ error: { message: 'User not found' } });
+                    .json({ errors: [{ message: 'User not found' }] }); // Error handler expects an array of errors
             }
-            return res.json({ user });
+
+            return res.status(200).json({ user });
         } catch (err) {
             return next(err);
         }
