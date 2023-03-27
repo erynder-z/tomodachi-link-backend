@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { body, validationResult } from 'express-validator';
+import { validationResult } from 'express-validator';
 import User, { UserModelType } from '../models/user';
 import { validateEmail } from './validators/profileUpdateValidators/validateEmail';
 import { validateFirstName } from './validators/profileUpdateValidators/validateFirstName';
@@ -38,10 +38,20 @@ const updateUserData = [
     async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
 
+        let userpic;
+
+        if (req.file) {
+            userpic = {
+                data: req.file.buffer,
+                contentType: req.file.mimetype,
+            };
+        }
+
         const reqUser = new User({
             first_name: req.body.first_name,
             last_name: req.body.last_name,
             email: req.body.email,
+            userpic,
         });
 
         if (!errors.isEmpty()) {
@@ -58,13 +68,17 @@ const updateUserData = [
             const user = req.user as UserModelType;
             const id = user._id;
             try {
+                const updateData: any = {
+                    first_name: req.body.first_name,
+                    last_name: req.body.last_name,
+                    email: req.body.email,
+                };
+                if (userpic) {
+                    updateData.userpic = userpic;
+                }
                 const updatedUser = await User.findByIdAndUpdate(
                     id,
-                    {
-                        first_name: req.body.first_name,
-                        last_name: req.body.last_name,
-                        email: req.body.email,
-                    },
+                    updateData,
                     { new: true }
                 );
                 res.status(200).json(updatedUser);
