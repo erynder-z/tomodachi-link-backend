@@ -3,7 +3,6 @@ import mongoose, { Schema, Document, Types, Date } from 'mongoose';
 export type PostType = {
     owner: Types.ObjectId[];
     timestamp: Date;
-    title: string;
     text: string;
     image: {
         data: Buffer;
@@ -11,16 +10,14 @@ export type PostType = {
     };
     comments: Types.ObjectId[];
     reactions: Types.ObjectId[];
-    tags: Types.ObjectId[];
 };
 
 type PostModelType = PostType & Document;
 
 const PostSchema: Schema = new Schema(
     {
-        owner: { type: String, required: true },
+        owner: { type: Schema.Types.ObjectId, ref: 'User' },
         timestamp: { type: Date, required: true },
-        title: { type: String, required: true },
         text: { type: String, required: true },
         image: {
             data: Buffer,
@@ -28,7 +25,6 @@ const PostSchema: Schema = new Schema(
         },
         comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
         reactions: [{ type: Schema.Types.ObjectId, ref: 'Reaction' }],
-        tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
     },
     { versionKey: false }
 );
