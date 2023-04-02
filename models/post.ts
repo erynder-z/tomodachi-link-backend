@@ -16,7 +16,7 @@ type PostModelType = PostType & Document;
 
 const PostSchema: Schema = new Schema(
     {
-        owner: { type: Schema.Types.ObjectId, ref: 'User' },
+        owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         timestamp: { type: Date, required: true },
         text: { type: String, required: true },
         image: {
