@@ -10,18 +10,12 @@ const addNewPost = [
         .isLength({ min: 1 })
         .escape(),
 
-    async (
-        req: Request & { user: JwtUser },
-        res: Response,
-        next: NextFunction
-    ) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
         const post = new Post({
             owner: req.user,
             timestamp: Date.now(),
             text: req.body.newPost,
-            comments: [],
-            reactions: [],
             // TODO: Image
         });
 
@@ -33,8 +27,10 @@ const addNewPost = [
 
         try {
             const savedPost = await post.save();
+            const requser = req.user as JwtUser;
+
             await User.updateOne(
-                { _id: req.user._id },
+                { _id: requser._id },
                 { $push: { posts: savedPost._id } }
             );
             res.status(200).json({
