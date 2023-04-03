@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Types, Date } from 'mongoose';
 
 export type PostType = {
-    owner: Types.ObjectId[];
+    owner: Types.ObjectId;
     timestamp: Date;
     text: string;
     image: {
@@ -9,7 +9,11 @@ export type PostType = {
         contentType: string;
     };
     comments: Types.ObjectId[];
-    reactions: Types.ObjectId[];
+    reactions: {
+        positive: number;
+        negative: number;
+        reacted_users: Types.ObjectId[];
+    };
 };
 
 type PostModelType = PostType & Document;
@@ -23,8 +27,18 @@ const PostSchema: Schema = new Schema(
             data: Buffer,
             contentType: String,
         },
-        comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
-        reactions: [{ type: Schema.Types.ObjectId, ref: 'Reaction' }],
+        comments: {
+            type: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
+            default: [],
+        },
+        reactions: {
+            type: {
+                positive: { type: Number, default: 0 },
+                negative: { type: Number, default: 0 },
+                reacted_users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+            },
+            default: { positive: 0, negative: 0 },
+        },
     },
     { versionKey: false }
 );
