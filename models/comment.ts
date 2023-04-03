@@ -1,8 +1,8 @@
 import mongoose, { Schema, Document, Types, Date } from 'mongoose';
 
 export type CommentType = {
-    parent_post: Types.ObjectId[];
-    owner: Types.ObjectId[];
+    parent_post: Types.ObjectId;
+    owner: Types.ObjectId;
     timestamp: Date;
     text: string;
 };
