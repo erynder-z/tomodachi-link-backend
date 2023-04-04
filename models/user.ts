@@ -46,8 +46,13 @@ const UserSchema: Schema = new Schema(
         friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
         posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
         bookmarks: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
-        joined: { type: Date, required: true, default: Date.now },
-        last_seen: { type: Date, required: true, default: Date.now },
+        joined: {
+            type: Date,
+            required: true,
+            immutable: true,
+            default: () => Date.now,
+        },
+        last_seen: { type: Date, required: true, default: () => Date.now },
         pending_friend_requests: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     },
     { versionKey: false }
