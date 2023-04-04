@@ -4,6 +4,23 @@ import Post from '../models/post';
 import User from '../models/user';
 import { JwtUser } from '../types/jwtUser';
 
+const getUserPosts = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const reqUser = req.user as JwtUser;
+        const userPosts = await Post.find({ owner: reqUser })
+            .populate('owner', 'username userpic')
+            .sort({ timestamp: -1 })
+            .exec();
+        res.status(200).json({ userPosts });
+    } catch (err) {
+        return next(err);
+    }
+};
+
 const addNewPost = [
     body('newPost', 'Text must not be empty.')
         .trim()
@@ -27,10 +44,10 @@ const addNewPost = [
 
         try {
             const savedPost = await post.save();
-            const requser = req.user as JwtUser;
+            const reqUser = req.user as JwtUser;
 
             await User.updateOne(
-                { _id: requser._id },
+                { _id: reqUser._id },
                 { $push: { posts: savedPost._id } }
             );
             res.status(200).json({
@@ -43,4 +60,4 @@ const addNewPost = [
     },
 ];
 
-export { addNewPost };
+export { getUserPosts, addNewPost };
