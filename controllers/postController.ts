@@ -9,11 +9,15 @@ const getUserPosts = async (
     res: Response,
     next: NextFunction
 ) => {
+    const skip = parseInt(req.query.skip as string, 10) || 0;
+
     try {
         const reqUser = req.user as JwtUser;
         const userPosts = await Post.find({ owner: reqUser })
             .populate('owner', 'username userpic')
             .sort({ timestamp: -1 })
+            .skip(skip)
+            .limit(10)
             .exec();
         res.status(200).json({ userPosts });
     } catch (err) {
