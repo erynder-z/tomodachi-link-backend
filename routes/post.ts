@@ -15,3 +15,15 @@ postRoute.post(
     passport.authenticate('jwt', { session: false }),
     postController.addNewPost
 );
+
+postRoute.patch(
+    '/post/:id/positive',
+    passport.authenticate('jwt', { session: false }),
+    postController.positiveReaction
+);
+
+postRoute.patch(
+    '/post/:id/negative',
+    passport.authenticate('jwt', { session: false }),
+    postController.negativeReaction
+);
