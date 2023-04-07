@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Types, Date } from 'mongoose';
 
 export type CommentType = {
-    parent_post: Types.ObjectId;
+    parentPost: Types.ObjectId;
     owner: Types.ObjectId;
     timestamp: Date;
     text: string;
@@ -11,7 +11,7 @@ type CommentModelType = CommentType & Document;
 
 const CommentSchema: Schema = new Schema(
     {
-        parent_post: {
+        parentPost: {
             type: Schema.Types.ObjectId,
             ref: 'Post',
             required: true,
