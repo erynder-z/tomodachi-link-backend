@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import Post from '../models/post';
+import Post, { PostType } from '../models/post';
 import User from '../models/user';
 import { JwtUser } from '../types/jwtUser';
-
+/* 
 const getUserPosts = async (
     req: Request,
     res: Response,
@@ -20,6 +20,43 @@ const getUserPosts = async (
             .limit(10)
             .exec();
         res.status(200).json({ userPosts });
+    } catch (err) {
+        return next(err);
+    }
+}; */
+
+const getUserPosts = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const skip = parseInt(req.query.skip as string, 10) || 0;
+
+    try {
+        const reqUser = req.user as JwtUser;
+        const userPosts = await Post.find({ owner: reqUser })
+            .select('_id')
+            .sort({ timestamp: -1 })
+            .skip(skip)
+            .limit(10)
+            .exec();
+        res.status(200).json({ userPosts });
+    } catch (err) {
+        return next(err);
+    }
+};
+
+const getPostDetails = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const id = req.params.id;
+        const retrievedPost = await Post.findById(id)
+            .populate('owner', 'username userpic')
+            .exec();
+        res.status(200).json({ retrievedPost });
     } catch (err) {
         return next(err);
     }
@@ -170,4 +207,10 @@ const negativeReaction = async (
     }
 };
 
-export { getUserPosts, addNewPost, positiveReaction, negativeReaction };
+export {
+    getUserPosts,
+    getPostDetails,
+    addNewPost,
+    positiveReaction,
+    negativeReaction,
+};

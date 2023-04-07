@@ -27,3 +27,9 @@ postRoute.patch(
     passport.authenticate('jwt', { session: false }),
     postController.negativeReaction
 );
+
+postRoute.get(
+    '/post/:id',
+    passport.authenticate('jwt', { session: false }),
+    postController.getPostDetails
+);
