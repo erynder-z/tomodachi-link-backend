@@ -12,8 +12,8 @@ import { validateConfirmNewPassword } from './validators/passwordUpdateValidator
 
 const getUserData = async (req: Request, res: Response, next: NextFunction) => {
     if (req.user) {
-        const user = req.user as UserModelType;
-        const id = user._id;
+        const requestUser = req.user as UserModelType;
+        const id = requestUser._id;
 
         try {
             const user = await User.findOne({ _id: id }, { password: 0 });
