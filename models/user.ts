@@ -50,9 +50,9 @@ const UserSchema: Schema = new Schema(
             type: Date,
             required: true,
             immutable: true,
-            default: () => Date.now,
+            default: () => Date.now(),
         },
-        last_seen: { type: Date, required: true, default: () => Date.now },
+        last_seen: { type: Date, required: true, default: () => Date.now() },
         pending_friend_requests: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     },
     { versionKey: false }
