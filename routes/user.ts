@@ -9,3 +9,15 @@ userRoute.get(
     passport.authenticate('jwt', { session: false }),
     userController.getSomeUsers
 );
+
+userRoute.get(
+    '/users/:id',
+    passport.authenticate('jwt', { session: false }),
+    userController.getOtherUserData
+);
+
+userRoute.patch(
+    '/users/:id/friendrequest',
+    passport.authenticate('jwt', { session: false }),
+    userController.sendFriendRequest
+);
