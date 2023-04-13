@@ -27,3 +27,9 @@ userRoute.patch(
     passport.authenticate('jwt', { session: false }),
     userController.acceptFriendRequest
 );
+
+userRoute.patch(
+    '/users/:id/declinefriendrequest',
+    passport.authenticate('jwt', { session: false }),
+    userController.declineFriendRequest
+);

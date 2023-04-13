@@ -193,9 +193,63 @@ const acceptFriendRequest = [
     },
 ];
 
+const declineFriendRequest = [
+    body('currentUserId', 'User id missing.').notEmpty().escape(),
+    body('requestUserId', 'User id missing.').notEmpty().escape(),
+
+    async (req: Request, res: Response, next: NextFunction) => {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: 'Failed decline friend request!',
+                errors: errors.array(),
+            });
+        }
+
+        const { currentUserId, requestUserId } = req.body;
+
+        try {
+            const [currentUser, requestUser] = await Promise.all([
+                User.findById(currentUserId),
+                User.findById(requestUserId),
+            ]);
+
+            if (
+                currentUser?.pending_friend_requests.includes(requestUserId) &&
+                requestUser?.friends.indexOf(currentUserId) === -1
+            ) {
+                currentUser.pending_friend_requests =
+                    currentUser.pending_friend_requests.filter(
+                        (userId) => userId.toString() !== requestUserId
+                    );
+                requestUser.pending_friend_requests =
+                    requestUser.pending_friend_requests.filter(
+                        (userId) => userId.toString() !== currentUserId
+                    );
+                await Promise.all([currentUser.save(), requestUser.save()]);
+                return res.status(200).json({
+                    title: 'Friend request declined!',
+                });
+            } else {
+                return res.status(406).json({
+                    errors: [
+                        {
+                            message: 'Could not decline friend request!',
+                        },
+                    ],
+                });
+            }
+        } catch (err) {
+            return next(err);
+        }
+    },
+];
+
 export {
     getSomeUsers,
     getOtherUserData,
     sendFriendRequest,
     acceptFriendRequest,
+    declineFriendRequest,
 };
