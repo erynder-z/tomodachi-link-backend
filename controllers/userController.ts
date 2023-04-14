@@ -25,7 +25,19 @@ const getSomeUsers = async (
 
         const friends = currentUser.friends.map((friend) => friend.toString());
         const userList = await User.aggregate([
-            { $match: { _id: { $nin: [currentUser._id, ...friends] } } },
+            {
+                $match: {
+                    _id: {
+                        $nin: [
+                            currentUser._id,
+                            ...friends.map((friend) => friend.toString()),
+                        ],
+                    },
+                    friends: {
+                        $nin: [currentUser._id],
+                    },
+                },
+            },
             { $sample: { size: 10 } },
             {
                 $project: {
