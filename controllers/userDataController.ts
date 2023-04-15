@@ -9,11 +9,12 @@ import bcrypt from 'bcrypt';
 import { validateCurrentPassword } from './validators/passwordUpdateValidators/validateCurrentPassword';
 import { validateNewPassword } from './validators/passwordUpdateValidators/validateNewPassword';
 import { validateConfirmNewPassword } from './validators/passwordUpdateValidators/validateConfirmNewPassword';
+import { JwtUser } from '../types/jwtUser';
 
 const getUserData = async (req: Request, res: Response, next: NextFunction) => {
     if (req.user) {
-        const requestUser = req.user as UserModelType;
-        const id = requestUser._id;
+        const reqUser = req.user as JwtUser;
+        const id = reqUser._id;
 
         try {
             const user = await User.findOne({ _id: id }, { password: 0 });

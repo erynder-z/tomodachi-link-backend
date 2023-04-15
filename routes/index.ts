@@ -5,6 +5,7 @@ import { userDataRoute } from './userData';
 import { postRoute } from './post';
 import { commentRoute } from './comment';
 import { userRoute } from './user';
+import { friendDataRoute } from './friendData';
 
 export const routes = express.Router();
 
@@ -14,3 +15,4 @@ routes.use('/api/v1', userDataRoute);
 routes.use('/api/v1', postRoute);
 routes.use('/api/v1', commentRoute);
 routes.use('/api/v1', userRoute);
+routes.use('/api/v1', friendDataRoute);
