@@ -44,7 +44,6 @@ const getFriendData = async (
             },
         ]);
 
-        console.log('friendDataList', friendDataList);
         return res.status(200).json({ friendDataList });
     } catch (err) {
         return next(err);
