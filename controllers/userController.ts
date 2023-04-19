@@ -75,22 +75,30 @@ const getOtherUserData = async (
         const isFriendRequestPending =
             user.pending_friend_requests.includes(reqUserId);
 
-        if (isFriend) {
-            return res.json({ user: user, isFriend: true });
-        } else {
-            const { _id, first_name, last_name, username, userpic } = user;
-            return res.json({
-                user: {
-                    _id,
-                    first_name,
-                    last_name,
-                    username,
-                    userpic,
-                },
-                isFriend: false,
-                isFriendRequestPending: isFriendRequestPending,
-            });
-        }
+        const {
+            _id,
+            first_name,
+            last_name,
+            username,
+            userpic,
+            joined,
+            last_seen,
+        } = user;
+
+        const userObj = {
+            _id,
+            first_name,
+            last_name,
+            username,
+            userpic,
+            ...(isFriend && { joined, last_seen }),
+        };
+
+        return res.json({
+            user: userObj,
+            isFriend,
+            isFriendRequestPending,
+        });
     } catch (err) {
         next(err);
     }
