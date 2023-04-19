@@ -3,6 +3,7 @@ import User, { UserModelType } from '../models/user';
 import { JwtUser } from '../types/jwtUser';
 import mongoose from 'mongoose';
 import { body, validationResult } from 'express-validator';
+import { MinimalUserTypes } from '../types/minimalUserTypes';
 
 const getSomeUsers = async (
     req: Request,
@@ -75,6 +76,23 @@ const getOtherUserData = async (
         const isFriendRequestPending =
             user.pending_friend_requests.includes(reqUserId);
 
+        let friends: MinimalUserTypes[] = [];
+
+        if (isFriend) {
+            const friendObjects = await User.find({
+                _id: { $in: user.friends },
+            });
+            friends = friendObjects.map(
+                ({ _id, first_name, last_name, username, userpic }) => ({
+                    _id,
+                    first_name,
+                    last_name,
+                    username,
+                    userpic,
+                })
+            );
+        }
+
         const {
             _id,
             first_name,
@@ -91,7 +109,7 @@ const getOtherUserData = async (
             last_name,
             username,
             userpic,
-            ...(isFriend && { joined, last_seen }),
+            ...(isFriend && { joined, last_seen, friends }),
         };
 
         return res.json({
