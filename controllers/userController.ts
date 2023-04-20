@@ -91,18 +91,24 @@ const getOtherUserData = async (
 };
 
 const getFriendData = async (user: UserModelType) => {
-    const friendObjects = await User.find({
-        _id: { $in: user.friends },
-    });
-    return friendObjects.map(
-        ({ _id, first_name, last_name, username, userpic }) => ({
-            _id,
-            first_name,
-            last_name,
-            username,
-            userpic,
-        })
-    );
+    const friendObjects = await User.aggregate([
+        {
+            $match: {
+                _id: { $in: user.friends },
+            },
+        },
+        {
+            $project: {
+                _id: 1,
+                first_name: 1,
+                last_name: 1,
+                username: 1,
+                userpic: 1,
+            },
+        },
+    ]);
+
+    return friendObjects;
 };
 
 const formatUserData = (
