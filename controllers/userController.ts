@@ -197,29 +197,11 @@ const acceptFriendRequest = [
 
         try {
             const [currentUser, requestUser] = await Promise.all([
-                User.findById(currentUserId),
-                User.findById(requestUserId),
+                getUserById(currentUserId),
+                getUserById(requestUserId),
             ]);
 
-            if (
-                currentUser?.pending_friend_requests.includes(requestUserId) &&
-                requestUser?.friends.indexOf(currentUserId) === -1
-            ) {
-                currentUser.friends.push(requestUserId);
-                requestUser.friends.push(currentUserId);
-                currentUser.pending_friend_requests =
-                    currentUser.pending_friend_requests.filter(
-                        (userId) => userId.toString() !== requestUserId
-                    );
-                requestUser.pending_friend_requests =
-                    requestUser.pending_friend_requests.filter(
-                        (userId) => userId.toString() !== currentUserId
-                    );
-                await Promise.all([currentUser.save(), requestUser.save()]);
-                return res.status(200).json({
-                    title: 'Friend request accepted!',
-                });
-            } else {
+            if (!canAcceptFriendRequest(currentUser, requestUser)) {
                 return res.status(406).json({
                     errors: [
                         {
@@ -228,11 +210,52 @@ const acceptFriendRequest = [
                     ],
                 });
             }
+
+            await acceptFriendRequestForUsers(currentUser, requestUser);
+
+            return res.status(200).json({
+                title: 'Friend request accepted!',
+            });
         } catch (err) {
             return next(err);
         }
     },
 ];
+
+const getUserById = async (id: string) => {
+    const user = await User.findById(id);
+    if (!user) {
+        throw new Error('User not found');
+    }
+    return user;
+};
+
+const canAcceptFriendRequest = (
+    currentUser: UserModelType,
+    requestUser: UserModelType
+) => {
+    return (
+        currentUser?.pending_friend_requests.includes(requestUser._id) &&
+        !requestUser?.friends.includes(currentUser._id)
+    );
+};
+
+const acceptFriendRequestForUsers = async (
+    currentUser: UserModelType,
+    requestUser: UserModelType
+) => {
+    currentUser.friends.push(requestUser._id);
+    requestUser.friends.push(currentUser._id);
+    currentUser.pending_friend_requests =
+        currentUser.pending_friend_requests.filter(
+            (userId) => userId.toString() !== requestUser._id.toString()
+        );
+    requestUser.pending_friend_requests =
+        requestUser.pending_friend_requests.filter(
+            (userId) => userId.toString() !== currentUser._id.toString()
+        );
+    await Promise.all([currentUser.save(), requestUser.save()]);
+};
 
 const declineFriendRequest = [
     body('currentUserId', 'User id missing.').notEmpty().escape(),
@@ -252,27 +275,11 @@ const declineFriendRequest = [
 
         try {
             const [currentUser, requestUser] = await Promise.all([
-                User.findById(currentUserId),
-                User.findById(requestUserId),
+                getUserById(currentUserId),
+                getUserById(requestUserId),
             ]);
 
-            if (
-                currentUser?.pending_friend_requests.includes(requestUserId) &&
-                requestUser?.friends.indexOf(currentUserId) === -1
-            ) {
-                currentUser.pending_friend_requests =
-                    currentUser.pending_friend_requests.filter(
-                        (userId) => userId.toString() !== requestUserId
-                    );
-                requestUser.pending_friend_requests =
-                    requestUser.pending_friend_requests.filter(
-                        (userId) => userId.toString() !== currentUserId
-                    );
-                await Promise.all([currentUser.save(), requestUser.save()]);
-                return res.status(200).json({
-                    title: 'Friend request declined!',
-                });
-            } else {
+            if (!canDeclineFriendRequest(currentUser, requestUser)) {
                 return res.status(406).json({
                     errors: [
                         {
@@ -281,11 +288,42 @@ const declineFriendRequest = [
                     ],
                 });
             }
+
+            await declineFriendRequestForUsers(currentUser, requestUser);
+
+            return res.status(200).json({
+                title: 'Friend request declined!',
+            });
         } catch (err) {
             return next(err);
         }
     },
 ];
+
+const canDeclineFriendRequest = (
+    currentUser: UserModelType,
+    requestUser: UserModelType
+) => {
+    return (
+        currentUser?.pending_friend_requests.includes(requestUser._id) &&
+        !requestUser?.friends.includes(currentUser._id)
+    );
+};
+
+const declineFriendRequestForUsers = async (
+    currentUser: UserModelType,
+    requestUser: UserModelType
+) => {
+    currentUser.pending_friend_requests =
+        currentUser.pending_friend_requests.filter(
+            (userId) => userId.toString() !== requestUser._id.toString()
+        );
+    requestUser.pending_friend_requests =
+        requestUser.pending_friend_requests.filter(
+            (userId) => userId.toString() !== currentUser._id.toString()
+        );
+    await Promise.all([currentUser.save(), requestUser.save()]);
+};
 
 export {
     getSomeUsers,
