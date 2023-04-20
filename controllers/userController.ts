@@ -3,7 +3,7 @@ import User, { UserModelType } from '../models/user';
 import { JwtUser } from '../types/jwtUser';
 import mongoose from 'mongoose';
 import { body, validationResult } from 'express-validator';
-import { MinimalUserTypes } from '../types/minimalUserTypes';
+import { FriendType } from '../types/friendType';
 
 const getSomeUsers = async (
     req: Request,
@@ -76,41 +76,9 @@ const getOtherUserData = async (
         const isFriendRequestPending =
             user.pending_friend_requests.includes(reqUserId);
 
-        let friends: MinimalUserTypes[] = [];
+        const friends = isFriend ? await getFriendData(user) : [];
 
-        if (isFriend) {
-            const friendObjects = await User.find({
-                _id: { $in: user.friends },
-            });
-            friends = friendObjects.map(
-                ({ _id, first_name, last_name, username, userpic }) => ({
-                    _id,
-                    first_name,
-                    last_name,
-                    username,
-                    userpic,
-                })
-            );
-        }
-
-        const {
-            _id,
-            first_name,
-            last_name,
-            username,
-            userpic,
-            joined,
-            last_seen,
-        } = user;
-
-        const userObj = {
-            _id,
-            first_name,
-            last_name,
-            username,
-            userpic,
-            ...(isFriend && { joined, last_seen, friends }),
-        };
+        const userObj = formatUserData(user, isFriend, friends);
 
         return res.json({
             user: userObj,
@@ -120,6 +88,41 @@ const getOtherUserData = async (
     } catch (err) {
         next(err);
     }
+};
+
+const getFriendData = async (user: UserModelType) => {
+    const friendObjects = await User.find({
+        _id: { $in: user.friends },
+    });
+    return friendObjects.map(
+        ({ _id, first_name, last_name, username, userpic }) => ({
+            _id,
+            first_name,
+            last_name,
+            username,
+            userpic,
+        })
+    );
+};
+
+const formatUserData = (
+    user: UserModelType,
+    isFriend: boolean,
+    friends: FriendType[]
+) => {
+    const { _id, first_name, last_name, username, userpic, joined, last_seen } =
+        user;
+
+    const userObj = {
+        _id,
+        first_name,
+        last_name,
+        username,
+        userpic,
+        ...(isFriend && { joined, last_seen, friends }),
+    };
+
+    return userObj;
 };
 
 const sendFriendRequest = [
