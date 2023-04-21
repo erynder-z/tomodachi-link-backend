@@ -43,8 +43,8 @@ const getSomeUsers = async (
             {
                 $project: {
                     _id: 1,
-                    first_name: 1,
-                    last_name: 1,
+                    firstName: 1,
+                    lastName: 1,
                     userpic: 1,
                 },
             },
@@ -74,7 +74,7 @@ const getOtherUserData = async (
         const reqUserId = new mongoose.Types.ObjectId(reqUser._id);
         const isFriend = user.friends.includes(reqUserId);
         const isFriendRequestPending =
-            user.pending_friend_requests.includes(reqUserId);
+            user.pendingFriendRequests.includes(reqUserId);
 
         let friends: FriendType[] = [];
         let mutual_friends = 0;
@@ -106,8 +106,8 @@ const getFriendData = async (user: UserModelType) => {
         {
             $project: {
                 _id: 1,
-                first_name: 1,
-                last_name: 1,
+                firstName: 1,
+                lastName: 1,
                 username: 1,
                 userpic: 1,
             },
@@ -140,16 +140,23 @@ const formatUserData = (
     friends: FriendType[],
     mutual_friends: number
 ) => {
-    const { _id, first_name, last_name, username, userpic, joined, last_seen } =
-        user;
+    const {
+        _id,
+        firstName: firstName,
+        lastName: lastName,
+        username,
+        userpic,
+        joined,
+        lastSeen: lastSeen,
+    } = user;
 
     const userObj = {
         _id,
-        first_name,
-        last_name,
+        firstName,
+        lastName,
         username,
         userpic,
-        ...(isFriend && { joined, last_seen, friends, mutual_friends }),
+        ...(isFriend && { joined, lastSeen, friends, mutual_friends }),
     };
 
     return userObj;
@@ -184,9 +191,9 @@ const sendFriendRequest = [
             const updatedUser = await User.findOneAndUpdate(
                 {
                     _id: requestUserID,
-                    pending_friend_requests: { $ne: currentUserID },
+                    pendingFriendRequests: { $ne: currentUserID },
                 },
-                { $push: { pending_friend_requests: currentUserID } },
+                { $push: { pendingFriendRequests: currentUserID } },
                 { new: true }
             );
 
@@ -265,7 +272,7 @@ const canAcceptFriendRequest = (
     requestUser: UserModelType
 ) => {
     return (
-        currentUser?.pending_friend_requests.includes(requestUser._id) &&
+        currentUser?.pendingFriendRequests.includes(requestUser._id) &&
         !requestUser?.friends.includes(currentUser._id)
     );
 };
@@ -276,12 +283,12 @@ const acceptFriendRequestForUsers = async (
 ) => {
     currentUser.friends.push(requestUser._id);
     requestUser.friends.push(currentUser._id);
-    currentUser.pending_friend_requests =
-        currentUser.pending_friend_requests.filter(
+    currentUser.pendingFriendRequests =
+        currentUser.pendingFriendRequests.filter(
             (userId) => userId.toString() !== requestUser._id.toString()
         );
-    requestUser.pending_friend_requests =
-        requestUser.pending_friend_requests.filter(
+    requestUser.pendingFriendRequests =
+        requestUser.pendingFriendRequests.filter(
             (userId) => userId.toString() !== currentUser._id.toString()
         );
     await Promise.all([currentUser.save(), requestUser.save()]);
@@ -335,7 +342,7 @@ const canDeclineFriendRequest = (
     requestUser: UserModelType
 ) => {
     return (
-        currentUser?.pending_friend_requests.includes(requestUser._id) &&
+        currentUser?.pendingFriendRequests.includes(requestUser._id) &&
         !requestUser?.friends.includes(currentUser._id)
     );
 };
@@ -344,12 +351,12 @@ const declineFriendRequestForUsers = async (
     currentUser: UserModelType,
     requestUser: UserModelType
 ) => {
-    currentUser.pending_friend_requests =
-        currentUser.pending_friend_requests.filter(
+    currentUser.pendingFriendRequests =
+        currentUser.pendingFriendRequests.filter(
             (userId) => userId.toString() !== requestUser._id.toString()
         );
-    requestUser.pending_friend_requests =
-        requestUser.pending_friend_requests.filter(
+    requestUser.pendingFriendRequests =
+        requestUser.pendingFriendRequests.filter(
             (userId) => userId.toString() !== currentUser._id.toString()
         );
     await Promise.all([currentUser.save(), requestUser.save()]);

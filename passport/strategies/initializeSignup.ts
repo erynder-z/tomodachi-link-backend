@@ -14,7 +14,7 @@ export const initializeSignup = () => {
             },
             async (req, username, password, done) => {
                 try {
-                    const { email, first_name, last_name } = req.body;
+                    const { email, firstName, lastName } = req.body;
                     bcrypt.hash(password, 10, async (err, hashedPassword) => {
                         if (err) {
                             return done(null, false, {
@@ -25,8 +25,8 @@ export const initializeSignup = () => {
                             username,
                             password: hashedPassword,
                             email,
-                            first_name,
-                            last_name,
+                            firstName: firstName,
+                            lastName: lastName,
                         });
                         return done(null, user);
                     });

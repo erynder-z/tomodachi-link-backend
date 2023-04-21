@@ -1,7 +1,7 @@
 export type FriendType = {
     _id: string;
-    first_name: string;
-    last_name: string;
+    firstName: string;
+    lastName: string;
     username: string;
     userpic: { data: Buffer; contentType: string };
     mutual_friends: number;

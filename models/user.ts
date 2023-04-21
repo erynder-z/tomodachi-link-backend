@@ -4,8 +4,8 @@ import fs from 'fs';
 
 export type UserType = {
     _id: string;
-    first_name: string;
-    last_name: string;
+    firstName: string;
+    lastName: string;
     username: string;
     userpic: {
         data: Buffer;
@@ -17,16 +17,16 @@ export type UserType = {
     posts: Types.ObjectId[];
     bookmarks: Types.ObjectId[];
     joined: Date;
-    last_seen: Date;
-    pending_friend_requests: Types.ObjectId[];
+    lastSeen: Date;
+    pendingFriendRequests: Types.ObjectId[];
 };
 
 export type UserModelType = UserType & Document;
 
 const UserSchema: Schema = new Schema(
     {
-        first_name: { type: String, required: true },
-        last_name: { type: String, required: true },
+        firstName: { type: String, required: true },
+        lastName: { type: String, required: true },
         username: { type: String, required: true },
         userpic: {
             data: {
@@ -53,8 +53,8 @@ const UserSchema: Schema = new Schema(
             immutable: true,
             default: () => Date.now(),
         },
-        last_seen: { type: Date, required: true, default: () => Date.now() },
-        pending_friend_requests: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+        lastSeen: { type: Date, required: true, default: () => Date.now() },
+        pendingFriendRequests: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     },
     { versionKey: false }
 );

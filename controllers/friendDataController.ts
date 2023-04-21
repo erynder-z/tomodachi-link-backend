@@ -34,11 +34,11 @@ const getFriendData = async (
             {
                 $project: {
                     _id: 1,
-                    first_name: 1,
-                    last_name: 1,
+                    firstName: 1,
+                    lastName: 1,
                     email: 1,
                     joined: 1,
-                    last_seen: 1,
+                    lastSeen: 1,
                     userpic: 1,
                 },
             },
