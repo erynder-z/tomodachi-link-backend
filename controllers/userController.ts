@@ -76,9 +76,15 @@ const getOtherUserData = async (
         const isFriendRequestPending =
             user.pending_friend_requests.includes(reqUserId);
 
-        const friends = isFriend ? await getFriendData(user) : [];
+        let friends: FriendType[] = [];
+        let mutual_friends = 0;
 
-        const userObj = formatUserData(user, isFriend, friends);
+        if (isFriend) {
+            friends = await getFriendData(user);
+            mutual_friends = await getMutualFriends(user._id, reqUser._id);
+        }
+
+        const userObj = formatUserData(user, isFriend, friends, mutual_friends);
 
         return res.json({
             user: userObj,
@@ -111,10 +117,28 @@ const getFriendData = async (user: UserModelType) => {
     return friendObjects;
 };
 
+const getMutualFriends = async (userId: string, otherUserId: string) => {
+    const user = await User.findById(userId);
+    const otherUser = await User.findById(otherUserId);
+
+    if (!user || !otherUser) {
+        return 0;
+    }
+
+    const userFriends = user.friends.map((friend) => friend.toString());
+    const otherUserFriends = otherUser.friends.map((friend) =>
+        friend.toString()
+    );
+
+    return userFriends.filter((friend) => otherUserFriends.includes(friend))
+        .length;
+};
+
 const formatUserData = (
     user: UserModelType,
     isFriend: boolean,
-    friends: FriendType[]
+    friends: FriendType[],
+    mutual_friends: number
 ) => {
     const { _id, first_name, last_name, username, userpic, joined, last_seen } =
         user;
@@ -125,7 +149,7 @@ const formatUserData = (
         last_name,
         username,
         userpic,
-        ...(isFriend && { joined, last_seen, friends }),
+        ...(isFriend && { joined, last_seen, friends, mutual_friends }),
     };
 
     return userObj;
