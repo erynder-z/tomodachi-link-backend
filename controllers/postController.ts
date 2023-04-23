@@ -54,10 +54,13 @@ const getPostDetails = async (
     try {
         const id = req.params.id;
         const retrievedPost = await Post.findById(id)
-            .populate('owner', 'username userpic')
+            .populate('owner', 'firstName lastName userpic')
             .populate({
                 path: 'comments',
-                populate: { path: 'owner', select: 'username userpic' },
+                populate: {
+                    path: 'owner',
+                    select: 'firstName lastName userpic',
+                },
             })
             .exec();
         res.status(200).json({ retrievedPost });
