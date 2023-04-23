@@ -3,6 +3,7 @@ import { body, validationResult } from 'express-validator';
 import Post, { PostType } from '../models/post';
 import User from '../models/user';
 import { JwtUser } from '../types/jwtUser';
+import mongoose from 'mongoose';
 /* 
 const getUserPosts = async (
     req: Request,
@@ -25,7 +26,24 @@ const getUserPosts = async (
     }
 }; */
 
-const getUserPosts = async (
+const getOwnPosts = async (req: Request, res: Response, next: NextFunction) => {
+    const skip = parseInt(req.query.skip as string, 10) || 0;
+
+    try {
+        const reqUser = req.user as JwtUser;
+        const userPosts = await Post.find({ owner: reqUser })
+            .select('_id')
+            .sort({ timestamp: -1 })
+            .skip(skip)
+            .limit(10)
+            .exec();
+        res.status(200).json({ userPosts });
+    } catch (err) {
+        return next(err);
+    }
+};
+
+const getOtherPosts = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -33,8 +51,9 @@ const getUserPosts = async (
     const skip = parseInt(req.query.skip as string, 10) || 0;
 
     try {
-        const reqUser = req.user as JwtUser;
-        const userPosts = await Post.find({ owner: reqUser })
+        const id = req.params.id;
+        const ownerId = new mongoose.Types.ObjectId(id);
+        const userPosts = await Post.find({ owner: ownerId })
             .select('_id')
             .sort({ timestamp: -1 })
             .skip(skip)
@@ -215,7 +234,8 @@ const negativeReaction = async (
 };
 
 export {
-    getUserPosts,
+    getOwnPosts,
+    getOtherPosts,
     getPostDetails,
     addNewPost,
     positiveReaction,

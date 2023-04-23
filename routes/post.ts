@@ -7,7 +7,13 @@ export const postRoute = Router();
 postRoute.get(
     '/post',
     passport.authenticate('jwt', { session: false }),
-    postController.getUserPosts
+    postController.getOwnPosts
+);
+
+postRoute.get(
+    '/users/:id/post',
+    passport.authenticate('jwt', { session: false }),
+    postController.getOtherPosts
 );
 
 postRoute.post(
