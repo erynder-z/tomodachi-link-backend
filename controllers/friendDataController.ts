@@ -21,13 +21,11 @@ const getFriendData = async (
             });
         }
 
-        const friends = currentUser.friends.map((friend) => friend);
-
         const friendDataList = await User.aggregate([
             {
                 $match: {
                     _id: {
-                        $in: friends,
+                        $in: currentUser.friends,
                     },
                 },
             },
