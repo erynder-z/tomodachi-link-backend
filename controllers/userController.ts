@@ -60,16 +60,19 @@ const getOtherUserData = async (
     res: Response,
     next: NextFunction
 ) => {
-    const reqUser = req.user as JwtUser;
-    const id = req.params.id;
-
     try {
-        const user = await User.findById(id);
+        const user = await User.findById(req.params.id);
         if (!user) {
             return res.status(404).json({
-                message: 'Something went wrong retrieving user data!',
+                errors: [
+                    {
+                        message: 'Something went wrong retrieving user data!',
+                    },
+                ],
             });
         }
+
+        const reqUser = req.user as JwtUser;
 
         const reqUserId = new mongoose.Types.ObjectId(reqUser._id);
         const isFriend = user.friends.includes(reqUserId);
@@ -80,13 +83,18 @@ const getOtherUserData = async (
         let mutual_friends = 0;
 
         if (isFriend) {
-            friends = await getFriendData(user);
-            mutual_friends = await getMutualFriends(user._id, reqUser._id);
+            const [friendObjects, mutualFriends] = await Promise.all([
+                getFriendData(user),
+                getMutualFriends(user._id, reqUser._id),
+            ]);
+
+            friends = friendObjects;
+            mutual_friends = mutualFriends;
         }
 
         const userObj = formatUserData(user, isFriend, friends, mutual_friends);
 
-        return res.json({
+        res.json({
             user: userObj,
             isFriend,
             isFriendRequestPending,
