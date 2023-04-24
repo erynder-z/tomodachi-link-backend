@@ -136,40 +136,23 @@ const positiveReaction = async (
         const reqUser = req.user as JwtUser;
         const postId = req.params.id;
 
-        const post = await Post.findById(postId);
-        if (!post) {
-            return res.status(404).json({
-                title: 'Post not found!',
-            });
-        }
-
-        const reactedUsers = post.reactions.reacted_users;
-        const isAlreadyReacted = reactedUsers.some(
-            (userId) => userId.toString() === reqUser._id.toString()
-        );
-        if (isAlreadyReacted) {
-            return res.status(400).json({
-                errors: [{ msg: 'User already reacted to this post!' }],
-            });
-        }
-
-        const updatedPost = await Post.updateOne(
+        const updatedPost = await Post.findOneAndUpdate(
             {
                 _id: postId,
-                $or: [
-                    { 'reactions.reacted_users': [] },
-                    {
-                        'reactions.reacted_users': {
-                            $not: { $in: [reqUser._id] },
-                        },
-                    },
-                ],
+                'reactions.reacted_users': { $ne: reqUser._id },
             },
             {
                 $inc: { 'reactions.positive': 1 },
-                $addToSet: { 'reactions.reacted_users': reqUser._id },
-            }
+                $push: { 'reactions.reacted_users': reqUser._id },
+            },
+            { new: true, lean: true }
         );
+
+        if (!updatedPost) {
+            return res.status(409).json({
+                errors: [{ msg: 'User already reacted to this post!' }],
+            });
+        }
 
         res.status(200).json({
             title: 'Reacted successfully!',
@@ -189,40 +172,23 @@ const negativeReaction = async (
         const reqUser = req.user as JwtUser;
         const postId = req.params.id;
 
-        const post = await Post.findById(postId);
-        if (!post) {
-            return res.status(404).json({
-                title: 'Post not found!',
-            });
-        }
-
-        const reactedUsers = post.reactions.reacted_users;
-        const isAlreadyReacted = reactedUsers.some(
-            (userId) => userId.toString() === reqUser._id.toString()
-        );
-        if (isAlreadyReacted) {
-            return res.status(400).json({
-                errors: [{ msg: 'User already reacted to this post!' }],
-            });
-        }
-
-        const updatedPost = await Post.updateOne(
+        const updatedPost = await Post.findOneAndUpdate(
             {
                 _id: postId,
-                $or: [
-                    { 'reactions.reacted_users': [] },
-                    {
-                        'reactions.reacted_users': {
-                            $not: { $in: [reqUser._id] },
-                        },
-                    },
-                ],
+                'reactions.reacted_users': { $ne: reqUser._id },
             },
             {
                 $inc: { 'reactions.negative': 1 },
-                $addToSet: { 'reactions.reacted_users': reqUser._id },
-            }
+                $push: { 'reactions.reacted_users': reqUser._id },
+            },
+            { new: true, lean: true }
         );
+
+        if (!updatedPost) {
+            return res.status(409).json({
+                errors: [{ msg: 'User already reacted to this post!' }],
+            });
+        }
 
         res.status(200).json({
             title: 'Reacted successfully!',
