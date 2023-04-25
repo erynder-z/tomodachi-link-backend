@@ -370,10 +370,77 @@ const declineFriendRequestForUsers = async (
     await Promise.all([currentUser.save(), requestUser.save()]);
 };
 
+const unfriendUser = [
+    body('currentUserId', 'User id missing.').notEmpty().escape(),
+    body('requestUserId', 'User id missing.').notEmpty().escape(),
+
+    async (req: Request, res: Response, next: NextFunction) => {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: 'Failed to unfriend!',
+                errors: errors.array(),
+            });
+        }
+
+        const { currentUserId, requestUserId } = req.body;
+
+        try {
+            const [currentUser, requestUser] = await Promise.all([
+                getUserById(currentUserId),
+                getUserById(requestUserId),
+            ]);
+
+            if (!canUnfriend(currentUser, requestUser)) {
+                return res.status(406).json({
+                    errors: [
+                        {
+                            message: 'You are not friends!',
+                        },
+                    ],
+                });
+            }
+
+            await removeUserFromFriends(currentUser, requestUser);
+
+            return res.status(200).json({
+                title: 'You are no longer friends!',
+            });
+        } catch (err) {
+            return next(err);
+        }
+    },
+];
+
+const canUnfriend = (
+    currentUser: UserModelType,
+    requestUser: UserModelType
+) => {
+    return (
+        currentUser?.friends.includes(requestUser._id) &&
+        requestUser?.friends.includes(currentUser._id)
+    );
+};
+
+const removeUserFromFriends = async (
+    currentUser: UserModelType,
+    requestUser: UserModelType
+) => {
+    currentUser.friends = currentUser.friends.filter(
+        (userId) => userId.toString() !== requestUser._id.toString()
+    );
+    requestUser.friends = requestUser.friends.filter(
+        (userId) => userId.toString() !== currentUser._id.toString()
+    );
+    await Promise.all([currentUser.save(), requestUser.save()]);
+};
+
 export {
     getSomeUsers,
     getOtherUserData,
     sendFriendRequest,
     acceptFriendRequest,
     declineFriendRequest,
+    unfriendUser,
 };
