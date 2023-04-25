@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import passport from 'passport';
 import { validationResult } from 'express-validator';
-
 import { validateFirstName } from './validators/signupValidators/validateFirstName';
 import { validateLastName } from './validators/signupValidators/validateLastName';
 import { validateEmail } from './validators/signupValidators/validateEmail';

@@ -100,7 +100,7 @@ const updateUserPassword = [
         const errors = validationResult(req);
 
         const reqUser = new User({
-            password: req.body.new_password,
+            password: req.body.newPassword,
         });
 
         if (!errors.isEmpty()) {

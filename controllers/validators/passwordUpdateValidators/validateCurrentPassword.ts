@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import User from '../../../models/user';
 
 export const validateCurrentPassword = () => {
-    return body('current_password', 'Enter your current password!')
+    return body('currentPassword', 'Enter your current password!')
         .trim()
         .isLength({ min: 1 })
         .custom(async (password: string, { req }) => {
