@@ -2,8 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import User, { UserModelType } from '../models/user';
 import { JwtUser } from '../types/jwtUser';
 import mongoose from 'mongoose';
-import { body, validationResult } from 'express-validator';
+import { validationResult } from 'express-validator';
 import { FriendType } from '../types/friendType';
+import { validateFriendRequest } from './validators/requestValidators/validateFriendRequest';
 
 const getSomeUsers = async (
     req: Request,
@@ -171,20 +172,13 @@ const formatUserData = (
 };
 
 const sendFriendRequest = [
-    body('currentUserId', 'User id missing.')
-        .trim()
-        .isLength({ min: 1 })
-        .escape(),
-    body('requestUserId', 'User id missing.')
-        .trim()
-        .isLength({ min: 1 })
-        .escape(),
+    validateFriendRequest(),
 
     async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
 
         const currentUserID = req.body.currentUserId;
-        const requestUserID = req.body.requestUserId;
+        const otherUserID = req.body.otherUserId;
 
         if (!errors.isEmpty()) {
             res.status(400).json({
@@ -198,7 +192,7 @@ const sendFriendRequest = [
         try {
             const updatedUser = await User.findOneAndUpdate(
                 {
-                    _id: requestUserID,
+                    _id: otherUserID,
                     pendingFriendRequests: { $ne: currentUserID },
                 },
                 { $push: { pendingFriendRequests: currentUserID } },
@@ -224,29 +218,58 @@ const sendFriendRequest = [
     },
 ];
 
+const canHandleFriendRequest = (
+    currentUser: UserModelType,
+    otherUser: UserModelType
+) => {
+    return (
+        currentUser?.pendingFriendRequests.includes(otherUser._id) &&
+        !otherUser?.friends.includes(currentUser._id)
+    );
+};
+
+const handleFriendRequestForUsers = async (
+    currentUser: UserModelType,
+    otherUser: UserModelType,
+    typeOfRequest: 'accept' | 'decline'
+) => {
+    if (typeOfRequest === 'accept') {
+        currentUser.friends.push(otherUser._id);
+        otherUser.friends.push(currentUser._id);
+    }
+
+    currentUser.pendingFriendRequests =
+        currentUser.pendingFriendRequests.filter(
+            (userId) => userId.toString() !== otherUser._id.toString()
+        );
+    otherUser.pendingFriendRequests = otherUser.pendingFriendRequests.filter(
+        (userId) => userId.toString() !== currentUser._id.toString()
+    );
+    await Promise.all([currentUser.save(), otherUser.save()]);
+};
+
 const acceptFriendRequest = [
-    body('currentUserId', 'User id missing.').notEmpty().escape(),
-    body('requestUserId', 'User id missing.').notEmpty().escape(),
+    validateFriendRequest(),
 
     async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
             return res.status(400).json({
-                message: 'Failed accept friend request!',
+                message: 'Failed to accept friend request!',
                 errors: errors.array(),
             });
         }
 
-        const { currentUserId, requestUserId } = req.body;
+        const { currentUserId, otherUserId } = req.body;
 
         try {
-            const [currentUser, requestUser] = await Promise.all([
+            const [currentUser, otherUser] = await Promise.all([
                 getUserById(currentUserId),
-                getUserById(requestUserId),
+                getUserById(otherUserId),
             ]);
 
-            if (!canAcceptFriendRequest(currentUser, requestUser)) {
+            if (!canHandleFriendRequest(currentUser, otherUser)) {
                 return res.status(406).json({
                     errors: [
                         {
@@ -256,7 +279,7 @@ const acceptFriendRequest = [
                 });
             }
 
-            await acceptFriendRequestForUsers(currentUser, requestUser);
+            await handleFriendRequestForUsers(currentUser, otherUser, 'accept');
 
             return res.status(200).json({
                 title: 'Friend request accepted!',
@@ -275,36 +298,8 @@ const getUserById = async (id: string) => {
     return user;
 };
 
-const canAcceptFriendRequest = (
-    currentUser: UserModelType,
-    requestUser: UserModelType
-) => {
-    return (
-        currentUser?.pendingFriendRequests.includes(requestUser._id) &&
-        !requestUser?.friends.includes(currentUser._id)
-    );
-};
-
-const acceptFriendRequestForUsers = async (
-    currentUser: UserModelType,
-    requestUser: UserModelType
-) => {
-    currentUser.friends.push(requestUser._id);
-    requestUser.friends.push(currentUser._id);
-    currentUser.pendingFriendRequests =
-        currentUser.pendingFriendRequests.filter(
-            (userId) => userId.toString() !== requestUser._id.toString()
-        );
-    requestUser.pendingFriendRequests =
-        requestUser.pendingFriendRequests.filter(
-            (userId) => userId.toString() !== currentUser._id.toString()
-        );
-    await Promise.all([currentUser.save(), requestUser.save()]);
-};
-
 const declineFriendRequest = [
-    body('currentUserId', 'User id missing.').notEmpty().escape(),
-    body('requestUserId', 'User id missing.').notEmpty().escape(),
+    validateFriendRequest(),
 
     async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
@@ -316,15 +311,15 @@ const declineFriendRequest = [
             });
         }
 
-        const { currentUserId, requestUserId } = req.body;
+        const { currentUserId, otherUserId } = req.body;
 
         try {
-            const [currentUser, requestUser] = await Promise.all([
+            const [currentUser, otherUser] = await Promise.all([
                 getUserById(currentUserId),
-                getUserById(requestUserId),
+                getUserById(otherUserId),
             ]);
 
-            if (!canDeclineFriendRequest(currentUser, requestUser)) {
+            if (!canHandleFriendRequest(currentUser, otherUser)) {
                 return res.status(406).json({
                     errors: [
                         {
@@ -334,7 +329,11 @@ const declineFriendRequest = [
                 });
             }
 
-            await declineFriendRequestForUsers(currentUser, requestUser);
+            await handleFriendRequestForUsers(
+                currentUser,
+                otherUser,
+                'decline'
+            );
 
             return res.status(200).json({
                 title: 'Friend request declined!',
@@ -345,34 +344,8 @@ const declineFriendRequest = [
     },
 ];
 
-const canDeclineFriendRequest = (
-    currentUser: UserModelType,
-    requestUser: UserModelType
-) => {
-    return (
-        currentUser?.pendingFriendRequests.includes(requestUser._id) &&
-        !requestUser?.friends.includes(currentUser._id)
-    );
-};
-
-const declineFriendRequestForUsers = async (
-    currentUser: UserModelType,
-    requestUser: UserModelType
-) => {
-    currentUser.pendingFriendRequests =
-        currentUser.pendingFriendRequests.filter(
-            (userId) => userId.toString() !== requestUser._id.toString()
-        );
-    requestUser.pendingFriendRequests =
-        requestUser.pendingFriendRequests.filter(
-            (userId) => userId.toString() !== currentUser._id.toString()
-        );
-    await Promise.all([currentUser.save(), requestUser.save()]);
-};
-
 const unfriendUser = [
-    body('currentUserId', 'User id missing.').notEmpty().escape(),
-    body('requestUserId', 'User id missing.').notEmpty().escape(),
+    validateFriendRequest(),
 
     async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
@@ -384,15 +357,15 @@ const unfriendUser = [
             });
         }
 
-        const { currentUserId, requestUserId } = req.body;
+        const { currentUserId, otherUserId } = req.body;
 
         try {
-            const [currentUser, requestUser] = await Promise.all([
+            const [currentUser, otherUser] = await Promise.all([
                 getUserById(currentUserId),
-                getUserById(requestUserId),
+                getUserById(otherUserId),
             ]);
 
-            if (!canUnfriend(currentUser, requestUser)) {
+            if (!canUnfriend(currentUser, otherUser)) {
                 return res.status(406).json({
                     errors: [
                         {
@@ -402,7 +375,7 @@ const unfriendUser = [
                 });
             }
 
-            await removeUserFromFriends(currentUser, requestUser);
+            await removeUserFromFriends(currentUser, otherUser);
 
             return res.status(200).json({
                 title: 'You are no longer friends!',
@@ -413,27 +386,24 @@ const unfriendUser = [
     },
 ];
 
-const canUnfriend = (
-    currentUser: UserModelType,
-    requestUser: UserModelType
-) => {
+const canUnfriend = (currentUser: UserModelType, otherUser: UserModelType) => {
     return (
-        currentUser?.friends.includes(requestUser._id) &&
-        requestUser?.friends.includes(currentUser._id)
+        currentUser?.friends.includes(otherUser._id) &&
+        otherUser?.friends.includes(currentUser._id)
     );
 };
 
 const removeUserFromFriends = async (
     currentUser: UserModelType,
-    requestUser: UserModelType
+    otherUser: UserModelType
 ) => {
     currentUser.friends = currentUser.friends.filter(
-        (userId) => userId.toString() !== requestUser._id.toString()
+        (userId) => userId.toString() !== otherUser._id.toString()
     );
-    requestUser.friends = requestUser.friends.filter(
+    otherUser.friends = otherUser.friends.filter(
         (userId) => userId.toString() !== currentUser._id.toString()
     );
-    await Promise.all([currentUser.save(), requestUser.save()]);
+    await Promise.all([currentUser.save(), otherUser.save()]);
 };
 
 export {
