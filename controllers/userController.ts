@@ -62,21 +62,16 @@ const getOtherUserData = async (
     next: NextFunction
 ) => {
     try {
-        const otherUser = await User.findById(req.params.id);
-        if (!otherUser) {
-            return res.status(404).json({
-                errors: [
-                    {
-                        message: 'Something went wrong retrieving user data!',
-                    },
-                ],
-            });
-        }
-
+        const otherUserPromise = User.findById(req.params.id);
         const jwtUser = req.user as JwtUser;
-        const currentUser = await User.findById(jwtUser._id);
+        const currentUserPromise = User.findById(jwtUser._id);
 
-        if (!currentUser) {
+        const [otherUser, currentUser] = await Promise.all([
+            otherUserPromise,
+            currentUserPromise,
+        ]);
+
+        if (!otherUser || !currentUser) {
             return res.status(404).json({
                 errors: [
                     {
