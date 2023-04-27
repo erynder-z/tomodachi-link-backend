@@ -11,10 +11,10 @@ const getSomeUsers = async (
     res: Response,
     next: NextFunction
 ) => {
-    const reqUser = req.user as JwtUser;
+    const jwtUser = req.user as JwtUser;
 
     try {
-        const currentUser = await User.findById(reqUser._id);
+        const currentUser = await User.findById(jwtUser._id);
         if (!currentUser) {
             return res.status(404).json({
                 errors: [
