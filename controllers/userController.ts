@@ -62,8 +62,8 @@ const getOtherUserData = async (
     next: NextFunction
 ) => {
     try {
-        const user = await User.findById(req.params.id);
-        if (!user) {
+        const otherUser = await User.findById(req.params.id);
+        if (!otherUser) {
             return res.status(404).json({
                 errors: [
                     {
@@ -73,32 +73,53 @@ const getOtherUserData = async (
             });
         }
 
-        const reqUser = req.user as JwtUser;
+        const jwtUser = req.user as JwtUser;
+        const currentUser = await User.findById(jwtUser._id);
 
-        const reqUserId = new mongoose.Types.ObjectId(reqUser._id);
-        const isFriend = user.friends.includes(reqUserId);
-        const isFriendRequestPending =
-            user.pendingFriendRequests.includes(reqUserId);
+        if (!currentUser) {
+            return res.status(404).json({
+                errors: [
+                    {
+                        message: 'Something went wrong retrieving user data!',
+                    },
+                ],
+            });
+        }
+
+        const otherUserId = new mongoose.Types.ObjectId(otherUser._id);
+        const currentUserId = currentUser._id;
+
+        const isFriend = otherUser.friends.includes(otherUserId);
+        const isIncomingFriendRequestPending =
+            currentUser.pendingFriendRequests.includes(otherUserId);
+        const isOutgoingFriendRequestPending =
+            otherUser.pendingFriendRequests.includes(currentUserId);
 
         let friends: FriendType[] = [];
         let mutual_friends = 0;
 
         if (isFriend) {
             const [friendObjects, mutualFriends] = await Promise.all([
-                getFriendData(user),
-                getMutualFriends(user._id, reqUser._id),
+                getFriendData(otherUser),
+                getMutualFriends(otherUser._id, currentUser._id),
             ]);
 
             friends = friendObjects;
             mutual_friends = mutualFriends;
         }
 
-        const userObj = formatUserData(user, isFriend, friends, mutual_friends);
+        const userObj = formatUserData(
+            otherUser,
+            isFriend,
+            friends,
+            mutual_friends
+        );
 
         res.json({
             user: userObj,
             isFriend,
-            isFriendRequestPending,
+            isIncomingFriendRequestPending,
+            isOutgoingFriendRequestPending,
         });
     } catch (err) {
         next(err);
