@@ -4,7 +4,8 @@ import { JwtUser } from '../types/jwtUser';
 import mongoose from 'mongoose';
 import { validationResult } from 'express-validator';
 import { FriendType } from '../types/friendType';
-import { validateFriendRequest } from './validators/requestValidators/validateFriendRequest';
+import { validateCurrentUserId } from './validators/requestValidators/validateCurrentUserId';
+import { validateOtherUserId } from './validators/requestValidators/validateOhterUserId';
 
 const getSomeUsers = async (
     req: Request,
@@ -188,7 +189,8 @@ const formatUserData = (
 };
 
 const sendFriendRequest = [
-    validateFriendRequest(),
+    validateCurrentUserId(),
+    validateOtherUserId(),
 
     async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
@@ -265,7 +267,8 @@ const handleFriendRequestForUsers = async (
 };
 
 const acceptFriendRequest = [
-    validateFriendRequest(),
+    validateCurrentUserId(),
+    validateOtherUserId(),
 
     async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
@@ -315,7 +318,8 @@ const getUserById = async (id: string) => {
 };
 
 const declineFriendRequest = [
-    validateFriendRequest(),
+    validateCurrentUserId(),
+    validateOtherUserId(),
 
     async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
@@ -361,7 +365,8 @@ const declineFriendRequest = [
 ];
 
 const unfriendUser = [
-    validateFriendRequest(),
+    validateCurrentUserId(),
+    validateOtherUserId(),
 
     async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
