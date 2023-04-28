@@ -85,7 +85,7 @@ const getOtherUserData = async (
         const otherUserId = new mongoose.Types.ObjectId(otherUser._id);
         const currentUserId = currentUser._id;
 
-        const isFriend = otherUser.friends.includes(otherUserId);
+        const isFriend = otherUser.friends.includes(currentUserId);
         const isIncomingFriendRequestPending =
             currentUser.pendingFriendRequests.includes(otherUserId);
         const isOutgoingFriendRequestPending =
