@@ -4,5 +4,5 @@ export type FriendType = {
     lastName: string;
     username: string;
     userpic: { data: Buffer; contentType: string };
-    mutual_friends: number;
+    mutualFriends: number;
 };

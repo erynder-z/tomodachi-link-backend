@@ -92,23 +92,23 @@ const getOtherUserData = async (
             otherUser.pendingFriendRequests.includes(currentUserId);
 
         let friends: FriendType[] = [];
-        let mutual_friends = 0;
+        let mutualFriends = 0;
 
         if (isFriend) {
-            const [friendObjects, mutualFriends] = await Promise.all([
+            const [friendObjects, sameFriends] = await Promise.all([
                 getFriendData(otherUser),
                 getMutualFriends(otherUser._id, currentUser._id),
             ]);
 
             friends = friendObjects;
-            mutual_friends = mutualFriends;
+            mutualFriends = sameFriends;
         }
 
         const userObj = formatUserData(
             otherUser,
             isFriend,
             friends,
-            mutual_friends
+            mutualFriends
         );
 
         res.json({
@@ -164,7 +164,7 @@ const formatUserData = (
     user: UserModelType,
     isFriend: boolean,
     friends: FriendType[],
-    mutual_friends: number
+    mutualFriends: number
 ) => {
     const {
         _id,
@@ -182,7 +182,7 @@ const formatUserData = (
         lastName,
         username,
         userpic,
-        ...(isFriend && { joined, lastSeen, friends, mutual_friends }),
+        ...(isFriend && { joined, lastSeen, friends, mutualFriends }),
     };
 
     return userObj;
