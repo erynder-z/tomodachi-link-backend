@@ -10,6 +10,7 @@ import { validateCurrentPassword } from './validators/passwordUpdateValidators/v
 import { validateNewPassword } from './validators/passwordUpdateValidators/validateNewPassword';
 import { validateConfirmNewPassword } from './validators/passwordUpdateValidators/validateConfirmNewPassword';
 import { JwtUser } from '../types/jwtUser';
+import { validateCoverImageName } from './validators/coverImageValidators/validateCoverImageName';
 
 const getUserData = async (req: Request, res: Response, next: NextFunction) => {
     if (req.user) {
@@ -135,4 +136,45 @@ const updateUserPassword = [
     },
 ];
 
-export { getUserData, updateUserData, updateUserPassword };
+const updateCover = [
+    validateCoverImageName(),
+
+    async (req: Request, res: Response, next: NextFunction) => {
+        const errors = validationResult(req);
+
+        const reqUser = new User({
+            cover: req.body.coverImageName,
+        });
+
+        if (!errors.isEmpty()) {
+            res.status(400).json({
+                message: 'Failed to update cover!',
+                errors: errors.array(),
+                reqUser,
+            });
+
+            return;
+        }
+
+        if (req.user) {
+            const user = req.user as UserModelType;
+            const id = user._id;
+            try {
+                const updateData: any = {
+                    cover: req.body.coverImageName,
+                };
+
+                const updatedUser = await User.findByIdAndUpdate(
+                    id,
+                    updateData,
+                    { new: true }
+                );
+                res.status(200).json(updatedUser);
+            } catch (err) {
+                return next(err);
+            }
+        }
+    },
+];
+
+export { getUserData, updateUserData, updateUserPassword, updateCover };

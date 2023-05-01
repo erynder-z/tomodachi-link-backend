@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import path from 'path';
 import fs from 'fs';
+import { CoverType } from '../types/coverType';
 
 export type UserType = {
     _id: string;
@@ -11,6 +12,7 @@ export type UserType = {
         data: Buffer;
         contentType: string;
     };
+    cover: CoverType;
     email: string;
     password: string;
     friends: Types.ObjectId[];
@@ -42,6 +44,7 @@ const UserSchema: Schema = new Schema(
             },
             contentType: String,
         },
+        cover: { type: String },
         email: { type: String, required: true },
         password: { type: String, required: true },
         friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],

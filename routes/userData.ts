@@ -22,6 +22,12 @@ userDataRoute.put(
 );
 
 userDataRoute.patch(
+    '/userdata/cover',
+    passport.authenticate('jwt', { session: false }),
+    userDataController.updateCover
+);
+
+userDataRoute.patch(
     '/password',
     passport.authenticate('jwt', { session: false }),
     userDataController.updateUserPassword
