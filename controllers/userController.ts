@@ -136,6 +136,7 @@ const getFriendData = async (user: UserModelType) => {
                 lastName: 1,
                 username: 1,
                 userpic: 1,
+                cover: 1,
             },
         },
     ]);
@@ -172,6 +173,7 @@ const formatUserData = (
         lastName: lastName,
         username,
         userpic,
+        cover,
         joined,
         lastSeen: lastSeen,
     } = user;
@@ -182,6 +184,7 @@ const formatUserData = (
         lastName,
         username,
         userpic,
+        cover,
         ...(isFriend && { joined, lastSeen, friends, mutualFriends }),
     };
 
