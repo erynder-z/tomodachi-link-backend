@@ -2,6 +2,7 @@ import { body } from 'express-validator';
 import { CoverType } from '../../../types/coverType';
 
 const validCoverImageNames: CoverType[] = [
+    'none',
     'cover1',
     'cover2',
     'cover3',

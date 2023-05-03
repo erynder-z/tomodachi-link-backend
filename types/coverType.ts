@@ -1,4 +1,5 @@
 export type CoverType =
+    | 'none'
     | 'cover1'
     | 'cover2'
     | 'cover3'

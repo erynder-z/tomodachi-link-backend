@@ -44,7 +44,7 @@ const UserSchema: Schema = new Schema(
             },
             contentType: String,
         },
-        cover: { type: String },
+        cover: { type: String, required: true, default: 'none' },
         email: { type: String, required: true },
         password: { type: String, required: true },
         friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
