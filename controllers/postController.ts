@@ -1,30 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
-import { body, validationResult } from 'express-validator';
-import Post, { PostType } from '../models/post';
+import { body, check, validationResult } from 'express-validator';
+import Post from '../models/post';
 import User from '../models/user';
 import { JwtUser } from '../types/jwtUser';
 import mongoose from 'mongoose';
-/* 
-const getUserPosts = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    const skip = parseInt(req.query.skip as string, 10) || 0;
-
-    try {
-        const reqUser = req.user as JwtUser;
-        const userPosts = await Post.find({ owner: reqUser })
-            .populate('owner', 'username userpic')
-            .sort({ timestamp: -1 })
-            .skip(skip)
-            .limit(10)
-            .exec();
-        res.status(200).json({ userPosts });
-    } catch (err) {
-        return next(err);
-    }
-}; */
 
 const getOwnPosts = async (req: Request, res: Response, next: NextFunction) => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
@@ -93,14 +72,30 @@ const addNewPost = [
         .trim()
         .isLength({ min: 1 })
         .escape(),
+    check('image').custom((value, { req }) => {
+        if (!req.file.mimetype.startsWith('image/')) {
+            return Promise.reject('File is not an image!');
+        }
+        return true;
+    }),
 
     async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
+
+        let image;
+
+        if (req.file) {
+            image = {
+                data: req.file.buffer,
+                contentType: req.file.mimetype,
+            };
+        }
+
         const post = new Post({
             owner: req.user,
             timestamp: Date.now(),
             text: req.body.newPost,
-            // TODO: Image
+            image,
         });
 
         if (!errors.isEmpty()) {
