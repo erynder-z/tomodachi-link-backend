@@ -10,7 +10,7 @@ import { validateCurrentPassword } from './validators/passwordUpdateValidators/v
 import { validateNewPassword } from './validators/passwordUpdateValidators/validateNewPassword';
 import { validateConfirmNewPassword } from './validators/passwordUpdateValidators/validateConfirmNewPassword';
 import { JwtUser } from '../types/jwtUser';
-import { validateCoverImageName } from './validators/coverImageValidators/validateCoverImageName';
+import { validateCoverImageName } from './validators/imageValidators/validateCoverImageName';
 
 const getUserData = async (req: Request, res: Response, next: NextFunction) => {
     if (req.user) {
