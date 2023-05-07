@@ -67,51 +67,62 @@ const getPostDetails = async (
     }
 };
 
+const createPost = async (
+    owner: JwtUser,
+    text: string,
+    image:
+        | {
+              data: any;
+              contentType: any;
+          }
+        | undefined
+) => {
+    const post = new Post({
+        owner,
+        timestamp: Date.now(),
+        text,
+        image,
+    });
+    return await post.save();
+};
+
+const savePostToUser = async (user: JwtUser, postId: string) => {
+    const reqUser = user as JwtUser;
+    return await User.updateOne(
+        { _id: reqUser._id },
+        { $push: { posts: postId } }
+    );
+};
+
 const addNewPost = [
     body('newPost', 'Text must not be empty.')
         .trim()
         .isLength({ min: 1 })
         .escape(),
     check('image').custom((value, { req }) => {
-        if (!req.file.mimetype.startsWith('image/')) {
-            return Promise.reject('File is not an image!');
+        if (req.file && !req.file.mimetype.startsWith('image/')) {
+            throw new Error('File is not an image!');
         }
         return true;
     }),
-
     async (req: Request, res: Response, next: NextFunction) => {
-        const errors = validationResult(req);
-
-        let image;
-
-        if (req.file) {
-            image = {
-                data: req.file.buffer,
-                contentType: req.file.mimetype,
-            };
-        }
-
-        const post = new Post({
-            owner: req.user,
-            timestamp: Date.now(),
-            text: req.body.newPost,
-            image,
-        });
-
-        if (!errors.isEmpty()) {
-            return res.status(400).json({
-                errors: errors.array(),
-            });
-        }
-
         try {
-            const savedPost = await post.save();
-            const reqUser = req.user as JwtUser;
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    errors: errors.array(),
+                });
+            }
 
-            await User.updateOne(
-                { _id: reqUser._id },
-                { $push: { posts: savedPost._id } }
-            );
+            const reqUser = req.user as JwtUser;
+            const { newPost } = req.body;
+            const image = req.file
+                ? { data: req.file.buffer, contentType: req.file.mimetype }
+                : undefined;
+
+            const savedPost = await createPost(reqUser, newPost, image);
+            await savePostToUser(reqUser, savedPost._id);
+
             res.status(200).json({
                 title: 'Post created successfully!',
                 savedPost,
