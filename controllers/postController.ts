@@ -75,13 +75,15 @@ const createPost = async (
               data: any;
               contentType: any;
           }
-        | undefined
+        | undefined,
+    embeddedVideoID: string
 ) => {
     const post = new Post({
         owner,
         timestamp: Date.now(),
         text,
         image,
+        embeddedVideoID,
     });
     return await post.save();
 };
@@ -99,6 +101,10 @@ const addNewPost = [
         .trim()
         .isLength({ min: 1 })
         .escape(),
+    body('embeddedVideoID', 'Video ID must be a string')
+        .trim()
+        .optional()
+        .escape(),
     check('image').custom((value, { req }) => {
         if (req.file && !req.file.mimetype.startsWith('image/')) {
             return Promise.reject('Invalid file type!');
@@ -115,12 +121,17 @@ const addNewPost = [
             }
 
             const reqUser = req.user as JwtUser;
-            const { newPost } = req.body;
+            const { newPost, embeddedVideoID } = req.body;
             const image = req.file
                 ? { data: req.file.buffer, contentType: req.file.mimetype }
                 : undefined;
 
-            const savedPost = await createPost(reqUser, newPost, image);
+            const savedPost = await createPost(
+                reqUser,
+                newPost,
+                image,
+                embeddedVideoID
+            );
             await savePostToUser(reqUser, savedPost._id);
 
             res.status(200).json({
