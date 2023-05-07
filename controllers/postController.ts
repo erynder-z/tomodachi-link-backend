@@ -101,7 +101,7 @@ const addNewPost = [
         .escape(),
     check('image').custom((value, { req }) => {
         if (req.file && !req.file.mimetype.startsWith('image/')) {
-            throw new Error('File is not an image!');
+            return Promise.reject('Invalid file type!');
         }
         return true;
     }),
