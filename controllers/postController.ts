@@ -1,10 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
-import { body, check, validationResult } from 'express-validator';
+import { validationResult } from 'express-validator';
 import Post from '../models/post';
 import User from '../models/user';
 import { JwtUser } from '../types/jwtUser';
 import mongoose from 'mongoose';
-import { validateGifUrl } from './validators/urlVallidator/validateGifUrl';
+import { validateGifUrl } from './validators/postValidators/validateGifUrl';
+import { validateText } from './validators/postValidators/validateText';
+import { validateEmbeddedVideoID } from './validators/postValidators/validateEmbeddedVideoID';
+import { validateImage } from './validators/imageValidators/validateImage';
 
 const getOwnPosts = async (req: Request, res: Response, next: NextFunction) => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
@@ -100,21 +103,10 @@ const savePostToUser = async (user: JwtUser, postId: string) => {
 };
 
 const addNewPost = [
-    body('newPost', 'Text must not be empty.')
-        .trim()
-        .isLength({ min: 1 })
-        .escape(),
-    body('embeddedVideoID', 'Video ID must be a string')
-        .trim()
-        .optional()
-        .escape(),
-    check('image').custom((value, { req }) => {
-        if (req.file && !req.file.mimetype.startsWith('image/')) {
-            return Promise.reject('Invalid file type!');
-        }
-        return true;
-    }),
+    validateText(),
+    validateEmbeddedVideoID(),
     validateGifUrl(),
+    validateImage(),
 
     async (req: Request, res: Response, next: NextFunction) => {
         try {

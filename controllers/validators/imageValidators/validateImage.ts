@@ -12,7 +12,7 @@ export const validateImage = () => {
                 };
                 return cleanFile;
             } else {
-                throw new Error('Invalid file type');
+                return Promise.reject('Invalid file type!');
             }
         }
         return true;
