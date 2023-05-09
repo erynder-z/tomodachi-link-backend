@@ -4,6 +4,7 @@ import Post from '../models/post';
 import User from '../models/user';
 import { JwtUser } from '../types/jwtUser';
 import mongoose from 'mongoose';
+import { validateGifUrl } from './validators/urlVallidator/validateGifUrl';
 
 const getOwnPosts = async (req: Request, res: Response, next: NextFunction) => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
@@ -76,7 +77,8 @@ const createPost = async (
               contentType: any;
           }
         | undefined,
-    embeddedVideoID: string
+    embeddedVideoID: string,
+    gifUrl: string
 ) => {
     const post = new Post({
         owner,
@@ -84,6 +86,7 @@ const createPost = async (
         text,
         image,
         embeddedVideoID,
+        gifUrl,
     });
     return await post.save();
 };
@@ -111,6 +114,8 @@ const addNewPost = [
         }
         return true;
     }),
+    validateGifUrl(),
+
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const errors = validationResult(req);
@@ -121,7 +126,7 @@ const addNewPost = [
             }
 
             const reqUser = req.user as JwtUser;
-            const { newPost, embeddedVideoID } = req.body;
+            const { newPost, embeddedVideoID, gifUrl } = req.body;
             const image = req.file
                 ? { data: req.file.buffer, contentType: req.file.mimetype }
                 : undefined;
@@ -130,7 +135,8 @@ const addNewPost = [
                 reqUser,
                 newPost,
                 image,
-                embeddedVideoID
+                embeddedVideoID,
+                gifUrl
             );
             await savePostToUser(reqUser, savedPost._id);
 

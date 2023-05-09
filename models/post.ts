@@ -9,6 +9,7 @@ export type PostType = {
         contentType: string;
     };
     embeddedVideoID: string;
+    gifUrl: string;
     comments: Types.ObjectId[];
     reactions: {
         positive: number;
@@ -34,6 +35,7 @@ const PostSchema: Schema = new Schema(
             contentType: String,
         },
         embeddedVideoID: { type: String },
+        gifUrl: { type: String },
         comments: {
             type: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
             default: [],
