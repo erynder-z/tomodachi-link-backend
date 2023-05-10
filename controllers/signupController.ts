@@ -7,7 +7,6 @@ import { validateEmail } from './validators/signupValidators/validateEmail';
 import { validateUsername } from './validators/signupValidators/validateUsername';
 import { validatePassword } from './validators/signupValidators/validatePassword';
 import { validateConfirmPassword } from './validators/signupValidators/validateConfirmPassword';
-import { validateImage } from './validators/signupValidators/validateImage';
 
 const validateSignup = [
     validateFirstName(),
@@ -16,7 +15,6 @@ const validateSignup = [
     validateUsername(),
     validatePassword(),
     validateConfirmPassword(),
-    validateImage(),
 ];
 
 const handleValidationErrors = (
