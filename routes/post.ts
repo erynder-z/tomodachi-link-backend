@@ -9,15 +9,9 @@ const upload = multer({ storage: storage, limits: { fileSize: 1000000 } }); // m
 export const postRoute = Router();
 
 postRoute.get(
-    '/post',
-    passport.authenticate('jwt', { session: false }),
-    postController.getOwnPosts
-);
-
-postRoute.get(
     '/users/:id/post',
     passport.authenticate('jwt', { session: false }),
-    postController.getOtherPosts
+    postController.getPosts
 );
 
 postRoute.post(
