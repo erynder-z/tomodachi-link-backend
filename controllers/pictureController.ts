@@ -2,6 +2,24 @@ import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Post from '../models/post';
 
+const countPostsContainingImage = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const id = req.params.id;
+        const ownerId = new mongoose.Types.ObjectId(id);
+        const count = await Post.countDocuments({
+            owner: ownerId,
+            image: { $exists: true },
+        }).exec();
+        res.status(200).json({ count });
+    } catch (err) {
+        return next(err);
+    }
+};
+
 const getRecentPictures = async (
     req: Request,
     res: Response,
@@ -25,4 +43,4 @@ const getRecentPictures = async (
     }
 };
 
-export { getRecentPictures };
+export { countPostsContainingImage, getRecentPictures };
