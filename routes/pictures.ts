@@ -13,5 +13,5 @@ pictureRoute.get(
 pictureRoute.get(
     '/users/:id/picture',
     passport.authenticate('jwt', { session: false }),
-    pictureController.getRecentPictures
+    pictureController.getPictureList
 );

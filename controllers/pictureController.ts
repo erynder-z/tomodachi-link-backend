@@ -20,22 +20,30 @@ const countPostsContainingImage = async (
     }
 };
 
-const getRecentPictures = async (
+const getPictureList = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
         const id = req.params.id;
+        const page = req.query.page
+            ? parseInt(req.query.page as string, 10)
+            : 1;
+        const itemsPerPage = 9;
         const ownerId = new mongoose.Types.ObjectId(id);
+        const skip = (page - 1) * itemsPerPage;
+
         const userPosts = await Post.find({
             owner: ownerId,
             image: { $exists: true },
         })
             .select('image')
             .sort({ timestamp: -1 })
-            .limit(9)
+            .skip(skip)
+            .limit(itemsPerPage)
             .exec();
+
         const images = userPosts.map((post) => post.image);
         res.status(200).json({ images });
     } catch (err) {
@@ -43,4 +51,4 @@ const getRecentPictures = async (
     }
 };
 
-export { countPostsContainingImage, getRecentPictures };
+export { countPostsContainingImage, getPictureList };
