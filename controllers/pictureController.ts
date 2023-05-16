@@ -25,14 +25,12 @@ const getPictureList = async (
     res: Response,
     next: NextFunction
 ) => {
+    const skip = parseInt(req.query.skip as string, 10) || 0;
+
     try {
         const id = req.params.id;
-        const page = req.query.page
-            ? parseInt(req.query.page as string, 10)
-            : 1;
         const itemsPerPage = 9;
         const ownerId = new mongoose.Types.ObjectId(id);
-        const skip = (page - 1) * itemsPerPage;
 
         const userPosts = await Post.find({
             owner: ownerId,
