@@ -18,6 +18,8 @@ const getUserData = async (req: Request, res: Response, next: NextFunction) => {
         const id = reqUser._id;
 
         try {
+            await User.findByIdAndUpdate(id, { lastSeen: new Date() });
+
             const user = await User.findOne({ _id: id }, { password: 0 });
             if (!user) {
                 return res
