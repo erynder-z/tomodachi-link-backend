@@ -21,6 +21,12 @@ postRoute.post(
     postController.addNewPost
 );
 
+postRoute.delete(
+    '/post/:id/delete',
+    passport.authenticate('jwt', { session: false }),
+    postController.deletePost
+);
+
 postRoute.patch(
     '/post/:id/positive',
     passport.authenticate('jwt', { session: false }),

@@ -121,6 +121,45 @@ const addNewPost = [
     },
 ];
 
+const deletePostFromUser = async (user: JwtUser, postId: string) => {
+    const reqUser = user as JwtUser;
+    return await User.updateOne(
+        { _id: reqUser._id },
+        { $pull: { posts: postId } }
+    );
+};
+
+const deletePost = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const reqUser = req.user as JwtUser;
+        const postID = req.body.postID;
+        console.log(postID);
+
+        let post;
+        try {
+            post = await Post.findByIdAndRemove(postID);
+        } catch (error) {
+            return res.status(500).json({
+                errors: [{ msg: 'Error deleting post.' }],
+            });
+        }
+
+        if (!post) {
+            return res.status(404).json({
+                errors: [{ msg: 'Post not found!' }],
+            });
+        }
+
+        await deletePostFromUser(reqUser, postID);
+
+        res.status(200).json({
+            title: 'Post deleted!',
+        });
+    } catch (error) {
+        return next(error);
+    }
+};
+
 const positiveReaction = async (
     req: Request,
     res: Response,
@@ -198,6 +237,7 @@ export {
     getPosts,
     getPostDetails,
     addNewPost,
+    deletePost,
     positiveReaction,
     negativeReaction,
 };
