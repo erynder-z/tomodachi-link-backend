@@ -28,6 +28,13 @@ postRoute.delete(
 );
 
 postRoute.patch(
+    '/post/:id/edit',
+    passport.authenticate('jwt', { session: false }),
+    upload.single('imagePicker'),
+    postController.editPost
+);
+
+postRoute.patch(
     '/post/:id/positive',
     passport.authenticate('jwt', { session: false }),
     postController.positiveReaction

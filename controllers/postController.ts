@@ -133,7 +133,6 @@ const deletePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const reqUser = req.user as JwtUser;
         const postID = req.body.postID;
-        console.log(postID);
 
         let post;
         try {
@@ -159,6 +158,87 @@ const deletePost = async (req: Request, res: Response, next: NextFunction) => {
         return next(error);
     }
 };
+
+const updatePost = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                errors: errors.array(),
+            });
+        }
+
+        const reqUser = req.user as JwtUser;
+        const postID = req.params.id;
+        const {
+            newPost,
+            embeddedVideoID,
+            gifUrl,
+            shouldImageBeDeleted,
+            shouldGifBeDeleted,
+            shouldVideoBeDeleted,
+        } = req.body;
+        const image = req.file
+            ? { data: req.file.buffer, contentType: req.file.mimetype }
+            : undefined;
+
+        const updateData: any = {
+            owner: reqUser._id,
+            text: newPost,
+        };
+
+        if (JSON.parse(shouldImageBeDeleted)) {
+            updateData.$unset = { image: '' };
+        } else {
+            updateData.image = image;
+        }
+
+        if (JSON.parse(shouldGifBeDeleted)) {
+            updateData.gifUrl = undefined;
+        } else {
+            updateData.gifUrl = gifUrl;
+        }
+
+        if (JSON.parse(shouldVideoBeDeleted)) {
+            updateData.embeddedVideoID = undefined;
+        } else {
+            updateData.embeddedVideoID = embeddedVideoID;
+        }
+
+        console.log(updateData);
+
+        try {
+            const updatedPost = await Post.findByIdAndUpdate(
+                postID,
+                updateData,
+                { new: true }
+            );
+
+            if (!updatedPost) {
+                return res.status(404).json({
+                    errors: [{ msg: 'Post not found!' }],
+                });
+            }
+
+            res.status(200).json({
+                title: 'Post updated successfully!',
+                updatedPost,
+            });
+        } catch (err) {
+            return next(err);
+        }
+    } catch (err) {
+        return next(err);
+    }
+};
+
+const editPost = [
+    validateText(),
+    validateEmbeddedVideoID(),
+    validateGifUrl(),
+    validateImage(),
+    updatePost,
+];
 
 const positiveReaction = async (
     req: Request,
@@ -238,6 +318,7 @@ export {
     getPostDetails,
     addNewPost,
     deletePost,
+    editPost,
     positiveReaction,
     negativeReaction,
 };
