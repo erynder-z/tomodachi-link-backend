@@ -51,7 +51,7 @@ const getPostDetails = async (
 };
 
 const createPost = async (
-    owner: JwtUser,
+    owner: string,
     text: string,
     image:
         | {
@@ -81,44 +81,48 @@ const savePostToUser = async (user: JwtUser, postId: string) => {
     );
 };
 
+const savePostInDatabase = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                errors: errors.array(),
+            });
+        }
+
+        const reqUser = req.user as JwtUser;
+        const { newPost, embeddedVideoID, gifUrl } = req.body;
+        const image = req.file
+            ? { data: req.file.buffer, contentType: req.file.mimetype }
+            : undefined;
+
+        const savedPost = await createPost(
+            reqUser._id,
+            newPost,
+            image,
+            embeddedVideoID,
+            gifUrl
+        );
+        await savePostToUser(reqUser, savedPost._id);
+
+        res.status(200).json({
+            title: 'Post created successfully!',
+            savedPost,
+        });
+    } catch (err) {
+        return next(err);
+    }
+};
 const addNewPost = [
     validateText(),
     validateEmbeddedVideoID(),
     validateGifUrl(),
     validateImage(),
-
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
-                return res.status(400).json({
-                    errors: errors.array(),
-                });
-            }
-
-            const reqUser = req.user as JwtUser;
-            const { newPost, embeddedVideoID, gifUrl } = req.body;
-            const image = req.file
-                ? { data: req.file.buffer, contentType: req.file.mimetype }
-                : undefined;
-
-            const savedPost = await createPost(
-                reqUser,
-                newPost,
-                image,
-                embeddedVideoID,
-                gifUrl
-            );
-            await savePostToUser(reqUser, savedPost._id);
-
-            res.status(200).json({
-                title: 'Post created successfully!',
-                savedPost,
-            });
-        } catch (err) {
-            return next(err);
-        }
-    },
+    savePostInDatabase,
 ];
 
 const deletePostFromUser = async (user: JwtUser, postId: string) => {
@@ -204,8 +208,6 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
         } else {
             updateData.embeddedVideoID = embeddedVideoID;
         }
-
-        console.log(updateData);
 
         try {
             const updatedPost = await Post.findByIdAndUpdate(
@@ -313,7 +315,6 @@ const negativeReaction = async (
 };
 
 export {
-    /*    getOwnPosts, */
     getPosts,
     getPostDetails,
     addNewPost,
