@@ -8,6 +8,7 @@ import { userRoute } from './user';
 import { friendDataRoute } from './friendData';
 import { getApiKeysRoute } from './apiKeys';
 import { pictureRoute } from './pictures';
+import { feedRoute } from './feed';
 
 export const routes = express.Router();
 
@@ -20,3 +21,4 @@ routes.use('/api/v1', commentRoute);
 routes.use('/api/v1', userRoute);
 routes.use('/api/v1', friendDataRoute);
 routes.use('/api/v1', getApiKeysRoute);
+routes.use('/api/v1', feedRoute);
