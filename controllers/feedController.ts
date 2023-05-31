@@ -9,13 +9,14 @@ const getPosts = async (
     try {
         const ownerId = new mongoose.Types.ObjectId(id);
         const userPosts = await Post.find({ owner: ownerId })
-            .select('_id timestamp')
+            .select('_id owner timestamp')
             .sort({ timestamp: -1 })
             .lean(); // Use the `lean()` method to retrieve plain JavaScript objects instead of Mongoose documents
 
-        const formattedPosts = userPosts.map((post: any) => ({
-            ...post,
+        const formattedPosts: any[] = userPosts.map((post: any) => ({
+            _id: post._id,
             timestamp: new Date(post.timestamp), // Cast the timestamp property to a Date type
+            owner: { _id: post.owner._id },
         }));
 
         return { userPosts: formattedPosts };
