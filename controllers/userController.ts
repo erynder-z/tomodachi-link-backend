@@ -111,7 +111,7 @@ const getOtherUserData = async (
             mutualFriends
         );
 
-        res.json({
+        res.status(200).json({
             user: userObj,
             isFriend,
             isIncomingFriendRequestPending,
