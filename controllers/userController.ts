@@ -183,7 +183,7 @@ const formatUserData = (
         firstName,
         lastName,
         username,
-        userpic,
+        userpic: userpic.data,
         cover,
         ...(isFriend && { joined, lastSeen, friends, mutualFriends }),
     };
