@@ -57,6 +57,55 @@ const getSomeUsers = async (
     }
 };
 
+const searchUsers = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const jwtUser = req.user as JwtUser;
+        const query = req.query.query as string;
+
+        // Check if the query is empty or undefined
+        if (!query) {
+            res.status(400).json({
+                errors: [
+                    {
+                        message: 'Query parameter is required!',
+                    },
+                ],
+            });
+            return;
+        }
+
+        // Split the query into individual terms
+        const terms = query.split(' ');
+
+        // Create an array of regex queries for each term
+        const regexQueries = terms.map((term) => ({
+            $or: [
+                { firstName: { $regex: term, $options: 'i' } },
+                { lastName: { $regex: term, $options: 'i' } },
+                { username: { $regex: term, $options: 'i' } },
+            ],
+        }));
+
+        const users: UserModelType[] = await User.find({
+            $and: [
+                { _id: { $ne: jwtUser._id } }, // Exclude the searching user
+                ...regexQueries,
+            ],
+        })
+            .select('firstName lastName username userpic')
+            .lean();
+
+        res.json(users);
+    } catch (error) {
+        console.error('Error searching users:', error);
+        res.status(500).json([
+            {
+                message: 'Internal server error!',
+            },
+        ]);
+    }
+};
+
 const getOtherUserData = async (
     req: Request,
     res: Response,
@@ -431,6 +480,7 @@ const removeUserFromFriends = async (
 };
 
 export {
+    searchUsers,
     getSomeUsers,
     getOtherUserData,
     sendFriendRequest,
