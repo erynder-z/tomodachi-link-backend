@@ -57,6 +57,79 @@ const getSomeUsers = async (
     }
 };
 
+const getSomeFriendsOfFriends = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const jwtUser = req.user as JwtUser;
+
+    try {
+        const currentUser = await User.findById(jwtUser._id);
+        if (!currentUser) {
+            return res.status(404).json({
+                errors: [
+                    {
+                        message: 'Something went wrong retrieving user data!',
+                    },
+                ],
+            });
+        }
+
+        const currentUserFriends = currentUser.friends.map((friend) =>
+            friend.toString()
+        );
+
+        const friendsOfFriendsSet = new Set<string>();
+        for (const friend of currentUserFriends) {
+            const currentFriend = await User.findById(friend);
+            if (currentFriend) {
+                currentFriend.friends.forEach((friendOfFriend) =>
+                    friendsOfFriendsSet.add(friendOfFriend.toString())
+                );
+            }
+        }
+
+        const friendsOfFriendsArray = Array.from(friendsOfFriendsSet);
+        const shuffledFriendsOfFriends = shuffleArray(friendsOfFriendsArray);
+        const arrayOfSixFriendsOfFriends = shuffledFriendsOfFriends
+            .filter((friend) => !currentUserFriends.includes(friend))
+            .slice(0, 6)
+            .map((friend) => new mongoose.Types.ObjectId(friend));
+
+        const friendsOfFriends = await User.aggregate([
+            {
+                $match: {
+                    _id: {
+                        $in: arrayOfSixFriendsOfFriends,
+                        $nin: [currentUser._id],
+                    },
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    firstName: 1,
+                    lastName: 1,
+                    userpic: 1,
+                },
+            },
+        ]);
+
+        return res.status(200).json({ friendsOfFriends });
+    } catch (err) {
+        return next(err);
+    }
+};
+
+const shuffleArray = (array: any[]) => {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+};
+
 const searchUsers = async (req: Request, res: Response): Promise<void> => {
     try {
         const jwtUser = req.user as JwtUser;
@@ -482,6 +555,7 @@ const removeUserFromFriends = async (
 export {
     searchUsers,
     getSomeUsers,
+    getSomeFriendsOfFriends,
     getOtherUserData,
     sendFriendRequest,
     acceptFriendRequest,

@@ -17,6 +17,12 @@ userRoute.get(
 );
 
 userRoute.get(
+    '/users/maybefriends',
+    passport.authenticate('jwt', { session: false }),
+    userController.getSomeFriendsOfFriends
+);
+
+userRoute.get(
     '/users/:id',
     passport.authenticate('jwt', { session: false }),
     userController.getOtherUserData
