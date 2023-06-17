@@ -107,11 +107,30 @@ const getSomeFriendsOfFriends = async (
                 },
             },
             {
+                $lookup: {
+                    from: 'users',
+                    localField: 'friends',
+                    foreignField: '_id',
+                    as: 'friendsOfFriends',
+                },
+            },
+            {
                 $project: {
                     _id: 1,
                     firstName: 1,
                     lastName: 1,
                     userpic: 1,
+                    commonFriends: {
+                        $map: {
+                            input: '$friendsOfFriends',
+                            as: 'friend',
+                            in: {
+                                _id: '$$friend._id',
+                                firstName: '$$friend.firstName',
+                                lastName: '$$friend.lastName',
+                            },
+                        },
+                    },
                 },
             },
         ]);
