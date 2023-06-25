@@ -33,7 +33,9 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
         const currentUser = await User.findById(jwtUser._id);
 
         if (await isReadOperationForbidden(currentUser, ownerId)) {
-            return res.status(403).json({ message: 'Forbidden' });
+            return res.status(403).json({
+                errors: [{ msg: 'Forbidden' }],
+            });
         }
 
         const userPosts = await Post.find({ owner: ownerId })
@@ -73,7 +75,9 @@ const getPostDetails = async (
         const postOwnerId = new mongoose.Types.ObjectId(postOwner?._id);
 
         if (await isReadOperationForbidden(currentUser, postOwnerId)) {
-            return res.status(403).json({ message: 'Forbidden' });
+            return res.status(403).json({
+                errors: [{ msg: 'Forbidden' }],
+            });
         }
 
         res.status(200).json({ retrievedPost, postOwner });
@@ -170,14 +174,7 @@ const deletePost = async (req: Request, res: Response, next: NextFunction) => {
         const reqUser = req.user as JwtUser;
         const postID = req.params.id;
 
-        let post;
-        try {
-            post = await Post.findByIdAndRemove(postID);
-        } catch (error) {
-            return res.status(500).json({
-                errors: [{ msg: 'Error deleting post.' }],
-            });
-        }
+        const post = await Post.findById(postID).populate('owner');
 
         if (!post) {
             return res.status(404).json({
@@ -185,6 +182,15 @@ const deletePost = async (req: Request, res: Response, next: NextFunction) => {
             });
         }
 
+        const postOwner = post.owner;
+
+        if (postOwner._id.toString() !== reqUser._id.toString()) {
+            return res.status(403).json({
+                errors: [{ msg: 'Forbidden' }],
+            });
+        }
+
+        await Post.findByIdAndRemove(postID);
         await deletePostFromUser(reqUser, postID);
 
         res.status(200).json({
