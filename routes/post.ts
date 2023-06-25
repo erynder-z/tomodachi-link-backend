@@ -28,7 +28,7 @@ postRoute.delete(
 );
 
 postRoute.patch(
-    '/post/:id/edit',
+    '/post/:id',
     passport.authenticate('jwt', { session: false }),
     upload.single('imagePicker'),
     postController.editPost
