@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import Post from '../models/post';
-import User from '../models/user';
+import User, { UserModelType } from '../models/user';
 import { JwtUser } from '../types/jwtUser';
 import mongoose from 'mongoose';
 import { validateGifUrl } from './validators/postValidators/validateGifUrl';
@@ -9,21 +9,43 @@ import { validateText } from './validators/postValidators/validateText';
 import { validateEmbeddedVideoID } from './validators/postValidators/validateEmbeddedVideoID';
 import { validateImage } from './validators/imageValidators/validateImage';
 
+const isReadOperationForbidden = async (
+    currentUser: UserModelType | null,
+    postOwnerId: mongoose.Types.ObjectId
+): Promise<boolean> => {
+    if (
+        !currentUser ||
+        (currentUser._id.toString() !== postOwnerId.toString() &&
+            !currentUser.friends.includes(postOwnerId))
+    ) {
+        return true;
+    }
+    return false;
+};
+
 const getPosts = async (req: Request, res: Response, next: NextFunction) => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
-
     try {
         const id = req.params.id;
         const ownerId = new mongoose.Types.ObjectId(id);
+
+        const jwtUser = req.user as JwtUser;
+        const currentUser = await User.findById(jwtUser._id);
+
+        if (await isReadOperationForbidden(currentUser, ownerId)) {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+
         const userPosts = await Post.find({ owner: ownerId })
             .select('_id')
             .sort({ timestamp: -1 })
             .skip(skip)
             .limit(10)
             .exec();
+
         res.status(200).json({ userPosts });
     } catch (err) {
-        return next(err);
+        next(err);
     }
 };
 
@@ -44,7 +66,17 @@ const getPostDetails = async (
                 },
             })
             .exec();
-        res.status(200).json({ retrievedPost });
+
+        const jwtUser = req.user as JwtUser;
+        const currentUser = await User.findById(jwtUser._id);
+        const postOwner = retrievedPost?.owner;
+        const postOwnerId = new mongoose.Types.ObjectId(postOwner?._id);
+
+        if (await isReadOperationForbidden(currentUser, postOwnerId)) {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+
+        res.status(200).json({ retrievedPost, postOwner });
     } catch (err) {
         return next(err);
     }
