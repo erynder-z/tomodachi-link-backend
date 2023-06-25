@@ -220,12 +220,12 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
             shouldGifBeDeleted,
             shouldVideoBeDeleted,
         } = req.body;
+
         const image = req.file
             ? { data: req.file.buffer, contentType: req.file.mimetype }
             : undefined;
 
         const updateData: any = {
-            owner: reqUser._id,
             text: newPost,
         };
 
@@ -252,11 +252,20 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
                 postID,
                 updateData,
                 { new: true }
-            );
+            ).populate('owner');
 
             if (!updatedPost) {
                 return res.status(404).json({
                     errors: [{ msg: 'Post not found!' }],
+                });
+            }
+
+            const postOwner = updatedPost.owner;
+
+            // Check if the requesting user is the post owner
+            if (postOwner._id.toString() !== reqUser._id.toString()) {
+                return res.status(403).json({
+                    errors: [{ msg: 'Forbidden' }],
                 });
             }
 
