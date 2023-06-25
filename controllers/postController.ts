@@ -168,7 +168,7 @@ const deletePostFromUser = async (user: JwtUser, postId: string) => {
 const deletePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const reqUser = req.user as JwtUser;
-        const postID = req.body.postID;
+        const postID = req.params.id;
 
         let post;
         try {

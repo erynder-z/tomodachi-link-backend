@@ -22,7 +22,7 @@ postRoute.post(
 );
 
 postRoute.delete(
-    '/post/:id/delete',
+    '/post/:id',
     passport.authenticate('jwt', { session: false }),
     postController.deletePost
 );
