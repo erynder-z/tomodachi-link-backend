@@ -1,6 +1,22 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Post from '../models/post';
+import User, { UserModelType } from '../models/user';
+import { JwtUser } from '../types/jwtUser';
+
+const isReadOperationForbidden = async (
+    currentUser: UserModelType | null,
+    postOwnerId: mongoose.Types.ObjectId
+): Promise<boolean> => {
+    if (
+        !currentUser ||
+        (currentUser._id.toString() !== postOwnerId.toString() &&
+            !currentUser.friends.includes(postOwnerId))
+    ) {
+        return true;
+    }
+    return false;
+};
 
 const countPostsContainingImage = async (
     req: Request,
@@ -31,6 +47,15 @@ const getPictureList = async (
         const id = req.params.id;
         const itemsPerPage = 9;
         const ownerId = new mongoose.Types.ObjectId(id);
+
+        const jwtUser = req.user as JwtUser;
+        const currentUser = await User.findById(jwtUser._id);
+
+        if (await isReadOperationForbidden(currentUser, ownerId)) {
+            return res.status(403).json({
+                errors: [{ msg: 'Forbidden' }],
+            });
+        }
 
         const userPosts = await Post.find({
             owner: ownerId,
