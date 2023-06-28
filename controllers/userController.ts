@@ -70,9 +70,10 @@ const getSomeUsers = async (
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
     const jwtUser = req.user as JwtUser;
+    const currentUserId = jwtUser._id;
 
     try {
-        const currentUser = await User.findById(jwtUser._id);
+        const currentUser = await User.findById(currentUserId);
         if (!currentUser) {
             return res.status(404).json({
                 errors: [
@@ -83,7 +84,7 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
             });
         }
 
-        const userList = await User.find({})
+        const userList = await User.find({ _id: { $ne: currentUserId } })
             .select('_id firstName lastName username userpic')
             .skip(skip)
             .limit(10)
