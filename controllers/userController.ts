@@ -6,6 +6,7 @@ import { validationResult } from 'express-validator';
 import { FriendType } from '../types/friendType';
 import { validateCurrentUserId } from './validators/requestValidators/validateCurrentUserId';
 import { validateOtherUserId } from './validators/requestValidators/validateOhterUserId';
+import { MinimalUserTypes } from '../types/minimalUserTypes';
 
 const getSomeUsers = async (
     req: Request,
@@ -54,6 +55,48 @@ const getSomeUsers = async (
         return res.status(200).json({ userList });
     } catch (err) {
         return next(err);
+    }
+};
+
+const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+    const skip = parseInt(req.query.skip as string, 10) || 0;
+    const jwtUser = req.user as JwtUser;
+
+    try {
+        const currentUser = await User.findById(jwtUser._id);
+        if (!currentUser) {
+            return res.status(404).json({
+                errors: [
+                    {
+                        message: 'Something went wrong retrieving user data!',
+                    },
+                ],
+            });
+        }
+
+        const userList = await User.find({})
+            .select('_id firstName lastName username userpic')
+            .skip(skip)
+            .limit(10)
+            .lean()
+            .exec();
+
+        const minimalUserList: MinimalUserTypes[] = userList.map(
+            (user: UserModelType) => {
+                const minimalUser: MinimalUserTypes = {
+                    _id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    username: user.username,
+                    userpic: user.userpic,
+                };
+                return minimalUser;
+            }
+        );
+
+        res.status(200).json({ userList: minimalUserList });
+    } catch (err) {
+        next(err);
     }
 };
 
@@ -574,6 +617,7 @@ const removeUserFromFriends = async (
 export {
     searchUsers,
     getSomeUsers,
+    getAllUsers,
     getSomeFriendsOfFriends,
     getOtherUserData,
     sendFriendRequest,
