@@ -10,6 +10,8 @@ userRoute.get(
     userController.searchUsers
 );
 
+userRoute.get('/users/count', userController.countUsers);
+
 userRoute.get(
     '/users/some',
     passport.authenticate('jwt', { session: false }),

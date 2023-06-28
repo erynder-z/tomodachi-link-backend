@@ -8,6 +8,15 @@ import { validateCurrentUserId } from './validators/requestValidators/validateCu
 import { validateOtherUserId } from './validators/requestValidators/validateOhterUserId';
 import { MinimalUserTypes } from '../types/minimalUserTypes';
 
+const countUsers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const numberOfUsers = await User.countDocuments();
+        return res.status(200).json({ numberOfUsers });
+    } catch (err) {
+        return next(err);
+    }
+};
+
 const getSomeUsers = async (
     req: Request,
     res: Response,
@@ -615,6 +624,7 @@ const removeUserFromFriends = async (
 };
 
 export {
+    countUsers,
     searchUsers,
     getSomeUsers,
     getAllUsers,
