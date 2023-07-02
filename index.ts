@@ -10,6 +10,8 @@ import cors from 'cors';
 import { initializePassport } from './passport/initializePassport';
 import { initializeMongoDB } from './mongodb/initializeMongoDB';
 import passport from 'passport';
+import http from 'http';
+import { Server } from 'socket.io';
 
 const app: Express = express();
 dotenv.config();
@@ -17,7 +19,7 @@ dotenv.config();
 initializeMongoDB();
 initializePassport();
 
-/* const corsOptions = {
+const corsOptions = {
     origin: function (origin: any, callback: any) {
         if (process.env.CORS_ACCESS?.indexOf(origin) !== -1) {
             callback(null, true);
@@ -27,9 +29,9 @@ initializePassport();
     },
 };
 
-app.use(cors(corsOptions)); */
+app.use(cors(corsOptions));
 
-app.use(cors());
+/* app.use(cors()); */
 
 app.use(passport.initialize());
 app.use(bodyParser.json());
@@ -43,6 +45,19 @@ app.use('/', routes);
 
 app.use(errorMiddleware);
 
-app.listen(process.env.PORT, () => {
+const server: http.Server = http.createServer(app);
+const io = new Server(server, {
+    cors: corsOptions,
+});
+
+io.on('connection', (socket) => {
+    console.log(`user connected: ${socket.id}`);
+
+    socket.on('sendMessage', (data) => {
+        socket.broadcast.emit('receiveMessage', data);
+    });
+});
+
+server.listen(process.env.PORT, () => {
     console.log(`now listening on port ${process.env.PORT}`);
 });
