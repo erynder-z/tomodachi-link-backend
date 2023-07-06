@@ -11,7 +11,8 @@ import { initializePassport } from './passport/initializePassport';
 import { initializeMongoDB } from './mongodb/initializeMongoDB';
 import passport from 'passport';
 import http from 'http';
-import { Server } from 'socket.io';
+
+import { initializeSocketIo } from './socket/initializeSocketIo';
 
 const app: Express = express();
 dotenv.config();
@@ -46,21 +47,7 @@ app.use('/', routes);
 app.use(errorMiddleware);
 
 const server: http.Server = http.createServer(app);
-const io = new Server(server, {
-    cors: corsOptions,
-});
-
-io.on('connection', (socket) => {
-    console.log(`user connected: ${socket.id}`);
-
-    socket.on('joinRoom', (data) => {
-        socket.join(data);
-    });
-
-    socket.on('sendMessage', (data) => {
-        socket.to(data.chatroomId).emit('receiveMessage', data);
-    });
-});
+initializeSocketIo(server, corsOptions);
 
 server.listen(process.env.PORT, () => {
     console.log(`now listening on port ${process.env.PORT}`);
