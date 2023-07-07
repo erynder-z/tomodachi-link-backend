@@ -108,10 +108,27 @@ const addChatMessage = async (
     }
 };
 
+const getChatMessage = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const conversationId = req.params.conversationId;
+        const messages = await ChatMessage.find({
+            conversationId,
+        });
+        res.status(200).json(messages);
+    } catch (error) {
+        return next(error);
+    }
+};
+
 export {
     /*     getChatroomId, */
     initializeConversation,
     getConversationOfSingleUser,
     getConversationBetweenTwoUsers,
     addChatMessage,
+    getChatMessage,
 };
