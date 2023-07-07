@@ -94,9 +94,24 @@ const getConversationBetweenTwoUsers = async (
     }
 };
 
+const addChatMessage = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const newMessage = new ChatMessage(req.body);
+    try {
+        const savedMessage = await newMessage.save();
+        res.status(200).json(savedMessage);
+    } catch (error) {
+        return next(error);
+    }
+};
+
 export {
     /*     getChatroomId, */
     initializeConversation,
     getConversationOfSingleUser,
     getConversationBetweenTwoUsers,
+    addChatMessage,
 };
