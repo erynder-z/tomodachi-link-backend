@@ -61,7 +61,24 @@ const initializeConversation = async (
     }
 };
 
+const getConversationOfSingleUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const user = req.params.userId;
+        const conversation = await ChatConversation.find({
+            members: { $in: [user] },
+        });
+        res.status(200).json(conversation);
+    } catch (error) {
+        return next(error);
+    }
+};
+
 export {
-    /* getChatroomId, */
+    /*     getChatroomId, */
     initializeConversation,
+    getConversationOfSingleUser,
 };
