@@ -108,7 +108,7 @@ const addChatMessage = async (
     }
 };
 
-const getChatMessage = async (
+const getMessagesFromConversation = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -130,5 +130,5 @@ export {
     getConversationOfSingleUser,
     getConversationBetweenTwoUsers,
     addChatMessage,
-    getChatMessage,
+    getMessagesFromConversation,
 };

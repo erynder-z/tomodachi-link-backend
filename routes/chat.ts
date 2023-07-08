@@ -35,7 +35,7 @@ chatRoute.post(
 );
 
 chatRoute.get(
-    '/message/:messageId',
+    '/message/:conversationId',
     passport.authenticate('jwt', { session: false }),
-    chatController.getChatMessage
+    chatController.getMessagesFromConversation
 );
