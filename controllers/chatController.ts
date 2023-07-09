@@ -55,7 +55,7 @@ const initializeConversation = async (
 
     try {
         const savedConversation = await newChatConversation.save();
-        res.status(200).json(savedConversation);
+        res.status(200).json({ savedConversation });
     } catch (error) {
         return next(error);
     }
@@ -67,11 +67,11 @@ const getConversationOfSingleUser = async (
     next: NextFunction
 ) => {
     try {
-        const user = req.params.userId;
+        const user = req.params.userId; //req.user ok?
         const conversation = await ChatConversation.find({
             members: { $in: [user] },
         });
-        res.status(200).json(conversation);
+        res.status(200).json({ conversation });
     } catch (error) {
         return next(error);
     }
@@ -88,7 +88,7 @@ const getConversationBetweenTwoUsers = async (
         const conversation = await ChatConversation.findOne({
             members: { $all: [firstUser, secondUser] },
         });
-        res.status(200).json(conversation);
+        res.status(200).json({ conversation });
     } catch (error) {
         return next(error);
     }
@@ -102,7 +102,7 @@ const addChatMessage = async (
     const newMessage = new ChatMessage(req.body);
     try {
         const savedMessage = await newMessage.save();
-        res.status(200).json(savedMessage);
+        res.status(200).json({ savedMessage });
     } catch (error) {
         return next(error);
     }
@@ -118,7 +118,7 @@ const getMessagesFromConversation = async (
         const messages = await ChatMessage.find({
             conversationId,
         });
-        res.status(200).json(messages);
+        res.status(200).json({ messages });
     } catch (error) {
         return next(error);
     }
