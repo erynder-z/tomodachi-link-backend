@@ -33,18 +33,13 @@ export const initializeSocketIo = (
             io.emit('getUsers', users);
         });
 
-        socket.on(
-            'sendMessage',
-            ({ senderId, receiverId, text, timestamp }) => {
-                console.log({ senderId, receiverId, text });
-                const user = getUser(receiverId);
-                io.to(user?.socketId as string).emit('receiveMessage', {
-                    senderId,
-                    text,
-                    timestamp,
-                });
-            }
-        );
+        socket.on('sendMessage', ({ senderId, receiverId, text }) => {
+            const user = getUser(receiverId);
+            io.to(user?.socketId as string).emit('receiveMessage', {
+                senderId,
+                text,
+            });
+        });
 
         socket.on('disconnect', () => {
             console.log(`User disconnected: ${socket.id}`);
