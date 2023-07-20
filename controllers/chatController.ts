@@ -7,15 +7,27 @@ const initializeConversation = async (
     res: Response,
     next: NextFunction
 ) => {
-    const sender = req.body.senderId;
-    const receiver = req.body.receiverId;
-    const newChatConversation = new ChatConversation({
-        members: [sender, receiver],
-    });
+    const { senderId, receiverId } = req.body;
 
     try {
+        const existingConversation = await ChatConversation.findOne({
+            members: { $all: [senderId, receiverId] },
+        });
+
+        if (existingConversation) {
+            return res
+                .status(304)
+                .json({ message: 'Conversation already exists' });
+        }
+
+        const newChatConversation = new ChatConversation({
+            members: [senderId, receiverId],
+        });
+
         const savedConversation = await newChatConversation.save();
-        res.status(200).json({ savedConversation });
+        return res
+            .status(200)
+            .json({ message: 'Conversation initialized', savedConversation });
     } catch (error) {
         return next(error);
     }
