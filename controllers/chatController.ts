@@ -15,9 +15,10 @@ const initializeConversation = async (
         });
 
         if (existingConversation) {
-            return res
-                .status(304)
-                .json({ message: 'Conversation already exists' });
+            return res.status(200).json({
+                message: 'Conversation already exists',
+                existingConversation,
+            });
         }
 
         const newChatConversation = new ChatConversation({
