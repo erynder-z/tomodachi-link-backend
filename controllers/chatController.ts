@@ -1,36 +1,42 @@
 import { NextFunction, Request, Response } from 'express';
 import ChatConversation from '../models/chatConversation';
 import ChatMessage from '../models/chatMessage';
+import { JwtUser } from '../types/jwtUser';
 
 const initializeConversation = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
-    const { senderId, receiverId } = req.body;
+    if (req.user) {
+        const reqUser = req.user as JwtUser;
+        const jwtUserId = reqUser._id;
+        const chatPartnerId = req.body.chatPartnerId;
 
-    try {
-        const existingConversation = await ChatConversation.findOne({
-            members: { $all: [senderId, receiverId] },
-        });
-
-        if (existingConversation) {
-            return res.status(200).json({
-                message: 'Conversation already exists',
-                existingConversation,
+        try {
+            const existingConversation = await ChatConversation.findOne({
+                members: { $all: [jwtUserId, chatPartnerId] },
             });
+
+            if (existingConversation) {
+                return res.status(200).json({
+                    message: 'Conversation already exists',
+                    existingConversation,
+                });
+            }
+
+            const newChatConversation = new ChatConversation({
+                members: [jwtUserId, chatPartnerId],
+            });
+
+            const savedConversation = await newChatConversation.save();
+            return res.status(200).json({
+                message: 'Conversation initialized',
+                savedConversation,
+            });
+        } catch (error) {
+            return next(error);
         }
-
-        const newChatConversation = new ChatConversation({
-            members: [senderId, receiverId],
-        });
-
-        const savedConversation = await newChatConversation.save();
-        return res
-            .status(200)
-            .json({ message: 'Conversation initialized', savedConversation });
-    } catch (error) {
-        return next(error);
     }
 };
 
