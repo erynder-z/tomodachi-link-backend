@@ -59,23 +59,6 @@ const getConversationOfSingleUser = async (
     }
 };
 
-const getConversationBetweenTwoUsers = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
-        const firstUser = req.params.userId1;
-        const secondUser = req.params.userId2;
-        const conversation = await ChatConversation.findOne({
-            members: { $all: [firstUser, secondUser] },
-        });
-        res.status(200).json({ conversation });
-    } catch (error) {
-        return next(error);
-    }
-};
-
 const addChatMessage = async (
     req: Request,
     res: Response,
@@ -109,7 +92,6 @@ const getMessagesFromConversation = async (
 export {
     initializeConversation,
     getConversationOfSingleUser,
-    getConversationBetweenTwoUsers,
     addChatMessage,
     getMessagesFromConversation,
 };
