@@ -40,7 +40,7 @@ const initializeConversation = async (
     }
 };
 
-const getConversationOfSingleUser = async (
+const getConversationOfUser = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -91,7 +91,7 @@ const getMessagesFromConversation = async (
 
 export {
     initializeConversation,
-    getConversationOfSingleUser,
+    getConversationOfUser,
     addChatMessage,
     getMessagesFromConversation,
 };

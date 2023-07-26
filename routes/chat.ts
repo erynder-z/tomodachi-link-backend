@@ -13,7 +13,7 @@ chatRoute.post(
 chatRoute.get(
     '/chat',
     passport.authenticate('jwt', { session: false }),
-    chatController.getConversationOfSingleUser
+    chatController.getConversationOfUser
 );
 
 chatRoute.post(
