@@ -17,7 +17,7 @@ chatRoute.post(
 );
 
 chatRoute.get(
-    '/chat/:userId',
+    '/chat',
     passport.authenticate('jwt', { session: false }),
     chatController.getConversationOfSingleUser
 );

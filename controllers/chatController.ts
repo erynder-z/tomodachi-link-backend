@@ -45,14 +45,17 @@ const getConversationOfSingleUser = async (
     res: Response,
     next: NextFunction
 ) => {
-    try {
-        const user = req.params.userId;
-        const conversation = await ChatConversation.find({
-            members: { $in: [user] },
-        });
-        res.status(200).json({ conversation });
-    } catch (error) {
-        return next(error);
+    if (req.user) {
+        try {
+            const reqUser = req.user as JwtUser;
+            const jwtUserId = reqUser._id;
+            const conversation = await ChatConversation.find({
+                members: { $in: [jwtUserId] },
+            });
+            res.status(200).json({ conversation });
+        } catch (error) {
+            return next(error);
+        }
     }
 };
 
