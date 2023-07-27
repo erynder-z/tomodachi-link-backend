@@ -41,6 +41,14 @@ export const initializeSocketIo = (
             });
         });
 
+        socket.on('typing', ({ senderId, receiverId }) => {
+            const user = getUser(receiverId);
+            io.to(user?.socketId as string).emit('typing', {
+                senderId,
+                receiverId,
+            });
+        });
+
         socket.on('disconnect', () => {
             console.log(`User disconnected: ${socket.id}`);
             removeUser(socket.id);
