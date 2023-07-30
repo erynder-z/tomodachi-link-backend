@@ -33,13 +33,19 @@ export const initializeSocketIo = (
             io.emit('getUsers', users);
         });
 
-        socket.on('sendMessage', ({ senderId, receiverId, text }) => {
-            const user = getUser(receiverId);
-            io.to(user?.socketId as string).emit('receiveMessage', {
-                senderId,
-                text,
-            });
-        });
+        socket.on(
+            'sendMessage',
+            ({ senderId, receiverId, conversationId, text }) => {
+                const user = getUser(receiverId);
+                io.to(user?.socketId as string).emit('receiveMessage', {
+                    senderId,
+                    text,
+                });
+                io.to(user?.socketId as string).emit('notifyUnreadMessage', {
+                    conversationId,
+                });
+            }
+        );
 
         socket.on('typing', ({ senderId, receiverId }) => {
             const user = getUser(receiverId);
