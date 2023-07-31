@@ -27,3 +27,15 @@ chatRoute.get(
     passport.authenticate('jwt', { session: false }),
     chatController.getMessagesFromConversation
 );
+
+chatRoute.patch(
+    '/message/:conversationId/unread',
+    passport.authenticate('jwt', { session: false }),
+    chatController.markConversationAsUnread
+);
+
+chatRoute.patch(
+    '/message/:conversationId/read',
+    passport.authenticate('jwt', { session: false }),
+    chatController.markConversationAsRead
+);

@@ -27,6 +27,10 @@ const initializeConversation = async (
 
             const newChatConversation = new ChatConversation({
                 members: [jwtUserId, chatPartnerId],
+                messageStatus: [
+                    { member: jwtUserId, hasUnreadMessage: false },
+                    { member: chatPartnerId, hasUnreadMessage: false },
+                ],
             });
 
             const savedConversation = await newChatConversation.save();
@@ -89,9 +93,67 @@ const getMessagesFromConversation = async (
     }
 };
 
+const markConversationAsUnread = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const conversationId = req.params.conversationId;
+        const reqUser = req.user as JwtUser;
+        const jwtUserId = reqUser._id.toString();
+
+        const updatedConversation = await ChatConversation.findOneAndUpdate(
+            {
+                _id: conversationId,
+                messageStatus: {
+                    $elemMatch: {
+                        member: { $ne: jwtUserId },
+                    },
+                },
+            },
+            { $set: { 'messageStatus.$.hasUnreadMessage': true } },
+            { new: true }
+        );
+
+        return res.json(updatedConversation);
+    } catch (error) {
+        return next(error);
+    }
+};
+
+const markConversationAsRead = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const conversationId = req.params.conversationId;
+        const reqUser = req.user as JwtUser;
+        const jwtUserId = reqUser._id.toString();
+
+        const updatedConversation = await ChatConversation.findOneAndUpdate(
+            {
+                _id: conversationId,
+                'messageStatus.member': jwtUserId,
+            },
+            { $set: { 'messageStatus.$.hasUnreadMessage': false } },
+            { new: true }
+        );
+
+        console.log(updatedConversation);
+
+        return res.json(updatedConversation);
+    } catch (error) {
+        return next(error);
+    }
+};
+
 export {
     initializeConversation,
     getConversationOfUser,
     addChatMessage,
     getMessagesFromConversation,
+    markConversationAsUnread,
+    markConversationAsRead,
 };
