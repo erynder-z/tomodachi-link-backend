@@ -141,8 +141,6 @@ const markConversationAsRead = async (
             { new: true }
         );
 
-        console.log(updatedConversation);
-
         return res.json(updatedConversation);
     } catch (error) {
         return next(error);
