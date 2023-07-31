@@ -11,6 +11,12 @@ const ChatConversationSchema: Schema = new Schema(
         members: {
             type: Array,
         },
+        messageStatus: [
+            {
+                member: String,
+                hasUnreadMessage: { type: Boolean, default: false },
+            },
+        ],
     },
     { versionKey: false, timestamps: true }
 );
