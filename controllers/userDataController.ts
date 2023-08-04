@@ -179,4 +179,19 @@ const updateCover = [
     },
 ];
 
-export { getUserData, updateUserData, updateUserPassword, updateCover };
+const countUsers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const numberOfUsers = await User.countDocuments();
+        return res.status(200).json({ numberOfUsers });
+    } catch (err) {
+        return next(err);
+    }
+};
+
+export {
+    getUserData,
+    updateUserData,
+    updateUserPassword,
+    updateCover,
+    countUsers,
+};
