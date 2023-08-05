@@ -88,4 +88,15 @@ const checkToken = async (req: Request, res: Response) => {
     }
 };
 
-export { login, checkToken };
+const getGuestLoginData = async (req: Request, res: Response) => {
+    const guestUsername = process.env.GUEST_USERNAME;
+    const guestPassword = process.env.GUEST_PASSWORD;
+    res.status(200).json({
+        guestLoginData: {
+            username: guestUsername,
+            password: guestPassword,
+        },
+    });
+};
+
+export { login, checkToken, getGuestLoginData };

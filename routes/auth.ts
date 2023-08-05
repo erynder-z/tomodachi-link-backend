@@ -1,7 +1,13 @@
 import { Router } from 'express';
-import { login, checkToken } from '../controllers/authController';
+import {
+    login,
+    checkToken,
+    getGuestLoginData,
+} from '../controllers/authController';
 
 export const authRoute = Router();
+
+authRoute.get('/guest', getGuestLoginData);
 
 authRoute.post('/login', login);
 
