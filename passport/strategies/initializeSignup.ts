@@ -21,12 +21,19 @@ export const initializeSignup = () => {
                                 message: 'Error processing password!',
                             });
                         }
+
+                        let accountType = 'regularUser';
+                        if (username === 'guest') {
+                            accountType = 'guest';
+                        }
+
                         const user = await User.create({
                             username,
                             password: hashedPassword,
                             email,
                             firstName: firstName,
                             lastName: lastName,
+                            accountType: accountType,
                         });
                         return done(null, user);
                     });

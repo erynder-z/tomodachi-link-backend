@@ -21,6 +21,7 @@ export type UserType = {
     joined: Date;
     lastSeen: Date;
     pendingFriendRequests: Types.ObjectId[];
+    accountType: 'regularUser' | 'guest';
 };
 
 export type UserModelType = UserType & Document;
@@ -58,6 +59,12 @@ const UserSchema: Schema = new Schema(
         },
         lastSeen: { type: Date, required: true, default: () => Date.now() },
         pendingFriendRequests: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+        accountType: {
+            type: String,
+            enum: ['regularUser', 'guest'],
+            default: 'regularUser',
+            required: true,
+        },
     },
     { versionKey: false }
 );
