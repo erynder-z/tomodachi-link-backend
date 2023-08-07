@@ -5,12 +5,13 @@ import type { UserModelType } from '../models/user';
 import { LoginErrorMessage } from '../types/loginErrorMessage';
 
 const generateToken = (user: UserModelType) => {
-    const { _id, username } = user;
+    const { _id, username, accountType } = user;
     return jwt.sign(
         {
             user: {
                 _id,
                 username,
+                accountType,
             },
         },
         `${process.env.TOKEN_SECRET_KEY}`,
