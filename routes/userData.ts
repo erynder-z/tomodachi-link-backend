@@ -19,7 +19,7 @@ userDataRoute.put(
     '/userdata',
     passport.authenticate('jwt', { session: false }),
     upload.single('imagePicker'),
-    checkAccountType,
+    checkAccountType('regularUser'),
     userDataController.updateUserData
 );
 
@@ -32,6 +32,6 @@ userDataRoute.patch(
 userDataRoute.patch(
     '/password',
     passport.authenticate('jwt', { session: false }),
-    checkAccountType,
+    checkAccountType('regularUser'),
     userDataController.updateUserPassword
 );
