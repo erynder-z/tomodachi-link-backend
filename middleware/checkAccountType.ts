@@ -5,7 +5,6 @@ export const checkAccountType =
     (expectedAccountType: string) =>
     (req: Request, res: Response, next: NextFunction) => {
         const reqUser = req.user as JwtUser;
-        console.log(reqUser);
         if (reqUser.accountType !== expectedAccountType) {
             return res.status(403).json({ message: 'Forbidden' });
         }
