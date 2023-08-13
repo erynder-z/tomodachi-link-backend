@@ -6,7 +6,9 @@ export const checkAccountType =
     (req: Request, res: Response, next: NextFunction) => {
         const reqUser = req.user as JwtUser;
         if (reqUser.accountType !== expectedAccountType) {
-            return res.status(403).json({ message: 'Forbidden' });
+            return res.status(403).json({
+                errors: [{ msg: 'Chat is disabled for guest account!' }],
+            });
         }
 
         next();
