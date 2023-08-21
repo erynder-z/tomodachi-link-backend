@@ -2,10 +2,12 @@ import Post from '../models/post';
 import { body, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
 import Comment from '../models/comment';
-import Filter from 'bad-words';
-
-const filter = new Filter();
-filter.addWords(...require('badwords/array'));
+import {
+    RegExpMatcher,
+    TextCensor,
+    englishDataset,
+    englishRecommendedTransformers,
+} from 'obscenity';
 
 const createComment = [
     body('newComment', 'Text must not be empty.')
@@ -20,11 +22,18 @@ const createComment = [
         const { newComment } = req.body;
         const { user } = req;
 
+        const matcher = new RegExpMatcher({
+            ...englishDataset.build(),
+            ...englishRecommendedTransformers,
+        });
+        const censor = new TextCensor();
+        const matches = matcher.getAllMatches(newComment);
+
         const comment = new Comment({
             parentPost: id,
             owner: user,
             timestamp: Date.now(),
-            text: filter.clean(newComment),
+            text: censor.applyTo(newComment, matches),
         });
 
         if (!errors.isEmpty()) {
