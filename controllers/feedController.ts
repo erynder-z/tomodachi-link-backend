@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import Post, { PostType } from '../models/post';
 import mongoose from 'mongoose';
 import { PostDocument } from '../types/postDocument';
+import { JwtUser } from '../types/jwtUser';
 
 const getPosts = async (
     id: string
@@ -32,11 +33,17 @@ const getUserFeed = async (req: Request, res: Response, next: NextFunction) => {
     const friendListIdArray = req.body.friendList;
     const feed: (PostType & PostDocument)[] = [];
 
+    const jwtUser = req.user as JwtUser;
+    const currentUserId = jwtUser._id;
+
     try {
-        const postsPromises = friendListIdArray.map((id: string) =>
+        const postsPromisesFriends = friendListIdArray.map((id: string) =>
             getPosts(id)
         );
+        const postsPromiseSelf = getPosts(currentUserId);
+        const postsPromises = [...postsPromisesFriends, postsPromiseSelf];
         const posts = await Promise.all(postsPromises);
+
         posts.forEach((p) => feed.push(...p.userPosts));
 
         feed.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
