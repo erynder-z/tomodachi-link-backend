@@ -19,6 +19,13 @@ chatRoute.get(
     chatController.getConversationOfUser
 );
 
+chatRoute.get(
+    '/chat/user/:id',
+    passport.authenticate('jwt', { session: false }),
+    checkAccountType('regularUser'),
+    chatController.getChatPartnerData
+);
+
 chatRoute.post(
     '/message',
     passport.authenticate('jwt', { session: false }),

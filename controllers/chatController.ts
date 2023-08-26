@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import ChatConversation from '../models/chatConversation';
 import ChatMessage from '../models/chatMessage';
 import { JwtUser } from '../types/jwtUser';
+import User, { UserModelType } from '../models/user';
 
 const initializeConversation = async (
     req: Request,
@@ -147,6 +148,48 @@ const markConversationAsRead = async (
     }
 };
 
+const getChatPartnerData = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const otherUser = await User.findById(req.params.id);
+
+        if (!otherUser) {
+            return res.status(404).json({
+                errors: [
+                    {
+                        message: 'User data not found!',
+                    },
+                ],
+            });
+        }
+
+        const userObj = formatUserData(otherUser);
+
+        res.status(200).json({
+            chatPartnerData: userObj,
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+const formatUserData = (user: UserModelType) => {
+    const { _id, firstName, lastName, username, userpic } = user;
+
+    const formattedUser = {
+        _id,
+        firstName,
+        lastName,
+        username,
+        userpic: userpic.data,
+    };
+
+    return formattedUser;
+};
+
 export {
     initializeConversation,
     getConversationOfUser,
@@ -154,4 +197,5 @@ export {
     getMessagesFromConversation,
     markConversationAsUnread,
     markConversationAsRead,
+    getChatPartnerData,
 };
