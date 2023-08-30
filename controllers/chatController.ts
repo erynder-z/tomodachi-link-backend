@@ -28,9 +28,17 @@ const initializeConversation = async (
 
             const newChatConversation = new ChatConversation({
                 members: [jwtUserId, chatPartnerId],
-                messageStatus: [
-                    { member: jwtUserId, hasUnreadMessage: false },
-                    { member: chatPartnerId, hasUnreadMessage: false },
+                conversationStatus: [
+                    {
+                        member: jwtUserId,
+                        hasUnreadMessage: false,
+                        hasMutedConversation: false,
+                    },
+                    {
+                        member: chatPartnerId,
+                        hasUnreadMessage: false,
+                        hasMutedConversation: false,
+                    },
                 ],
             });
 
@@ -107,13 +115,13 @@ const markConversationAsUnread = async (
         const updatedConversation = await ChatConversation.findOneAndUpdate(
             {
                 _id: conversationId,
-                messageStatus: {
+                conversationStatus: {
                     $elemMatch: {
                         member: { $ne: jwtUserId },
                     },
                 },
             },
-            { $set: { 'messageStatus.$.hasUnreadMessage': true } },
+            { $set: { 'conversationStatus.$.hasUnreadMessage': true } },
             { new: true }
         );
 
@@ -136,9 +144,9 @@ const markConversationAsRead = async (
         const updatedConversation = await ChatConversation.findOneAndUpdate(
             {
                 _id: conversationId,
-                'messageStatus.member': jwtUserId,
+                'conversationStatus.member': jwtUserId,
             },
-            { $set: { 'messageStatus.$.hasUnreadMessage': false } },
+            { $set: { 'conversationStatus.$.hasUnreadMessage': false } },
             { new: true }
         );
 
