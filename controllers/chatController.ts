@@ -184,6 +184,46 @@ const getChatPartnerData = async (
     }
 };
 
+const handleConversationMute = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const conversationId = req.params.conversationId;
+        const reqUser = req.user as JwtUser;
+        const jwtUserId = reqUser._id.toString();
+
+        const conversation = await ChatConversation.findOne({
+            _id: conversationId,
+            'conversationStatus.member': jwtUserId,
+        });
+
+        if (!conversation) {
+            return res.status(404).json({
+                errors: [
+                    {
+                        message: 'Conversation not found!',
+                    },
+                ],
+            });
+        }
+
+        const memberStatusIndex = conversation.conversationStatus.findIndex(
+            (status) => status.member === jwtUserId
+        );
+
+        const memberStatus = conversation.conversationStatus[memberStatusIndex];
+        memberStatus.hasMutedConversation = !memberStatus.hasMutedConversation;
+
+        const updatedConversation = await conversation.save();
+
+        return res.json(updatedConversation);
+    } catch (error) {
+        return next(error);
+    }
+};
+
 const formatUserData = (user: UserModelType) => {
     const { _id, firstName, lastName, username, userpic } = user;
 
@@ -206,4 +246,5 @@ export {
     markConversationAsUnread,
     markConversationAsRead,
     getChatPartnerData,
+    handleConversationMute,
 };

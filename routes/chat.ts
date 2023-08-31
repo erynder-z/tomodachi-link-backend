@@ -26,6 +26,13 @@ chatRoute.get(
     chatController.getChatPartnerData
 );
 
+chatRoute.patch(
+    '/chat/:conversationId/mute',
+    passport.authenticate('jwt', { session: false }),
+    checkAccountType('regularUser'),
+    chatController.handleConversationMute
+);
+
 chatRoute.post(
     '/message',
     passport.authenticate('jwt', { session: false }),
