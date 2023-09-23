@@ -3,6 +3,7 @@ import Post, { PostType } from '../models/post';
 import mongoose from 'mongoose';
 import { PostDocument } from '../types/postDocument';
 import { JwtUser } from '../types/jwtUser';
+import User from '../models/user';
 
 const getPosts = async (
     id: string
@@ -30,13 +31,21 @@ const getUserFeed = async (req: Request, res: Response, next: NextFunction) => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
     const batchSize = 10;
 
-    const friendListIdArray = req.body.friendList;
     const feed: (PostType & PostDocument)[] = [];
 
     const jwtUser = req.user as JwtUser;
     const currentUserId = jwtUser._id;
 
     try {
+        const currentUser = await User.findById(currentUserId).exec();
+        if (!currentUser) {
+            throw new Error('User not found');
+        }
+
+        const friendListIdArray = currentUser.friends.map((friend) =>
+            friend.toString()
+        );
+
         const postsPromisesFriends = friendListIdArray.map((id: string) =>
             getPosts(id)
         );
