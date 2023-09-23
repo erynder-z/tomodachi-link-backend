@@ -17,7 +17,7 @@ export type UserType = {
     password: string;
     friends: Types.ObjectId[];
     posts: Types.ObjectId[];
-    bookmarks: Types.ObjectId[];
+    polls: Types.ObjectId[];
     joined: Date;
     lastSeen: Date;
     pendingFriendRequests: Types.ObjectId[];
@@ -50,7 +50,7 @@ const UserSchema: Schema = new Schema(
         password: { type: String, required: true },
         friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
         posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
-        bookmarks: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+        polls: [{ type: Schema.Types.ObjectId, ref: 'Poll' }],
         joined: {
             type: Date,
             required: true,
