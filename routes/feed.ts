@@ -4,7 +4,7 @@ import * as feedController from '../controllers/feedController';
 
 export const feedRoute = Router();
 
-feedRoute.post(
+feedRoute.get(
     '/feed',
     passport.authenticate('jwt', { session: false }),
     feedController.getUserFeed
