@@ -51,9 +51,12 @@ const getPollCollection = async (
             allowComments: 1,
             comments: 1,
         };
-
         const pollCollection = await Poll.find(filter)
             .select(projection)
+            .populate({
+                path: 'owner',
+                select: 'username firstName lastName userpic',
+            })
             .skip(skip)
             .limit(batchSize)
             .exec();
