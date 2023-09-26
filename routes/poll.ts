@@ -10,3 +10,9 @@ pollRoute.post(
     passport.authenticate('jwt', { session: false }),
     pollController.addNewPoll
 );
+
+pollRoute.patch(
+    '/poll/:id/answer',
+    passport.authenticate('jwt', { session: false }),
+    pollController.submitPollAnswer
+);

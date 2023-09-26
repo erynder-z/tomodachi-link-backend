@@ -132,4 +132,45 @@ const addNewPoll = [
     savePollInDatabase,
 ];
 
-export { addNewPoll };
+const submitPollAnswer = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const reqUser = req.user as JwtUser;
+        const pollID = req.params.id;
+        const optionID = req.body.optionID;
+
+        const updatedPoll = await Poll.findOneAndUpdate(
+            {
+                _id: pollID,
+                'options._id': optionID,
+                respondentUsers: { $ne: reqUser._id },
+            },
+            {
+                $inc: { 'options.$.selectionCount': 1 },
+                $push: { respondentUsers: reqUser._id },
+            },
+            {
+                new: true,
+                lean: true,
+            }
+        );
+
+        if (!updatedPoll) {
+            return res.status(409).json({
+                errors: [{ msg: 'You already submitted an answer!' }],
+            });
+        }
+
+        res.status(200).json({
+            title: 'Answer submitted successfully!',
+            updatedPoll,
+        });
+    } catch (err) {
+        return next(err);
+    }
+};
+
+export { addNewPoll, submitPollAnswer };
