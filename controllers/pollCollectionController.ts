@@ -57,6 +57,7 @@ const getPollCollection = async (
                 path: 'owner',
                 select: 'username firstName lastName userpic',
             })
+            .sort({ timestamp: -1 })
             .skip(skip)
             .limit(batchSize)
             .exec();
