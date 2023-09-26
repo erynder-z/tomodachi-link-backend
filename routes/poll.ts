@@ -16,3 +16,9 @@ pollRoute.patch(
     passport.authenticate('jwt', { session: false }),
     pollController.submitPollAnswer
 );
+
+pollRoute.get(
+    '/poll/:id/check',
+    passport.authenticate('jwt', { session: false }),
+    pollController.checkUserAnswerStatus
+);

@@ -173,4 +173,27 @@ const submitPollAnswer = async (
     }
 };
 
-export { addNewPoll, submitPollAnswer };
+const checkUserAnswerStatus = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const reqUser = req.user as JwtUser;
+        const pollID = req.params.id;
+
+        const hasAlreadyAnsweredPoll = await Poll.findOne({
+            _id: pollID,
+            respondentUsers: reqUser._id,
+        });
+        if (!hasAlreadyAnsweredPoll) {
+            return res.status(200).json({ canAnswer: true });
+        }
+
+        return res.status(200).json({ canAnswer: false });
+    } catch (err) {
+        return next(err);
+    }
+};
+
+export { addNewPoll, submitPollAnswer, checkUserAnswerStatus };
