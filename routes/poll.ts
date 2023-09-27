@@ -22,3 +22,9 @@ pollRoute.get(
     passport.authenticate('jwt', { session: false }),
     pollController.checkUserAnswerStatus
 );
+
+pollRoute.get(
+    '/poll/:id/details',
+    passport.authenticate('jwt', { session: false }),
+    pollController.getSinglePollData
+);

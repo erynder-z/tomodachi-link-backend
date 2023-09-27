@@ -15,6 +15,7 @@ import {
 } from 'obscenity';
 import Poll from '../models/poll';
 import User from '../models/user';
+import mongoose from 'mongoose';
 
 const validatePoll = [
     validateQuestion(),
@@ -173,6 +174,48 @@ const submitPollAnswer = async (
     }
 };
 
+const getSinglePollData = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const reqUser = req.user as JwtUser;
+        const reqUserID = new mongoose.Types.ObjectId(reqUser._id);
+        const pollID = req.params.id;
+
+        const retrievedPoll = await Poll.findOne({ _id: pollID });
+        const postOwnerID = retrievedPoll?.owner;
+
+        if (!retrievedPoll) {
+            return res
+                .status(404)
+                .json({ errors: [{ msg: 'Poll not found' }] });
+        }
+
+        const postOwner = await User.findById(postOwnerID).exec();
+
+        if (!postOwner) {
+            return res
+                .status(404)
+                .json({ errors: [{ msg: 'Poll owner not found' }] });
+        }
+
+        const isOwner = retrievedPoll.owner.equals(reqUserID);
+        const isRetrievalAllowed =
+            !retrievedPoll.isFriendOnly ||
+            postOwner.friends.includes(reqUserID);
+
+        if (!isOwner && !isRetrievalAllowed) {
+            return res.status(403).json({ errors: [{ msg: 'Forbidden!' }] });
+        }
+
+        return res.status(200).json({ retrievedPoll });
+    } catch (error) {
+        return next(error);
+    }
+};
+
 const checkUserAnswerStatus = async (
     req: Request,
     res: Response,
@@ -196,4 +239,9 @@ const checkUserAnswerStatus = async (
     }
 };
 
-export { addNewPoll, submitPollAnswer, checkUserAnswerStatus };
+export {
+    addNewPoll,
+    submitPollAnswer,
+    getSinglePollData,
+    checkUserAnswerStatus,
+};
