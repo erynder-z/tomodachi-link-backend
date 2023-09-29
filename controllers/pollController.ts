@@ -184,7 +184,15 @@ const getSinglePollData = async (
         const reqUserID = new mongoose.Types.ObjectId(reqUser._id);
         const pollID = req.params.id;
 
-        const retrievedPoll = await Poll.findOne({ _id: pollID });
+        const retrievedPoll = await Poll.findOne({ _id: pollID })
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'owner',
+                    select: 'firstName lastName userpic',
+                },
+            })
+            .exec();
         const postOwnerID = retrievedPoll?.owner;
 
         if (!retrievedPoll) {

@@ -57,6 +57,14 @@ const getPollCollection = async (
                 path: 'owner',
                 select: 'username firstName lastName userpic',
             })
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'owner',
+                    select: 'firstName lastName userpic',
+                },
+            })
+
             .sort({ timestamp: -1 })
             .skip(skip)
             .limit(batchSize)
