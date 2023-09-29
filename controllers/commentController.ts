@@ -30,7 +30,7 @@ const createComment = [
         const matches = matcher.getAllMatches(newComment);
 
         const comment = new Comment({
-            parentPost: id,
+            parentItem: id,
             owner: user,
             timestamp: Date.now(),
             text: censor.applyTo(newComment, matches),
