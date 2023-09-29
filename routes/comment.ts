@@ -5,7 +5,7 @@ import * as commentController from '../controllers/commentController';
 export const commentRoute = Router();
 
 commentRoute.post(
-    '/post/:id/comment',
+    '/comment/:id/create',
     passport.authenticate('jwt', { session: false }),
     commentController.createComment
 );
