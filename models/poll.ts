@@ -1,8 +1,7 @@
-import mongoose, { Schema, Document, Types, Date } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export type PollType = {
     owner: Types.ObjectId;
-    timestamp: Date;
     question: string;
     numberOfOptions: number;
     options: { nameOfOption: string; selectionCount: number }[];
@@ -18,12 +17,7 @@ type PollModelType = PollType & Document;
 const PollSchema: Schema = new Schema(
     {
         owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-        timestamp: {
-            type: Date,
-            required: true,
-            immutable: true,
-            default: () => Date.now(),
-        },
+
         question: { type: String, required: true },
         numberOfOptions: { type: Number, required: true },
         options: [
@@ -38,7 +32,7 @@ const PollSchema: Schema = new Schema(
         respondentUsers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
         comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
     },
-    { versionKey: false }
+    { versionKey: false, timestamps: true }
 );
 
 export default mongoose.model<PollModelType>('Poll', PollSchema);

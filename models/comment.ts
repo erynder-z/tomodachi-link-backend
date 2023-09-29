@@ -1,9 +1,8 @@
-import mongoose, { Schema, Document, Types, Date } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export type CommentType = {
     parentItem: Types.ObjectId;
     owner: Types.ObjectId;
-    timestamp: Date;
     text: string;
 };
 
@@ -17,10 +16,10 @@ const CommentSchema: Schema = new Schema(
             required: true,
         },
         owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-        timestamp: { type: Date, required: true },
         text: { type: String, required: true },
     },
-    { versionKey: false }
+
+    { versionKey: false, timestamps: true }
 );
 
 export default mongoose.model<CommentModelType>('Comment', CommentSchema);

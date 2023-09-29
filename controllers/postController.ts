@@ -46,7 +46,7 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
 
         const userPosts = await Post.find({ owner: ownerId })
             .select('_id')
-            .sort({ timestamp: -1 })
+            .sort({ updatedAt: -1 })
             .skip(skip)
             .limit(10)
             .exec();
@@ -113,7 +113,6 @@ const createPost = async (
 
     const post = new Post({
         owner,
-        timestamp: Date.now(),
         text: censor.applyTo(text, matches),
         image,
         embeddedVideoID,

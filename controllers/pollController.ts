@@ -64,7 +64,6 @@ const createPoll = async (
 
     const poll = new Poll({
         owner,
-        timestamp: Date.now(),
         question: censor.applyTo(question, questionMatches),
         numberOfOptions,
         options: pollOptions,

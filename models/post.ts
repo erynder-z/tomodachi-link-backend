@@ -1,8 +1,7 @@
-import mongoose, { Schema, Document, Types, Date } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export type PostType = {
     owner: Types.ObjectId;
-    timestamp: Date;
     text: string;
     image: {
         data: Buffer;
@@ -23,12 +22,6 @@ type PostModelType = PostType & Document;
 const PostSchema: Schema = new Schema(
     {
         owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-        timestamp: {
-            type: Date,
-            required: true,
-            immutable: true,
-            default: () => Date.now(),
-        },
         text: { type: String, required: true },
         image: {
             data: Buffer,
@@ -49,7 +42,7 @@ const PostSchema: Schema = new Schema(
             default: { positive: 0, negative: 0 },
         },
     },
-    { versionKey: false }
+    { versionKey: false, timestamps: true }
 );
 
 export default mongoose.model<PostModelType>('Post', PostSchema);

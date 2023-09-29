@@ -46,7 +46,7 @@ const createComment = [
             const comment = new Comment({
                 parentItem: id,
                 owner: user,
-                timestamp: Date.now(),
+                /*      timestamp: Date.now(), */
                 text: censoredText,
             });
 

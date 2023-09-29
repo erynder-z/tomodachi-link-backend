@@ -42,7 +42,6 @@ const getPollCollection = async (
 
         const projection = {
             owner: 1,
-            timestamp: 1,
             question: 1,
             numberOfOptions: 1,
             options: 1,
@@ -50,6 +49,8 @@ const getPollCollection = async (
             isFriendOnly: 1,
             allowComments: 1,
             comments: 1,
+            createdAt: 1,
+            updatedAt: 1,
         };
         const pollCollection = await Poll.find(filter)
             .select(projection)
@@ -65,7 +66,7 @@ const getPollCollection = async (
                 },
             })
 
-            .sort({ timestamp: -1 })
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(batchSize)
             .exec();

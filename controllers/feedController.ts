@@ -11,13 +11,13 @@ const getPosts = async (
     try {
         const ownerId = new mongoose.Types.ObjectId(id);
         const userPosts = await Post.find({ owner: ownerId })
-            .select('_id owner timestamp')
-            .sort({ timestamp: -1 })
+            .select('_id owner updatedAt')
+            .sort({ updatedAt: -1 })
             .lean(); // Use the `lean()` method to retrieve plain JavaScript objects instead of Mongoose documents
 
         const formattedPosts: any[] = userPosts.map((post: any) => ({
             _id: post._id,
-            timestamp: new Date(post.timestamp), // Cast the timestamp property to a Date type
+            updatedAt: new Date(post.updatedAt),
             owner: { _id: post.owner._id },
         }));
 
@@ -55,7 +55,7 @@ const getUserFeed = async (req: Request, res: Response, next: NextFunction) => {
 
         posts.forEach((p) => feed.push(...p.userPosts));
 
-        feed.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+        feed.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
         //skip the first "skip"-number of posts and return only 10 items
         const paginatedFeed = feed.slice(skip, skip + batchSize);
