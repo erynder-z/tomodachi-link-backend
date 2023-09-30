@@ -8,12 +8,6 @@ import { validateGifUrl } from './validators/postValidators/validateGifUrl';
 import { validateText } from './validators/postValidators/validateText';
 import { validateEmbeddedVideoID } from './validators/postValidators/validateEmbeddedVideoID';
 import { validateImage } from './validators/imageValidators/validateImage';
-import {
-    RegExpMatcher,
-    TextCensor,
-    englishDataset,
-    englishRecommendedTransformers,
-} from 'obscenity';
 
 const isReadOperationForbidden = async (
     currentUser: UserModelType | null,
@@ -104,16 +98,9 @@ const createPost = async (
     embeddedVideoID: string,
     gifUrl: string
 ) => {
-    const matcher = new RegExpMatcher({
-        ...englishDataset.build(),
-        ...englishRecommendedTransformers,
-    });
-    const censor = new TextCensor();
-    const matches = matcher.getAllMatches(text);
-
     const post = new Post({
         owner,
-        text: censor.applyTo(text, matches),
+        text,
         image,
         embeddedVideoID,
         gifUrl,

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import passport from 'passport';
 import multer from 'multer';
 import * as postController from '../controllers/postController';
+import textCensorMiddleware from '../middleware/textCensor';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage, limits: { fileSize: 1000000 } }); // max 1 mb
@@ -18,6 +19,7 @@ postRoute.post(
     '/post',
     passport.authenticate('jwt', { session: false }),
     upload.single('imagePicker'),
+    textCensorMiddleware(),
     postController.addNewPost
 );
 
@@ -31,6 +33,7 @@ postRoute.patch(
     '/post/:id',
     passport.authenticate('jwt', { session: false }),
     upload.single('imagePicker'),
+    textCensorMiddleware(),
     postController.editPost
 );
 
