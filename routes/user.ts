@@ -37,19 +37,19 @@ userRoute.get(
 );
 
 userRoute.patch(
-    '/users/:id/friendrequest',
+    '/users/:id/request/send',
     passport.authenticate('jwt', { session: false }),
     userController.sendFriendRequest
 );
 
 userRoute.patch(
-    '/users/:id/acceptfriendrequest',
+    '/users/:id/request/accept',
     passport.authenticate('jwt', { session: false }),
     userController.acceptFriendRequest
 );
 
 userRoute.patch(
-    '/users/:id/declinefriendrequest',
+    '/users/:id/request/decline',
     passport.authenticate('jwt', { session: false }),
     userController.declineFriendRequest
 );
