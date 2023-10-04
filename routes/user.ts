@@ -55,7 +55,7 @@ userRoute.patch(
 );
 
 userRoute.patch(
-    '/users/:id/unfriend',
+    '/users/:id/request/unfriend',
     passport.authenticate('jwt', { session: false }),
     userController.unfriendUser
 );

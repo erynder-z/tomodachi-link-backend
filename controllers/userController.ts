@@ -4,7 +4,6 @@ import { JwtUser } from '../types/jwtUser';
 import mongoose from 'mongoose';
 import { validationResult } from 'express-validator';
 import { FriendType } from '../types/friendType';
-import { validateCurrentUserId } from './validators/requestValidators/validateCurrentUserId';
 import { validateOtherUserId } from './validators/requestValidators/validateOhterUserId';
 import { MinimalUserTypes } from '../types/minimalUserTypes';
 
@@ -386,13 +385,13 @@ const formatUserData = (
 };
 
 const sendFriendRequest = [
-    validateCurrentUserId(),
     validateOtherUserId(),
 
     async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
 
-        const currentUserID = req.body.currentUserId;
+        const jwtUser = req.user as JwtUser;
+        const currentUserID = jwtUser._id;
         const otherUserID = req.body.otherUserId;
 
         if (!errors.isEmpty()) {
@@ -464,7 +463,6 @@ const handleFriendRequestForUsers = async (
 };
 
 const acceptFriendRequest = [
-    validateCurrentUserId(),
     validateOtherUserId(),
 
     async (req: Request, res: Response, next: NextFunction) => {
@@ -477,7 +475,9 @@ const acceptFriendRequest = [
             });
         }
 
-        const { currentUserId, otherUserId } = req.body;
+        const jwtUser = req.user as JwtUser;
+        const currentUserId = jwtUser._id;
+        const otherUserId = req.body.otherUserId;
 
         try {
             const [currentUser, otherUser] = await Promise.all([
@@ -515,7 +515,6 @@ const getUserById = async (id: string) => {
 };
 
 const declineFriendRequest = [
-    validateCurrentUserId(),
     validateOtherUserId(),
 
     async (req: Request, res: Response, next: NextFunction) => {
@@ -528,7 +527,9 @@ const declineFriendRequest = [
             });
         }
 
-        const { currentUserId, otherUserId } = req.body;
+        const jwtUser = req.user as JwtUser;
+        const currentUserId = jwtUser._id;
+        const otherUserId = req.body.otherUserId;
 
         try {
             const [currentUser, otherUser] = await Promise.all([
@@ -562,7 +563,6 @@ const declineFriendRequest = [
 ];
 
 const unfriendUser = [
-    validateCurrentUserId(),
     validateOtherUserId(),
 
     async (req: Request, res: Response, next: NextFunction) => {
@@ -575,7 +575,9 @@ const unfriendUser = [
             });
         }
 
-        const { currentUserId, otherUserId } = req.body;
+        const jwtUser = req.user as JwtUser;
+        const currentUserId = jwtUser._id;
+        const otherUserId = req.body.otherUserId;
 
         try {
             const [currentUser, otherUser] = await Promise.all([
