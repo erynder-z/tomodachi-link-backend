@@ -4,7 +4,7 @@ import { JwtUser } from '../types/jwtUser';
 import mongoose from 'mongoose';
 import { validationResult } from 'express-validator';
 import { FriendType } from '../types/friendType';
-import { validateOtherUserId } from './validators/requestValidators/validateOhterUserId';
+import { validateOtherUserId } from './validators/requestValidators/validateOtherUserId';
 import { MinimalUserTypes } from '../types/minimalUserTypes';
 
 const countUsers = async (req: Request, res: Response, next: NextFunction) => {
