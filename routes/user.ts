@@ -4,12 +4,6 @@ import * as userController from '../controllers/userController';
 
 export const userRoute = Router();
 
-userRoute.get(
-    '/users',
-    passport.authenticate('jwt', { session: false }),
-    userController.searchUsers
-);
-
 userRoute.get('/users/count', userController.countUsers);
 
 userRoute.get(
