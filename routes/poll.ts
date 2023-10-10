@@ -9,7 +9,10 @@ export const pollRoute = Router();
 pollRoute.post(
     '/poll',
     passport.authenticate('jwt', { session: false }),
-    checkAccountType('regularUser'),
+    checkAccountType(
+        'regularUser',
+        'This functionality is disabled for the guest account!'
+    ),
     pollController.addNewPoll
 );
 
