@@ -1,27 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import Post from '../models/post';
-import User, { UserModelType } from '../models/user';
+import User from '../models/user';
 import { JwtUser } from '../types/jwtUser';
 import mongoose from 'mongoose';
 import { validateGifUrl } from './validators/postValidators/validateGifUrl';
 import { validateText } from './validators/postValidators/validateText';
 import { validateEmbeddedVideoID } from './validators/postValidators/validateEmbeddedVideoID';
 import { validateImage } from './validators/imageValidators/validateImage';
-
-const isReadOperationForbidden = async (
-    currentUser: UserModelType | null,
-    postOwnerId: mongoose.Types.ObjectId
-): Promise<boolean> => {
-    if (
-        !currentUser ||
-        (currentUser._id.toString() !== postOwnerId.toString() &&
-            !currentUser.friends.includes(postOwnerId))
-    ) {
-        return true;
-    }
-    return false;
-};
+import { validateFriendshipStatus } from '../middleware/validateFriendshipStatus';
 
 const getPosts = async (req: Request, res: Response, next: NextFunction) => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
@@ -32,7 +19,7 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
         const jwtUser = req.user as JwtUser;
         const currentUser = await User.findById(jwtUser._id);
 
-        if (await isReadOperationForbidden(currentUser, ownerId)) {
+        if (await validateFriendshipStatus(currentUser, ownerId)) {
             return res.status(403).json({
                 errors: [{ msg: 'Forbidden' }],
             });
@@ -74,7 +61,7 @@ const getPostDetails = async (
         const postOwner = retrievedPost?.owner;
         const postOwnerId = new mongoose.Types.ObjectId(postOwner?._id);
 
-        if (await isReadOperationForbidden(currentUser, postOwnerId)) {
+        if (await validateFriendshipStatus(currentUser, postOwnerId)) {
             return res.status(403).json({
                 errors: [{ msg: 'Forbidden' }],
             });
