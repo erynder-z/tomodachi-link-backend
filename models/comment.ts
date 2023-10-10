@@ -1,9 +1,11 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export type CommentType = {
+    _id: Types.ObjectId;
     parentItem: Types.ObjectId;
     owner: Types.ObjectId;
     text: string;
+    updatedAt: Date;
 };
 
 type CommentModelType = CommentType & Document;

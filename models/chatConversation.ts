@@ -1,12 +1,14 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export type ChatConversationType = {
+    _id: Types.ObjectId;
     members: string[];
     conversationStatus: {
         member: string;
         hasUnreadMessage: boolean;
         hasMutedConversation: boolean;
     }[];
+    updatedAt: Date;
 };
 
 type ChatConversationModelType = ChatConversationType & Document;

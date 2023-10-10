@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export type PostType = {
+    _id: Types.ObjectId;
     owner: Types.ObjectId;
     text: string;
     image: {
@@ -15,9 +16,10 @@ export type PostType = {
         negative: number;
         reacted_users: Types.ObjectId[];
     };
+    updatedAt: Date;
 };
 
-type PostModelType = PostType & Document;
+export type PostModelType = PostType & Document;
 
 const PostSchema: Schema = new Schema(
     {

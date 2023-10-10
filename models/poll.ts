@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export type PollType = {
+    _id: Types.ObjectId;
     owner: Types.ObjectId;
     question: string;
     numberOfOptions: number;
@@ -10,6 +11,7 @@ export type PollType = {
     allowComments: boolean;
     respondentUsers: Types.ObjectId[];
     comments: Types.ObjectId[];
+    updatedAt: Date;
 };
 
 type PollModelType = PollType & Document;

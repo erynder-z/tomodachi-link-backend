@@ -4,7 +4,7 @@ import fs from 'fs';
 import { CoverType } from '../types/coverType';
 
 export type UserType = {
-    _id: string;
+    _id: Types.ObjectId;
     firstName: string;
     lastName: string;
     username: string;
@@ -22,6 +22,7 @@ export type UserType = {
     lastSeen: Date;
     pendingFriendRequests: Types.ObjectId[];
     accountType: 'regularUser' | 'guest';
+    updatedAt: Date;
 };
 
 export type UserModelType = UserType & Document;
