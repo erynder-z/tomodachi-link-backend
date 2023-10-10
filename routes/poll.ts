@@ -16,7 +16,10 @@ pollRoute.post(
 pollRoute.patch(
     '/poll/:id/answer',
     passport.authenticate('jwt', { session: false }),
-    checkAccountType('regularUser'),
+    checkAccountType(
+        'regularUser',
+        'This functionality is disabled for the guest account!'
+    ),
     pollController.submitPollAnswer
 );
 
