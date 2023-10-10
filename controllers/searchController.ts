@@ -1,11 +1,14 @@
 import { Request, Response } from 'express';
 import User from '../models/user';
-import Post from '../models/post';
+import Post, { PostModelType } from '../models/post';
 import Poll from '../models/poll';
 import { AllSearchResultsType } from '../types/searchTypes';
+import { JwtUser } from '../types/jwtUser';
 
 const performSearch = async (req: Request, res: Response): Promise<void> => {
     try {
+        const jwtUser = req.user as JwtUser;
+        const currentUser = await User.findById(jwtUser._id);
         const query = req.query.query as string;
 
         if (!query) {
@@ -58,12 +61,25 @@ const performSearch = async (req: Request, res: Response): Promise<void> => {
             $or: [{ text: { $regex: term, $options: 'i' } }],
         }));
 
-        await searchModel(
-            Post,
-            'post',
-            ['text', 'updatedAt'],
-            postRegexQueries
-        );
+        const postResults = await Post.find({ $or: postRegexQueries })
+            .select(['text', 'updatedAt', 'owner'])
+            .lean();
+
+        const filteredPostResults = postResults.filter((post) => {
+            const postOwner = post.owner;
+            return (
+                postOwner.equals(currentUser?._id) ||
+                currentUser?.friends.includes(postOwner)
+            );
+        });
+
+        const mappedPostResults: AllSearchResultsType[] =
+            filteredPostResults.map((result: PostModelType) => ({
+                type: 'post',
+                data: result,
+            }));
+
+        allResults.push(...mappedPostResults);
 
         const pollRegexQueries = terms.map((term) => ({
             $or: [
