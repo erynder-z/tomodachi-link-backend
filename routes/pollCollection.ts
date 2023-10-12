@@ -7,5 +7,11 @@ export const pollCollectionRoute = Router();
 pollCollectionRoute.get(
     '/poll/collection',
     passport.authenticate('jwt', { session: false }),
-    pollCollectionController.getPollCollection
+    pollCollectionController.getPaginatedPollCollection
+);
+
+pollCollectionRoute.get(
+    '/poll/:id/single',
+    passport.authenticate('jwt', { session: false }),
+    pollCollectionController.getSinglePoll
 );
