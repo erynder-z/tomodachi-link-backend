@@ -27,7 +27,7 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
 
         const userPosts = await Post.find({ owner: ownerId })
             .select('_id')
-            .sort({ updatedAt: -1 })
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(10)
             .exec();
