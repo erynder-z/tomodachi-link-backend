@@ -11,6 +11,7 @@ export type PollType = {
     allowComments: boolean;
     respondentUsers: Types.ObjectId[];
     comments: Types.ObjectId[];
+    createdAt: Date;
     updatedAt: Date;
 };
 

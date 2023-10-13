@@ -16,6 +16,7 @@ export type PostType = {
         negative: number;
         reacted_users: Types.ObjectId[];
     };
+    createdAt: Date;
     updatedAt: Date;
 };
 

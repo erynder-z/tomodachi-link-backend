@@ -5,6 +5,7 @@ export type CommentType = {
     parentItem: Types.ObjectId;
     owner: Types.ObjectId;
     text: string;
+    createdAt: Date;
     updatedAt: Date;
 };
 

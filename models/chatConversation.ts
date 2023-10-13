@@ -8,6 +8,7 @@ export type ChatConversationType = {
         hasUnreadMessage: boolean;
         hasMutedConversation: boolean;
     }[];
+    createdAt: Date;
     updatedAt: Date;
 };
 

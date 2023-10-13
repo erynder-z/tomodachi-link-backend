@@ -22,6 +22,7 @@ export type UserType = {
     lastSeen: Date;
     pendingFriendRequests: Types.ObjectId[];
     accountType: 'regularUser' | 'guest';
+    createdAt: Date;
     updatedAt: Date;
 };
 
