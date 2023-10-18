@@ -5,6 +5,7 @@ export type PostType = {
     owner: Types.ObjectId;
     text: string;
     image: {
+        id: string;
         data: Buffer;
         contentType: string;
     };
@@ -27,6 +28,7 @@ const PostSchema: Schema = new Schema(
         owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         text: { type: String, required: true },
         image: {
+            id: String,
             data: Buffer,
             contentType: String,
         },

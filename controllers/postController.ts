@@ -9,6 +9,7 @@ import { validateText } from './validators/postValidators/validateText';
 import { validateEmbeddedVideoID } from './validators/postValidators/validateEmbeddedVideoID';
 import { validateImage } from './validators/imageValidators/validateImage';
 import { validateFriendshipStatus } from '../middleware/validateFriendshipStatus';
+import { randomUUID } from 'crypto';
 
 const getPosts = async (req: Request, res: Response, next: NextFunction) => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
@@ -119,7 +120,11 @@ const savePostInDatabase = async (
         const reqUser = req.user as JwtUser;
         const { newPost, embeddedVideoID, gifUrl } = req.body;
         const image = req.file
-            ? { data: req.file.buffer, contentType: req.file.mimetype }
+            ? {
+                  id: randomUUID(),
+                  data: req.file.buffer,
+                  contentType: req.file.mimetype,
+              }
             : undefined;
 
         const savedPost = await createPost(
@@ -208,7 +213,11 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
         } = req.body;
 
         const image = req.file
-            ? { data: req.file.buffer, contentType: req.file.mimetype }
+            ? {
+                  id: randomUUID(),
+                  data: req.file.buffer,
+                  contentType: req.file.mimetype,
+              }
             : undefined;
 
         const updateData: any = {

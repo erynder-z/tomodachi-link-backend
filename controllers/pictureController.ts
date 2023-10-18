@@ -62,7 +62,7 @@ const getPictureList = async (
             image: { $exists: true },
         })
             .select('image')
-            .sort({ updatedAt: -1 })
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(itemsPerPage)
             .exec();
