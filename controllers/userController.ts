@@ -84,7 +84,7 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
         }
 
         const userList = await User.find({ _id: { $ne: currentUserId } })
-            .select('_id firstName lastName username userpic')
+            .select('_id firstName lastName userpic')
             .skip(skip)
             .limit(10)
             .lean()
@@ -96,7 +96,6 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
                     _id: user._id,
                     firstName: user.firstName,
                     lastName: user.lastName,
-                    username: user.username,
                     userpic: user.userpic,
                 };
                 return minimalUser;
@@ -278,7 +277,6 @@ const getFriendData = async (user: UserModelType) => {
                 _id: 1,
                 firstName: 1,
                 lastName: 1,
-                username: 1,
                 userpic: 1,
                 cover: 1,
             },
@@ -315,7 +313,6 @@ const formatUserData = (
         _id,
         firstName: firstName,
         lastName: lastName,
-        username,
         userpic,
         cover,
         joined,
@@ -326,7 +323,6 @@ const formatUserData = (
         _id,
         firstName,
         lastName,
-        username,
         userpic: userpic.data,
         cover,
         ...(isFriend && { joined, lastSeen, friends, mutualFriends }),

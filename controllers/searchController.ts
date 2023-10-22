@@ -14,12 +14,11 @@ const searchUsers = async (
         $or: [
             { firstName: { $regex: term, $options: 'i' } },
             { lastName: { $regex: term, $options: 'i' } },
-            { username: { $regex: term, $options: 'i' } },
         ],
     }));
 
     const userResults = await User.find({ $or: userRegexQueries })
-        .select(['firstName', 'lastName', 'username', 'userpic'])
+        .select(['firstName', 'lastName', 'userpic'])
         .lean();
 
     const mappedUserResults: AllSearchResultsType[] = userResults.map(

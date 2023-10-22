@@ -56,7 +56,7 @@ const getPaginatedPollCollection = async (
             .select(projection)
             .populate({
                 path: 'owner',
-                select: 'username firstName lastName userpic',
+                select: 'firstName lastName userpic',
             })
             .populate({
                 path: 'comments',
@@ -107,7 +107,7 @@ const getSinglePoll = async (
             .select(projection)
             .populate({
                 path: 'owner',
-                select: 'username firstName lastName userpic',
+                select: 'firstName lastName userpic',
             })
             .populate({
                 path: 'comments',

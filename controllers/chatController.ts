@@ -225,13 +225,12 @@ const handleConversationMute = async (
 };
 
 const formatUserData = (user: UserModelType) => {
-    const { _id, firstName, lastName, username, userpic } = user;
+    const { _id, firstName, lastName, userpic } = user;
 
     const formattedUser = {
         _id,
         firstName,
         lastName,
-        username,
         userpic: userpic.data,
     };
 
