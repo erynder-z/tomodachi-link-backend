@@ -117,7 +117,11 @@ const getMessagesFromConversation = async (
             messages.reverse();
         }
 
-        res.status(200).json({ messages });
+        const totalMessageCount = await ChatMessage.countDocuments({
+            conversationId,
+        });
+
+        res.status(200).json({ messages, totalMessageCount });
     } catch (error) {
         return next(error);
     }
