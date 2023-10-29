@@ -92,10 +92,31 @@ const getMessagesFromConversation = async (
     next: NextFunction
 ) => {
     try {
-        const conversationId = req.params.conversationId;
-        const messages = await ChatMessage.find({
-            conversationId,
-        });
+        const { conversationId } = req.params;
+        const messageScope = req.query.messageScope || 'latest';
+
+        const query = ChatMessage.find({ conversationId });
+
+        let messages;
+
+        if (messageScope === 'latest') {
+            messages = await query.sort({ createdAt: -1 }).limit(25).exec();
+        } else if (messageScope === 'all') {
+            messages = await query.sort({ createdAt: 1 }).exec();
+        } else {
+            return res.status(400).json({
+                errors: [
+                    {
+                        msg: 'Something went wrong while getting your messages!',
+                    },
+                ],
+            });
+        }
+
+        if (messageScope === 'latest') {
+            messages.reverse();
+        }
+
         res.status(200).json({ messages });
     } catch (error) {
         return next(error);
