@@ -38,6 +38,7 @@ const getFriendData = async (
                     joined: 1,
                     lastSeen: 1,
                     userpic: 1,
+                    accountType: 1,
                 },
             },
         ]);

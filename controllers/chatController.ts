@@ -15,6 +15,12 @@ const initializeConversation = async (
         const chatPartnerId = req.body.chatPartnerId;
 
         try {
+            const partner = await User.findById(chatPartnerId);
+
+            if (partner?.accountType === 'guest') {
+                return res.status(403);
+            }
+
             const existingConversation = await ChatConversation.findOne({
                 members: { $all: [jwtUserId, chatPartnerId] },
             });
