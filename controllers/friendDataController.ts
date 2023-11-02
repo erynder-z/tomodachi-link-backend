@@ -34,7 +34,6 @@ const getFriendData = async (
                     _id: 1,
                     firstName: 1,
                     lastName: 1,
-                    email: 1,
                     joined: 1,
                     lastSeen: 1,
                     userpic: 1,
