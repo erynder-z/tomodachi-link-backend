@@ -5,6 +5,9 @@ import type { UserModelType } from '../models/user';
 import { LoginErrorMessage } from '../types/loginErrorMessage';
 
 const generateToken = (user: UserModelType) => {
+    const TOKEN_SECRET_KEY = process.env.TOKEN_SECRET_KEY;
+    const TOKEN_EXPIRE_TIME = process.env.TOKEN_EXPIRE_TIME;
+
     const { _id, username, accountType } = user;
     return jwt.sign(
         {
@@ -14,12 +17,14 @@ const generateToken = (user: UserModelType) => {
                 accountType,
             },
         },
-        `${process.env.TOKEN_SECRET_KEY}`,
-        { expiresIn: `${process.env.TOKEN_EXPIRE_TIME}` }
+        `${TOKEN_SECRET_KEY}`,
+        { expiresIn: `${TOKEN_EXPIRE_TIME}` }
     );
 };
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
+    const AUTH_ERROR_MESSAGE = 'Error while logging in';
+
     passport.authenticate(
         'login',
         async (
@@ -36,33 +41,35 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
                 req.login(user, { session: false }, async (error) => {
                     if (error)
                         return res.status(400).json({
-                            error: { message: 'Error while logging in' },
+                            error: { message: AUTH_ERROR_MESSAGE },
                         });
                     const token = generateToken(user);
-                    return res.json({ success: true, token });
+                    return res.status(200).json({ success: true, token });
                 });
             } catch (error) {
                 return res
                     .status(400)
-                    .json({ error: { message: 'Error while authenticating' } });
+                    .json({ error: { message: AUTH_ERROR_MESSAGE } });
             }
         }
     )(req, res, next);
 };
 
 const checkToken = async (req: Request, res: Response) => {
+    const TOKEN_ERROR_MESSAGE = 'Invalid token';
+
     try {
         const bearerHeader = req.headers['authorization'];
         if (!bearerHeader) {
             return res.status(400).json({
-                error: { message: 'Authorization header is missing' },
+                error: { message: TOKEN_ERROR_MESSAGE },
             });
         }
 
         const bearer = bearerHeader.split(' ');
         if (bearer.length !== 2 || bearer[0] !== 'Bearer') {
             return res.status(400).json({
-                error: { message: 'Authorization header is malformed' },
+                error: { message: TOKEN_ERROR_MESSAGE },
             });
         }
 
@@ -70,7 +77,7 @@ const checkToken = async (req: Request, res: Response) => {
         if (!token) {
             return res
                 .status(400)
-                .json({ error: { message: 'Token is missing' } });
+                .json({ error: { message: TOKEN_ERROR_MESSAGE } });
         }
 
         const secret = process.env.TOKEN_SECRET_KEY as string;
@@ -78,14 +85,14 @@ const checkToken = async (req: Request, res: Response) => {
         if (!decoded || typeof decoded !== 'object') {
             return res
                 .status(400)
-                .json({ error: { message: 'Token is invalid' } });
+                .json({ error: { message: TOKEN_ERROR_MESSAGE } });
         }
 
         res.status(200).json({ user: decoded.user });
     } catch (error) {
         return res
             .status(400)
-            .json({ error: { message: 'Error while checking token' } });
+            .json({ error: { message: TOKEN_ERROR_MESSAGE } });
     }
 };
 

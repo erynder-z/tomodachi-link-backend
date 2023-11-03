@@ -15,6 +15,9 @@ const initializeConversation = async (
         const chatPartnerId = req.body.chatPartnerId;
 
         try {
+            const EXISTING_CONVERSATION_MESSAGE = 'Conversation already exists';
+            const SUCCESS_MESSAGE = 'Conversation initialized';
+
             const partner = await User.findById(chatPartnerId);
 
             if (partner?.accountType === 'guest') {
@@ -27,7 +30,7 @@ const initializeConversation = async (
 
             if (existingConversation) {
                 return res.status(200).json({
-                    message: 'Conversation already exists',
+                    message: EXISTING_CONVERSATION_MESSAGE,
                     existingConversation,
                 });
             }
@@ -50,7 +53,7 @@ const initializeConversation = async (
 
             const savedConversation = await newChatConversation.save();
             return res.status(200).json({
-                message: 'Conversation initialized',
+                message: SUCCESS_MESSAGE,
                 savedConversation,
             });
         } catch (error) {
@@ -99,7 +102,11 @@ const getMessagesFromConversation = async (
 ) => {
     try {
         const { conversationId } = req.params;
-        const messageScope = req.query.messageScope || 'latest';
+        const DEFAULT_MESSAGE_SCOPE = 'latest';
+        const messageScope = req.query.messageScope || DEFAULT_MESSAGE_SCOPE;
+
+        const ERROR_MESSAGE =
+            'Something went wrong while getting your messages!';
 
         const query = ChatMessage.find({ conversationId });
 
@@ -113,7 +120,7 @@ const getMessagesFromConversation = async (
             return res.status(400).json({
                 errors: [
                     {
-                        msg: 'Something went wrong while getting your messages!',
+                        msg: ERROR_MESSAGE,
                     },
                 ],
             });
@@ -193,13 +200,14 @@ const getChatPartnerData = async (
     next: NextFunction
 ) => {
     try {
+        const ERROR_MESSAGE = 'User not found!';
         const otherUser = await User.findById(req.params.id);
 
         if (!otherUser) {
             return res.status(404).json({
                 errors: [
                     {
-                        message: 'User data not found!',
+                        message: ERROR_MESSAGE,
                     },
                 ],
             });
@@ -225,6 +233,8 @@ const handleConversationMute = async (
         const reqUser = req.user as JwtUser;
         const jwtUserId = reqUser._id.toString();
 
+        const ERROR_MESSAGE = 'Conversation not found!';
+
         const conversation = await ChatConversation.findOne({
             _id: conversationId,
             'conversationStatus.member': jwtUserId,
@@ -234,7 +244,7 @@ const handleConversationMute = async (
             return res.status(404).json({
                 errors: [
                     {
-                        message: 'Conversation not found!',
+                        message: ERROR_MESSAGE,
                     },
                 ],
             });
