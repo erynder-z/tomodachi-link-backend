@@ -16,7 +16,8 @@ const getPaginatedPollCollection = async (
         const currentUserId = jwtUser._id;
         const currentUser = await User.findById(currentUserId).exec();
         if (!currentUser) {
-            throw new Error('User not found');
+            const ERROR_MESSAGE = 'User not found';
+            throw new Error(ERROR_MESSAGE);
         }
 
         const friendListIdArray = currentUser.friends.map((friend) =>
@@ -88,7 +89,8 @@ const getSinglePoll = async (
         const currentUserId = jwtUser._id;
         const currentUser = await User.findById(currentUserId).exec();
         if (!currentUser) {
-            throw new Error('User not found');
+            const ERROR_MESSAGE = 'User not found';
+            throw new Error(ERROR_MESSAGE);
         }
 
         const projection = {
@@ -129,8 +131,9 @@ const getSinglePoll = async (
         ) {
             res.status(200).json({ singlePoll });
         } else {
+            const ERROR_MESSAGE = 'Forbidden';
             res.status(403).json({
-                errors: [{ msg: 'Forbidden' }],
+                errors: [{ msg: ERROR_MESSAGE }],
             });
         }
     } catch (error) {

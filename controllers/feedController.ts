@@ -23,7 +23,8 @@ const getPosts = async (
 
         return { userPosts: formattedPosts };
     } catch (err) {
-        throw new Error('Error getting feed');
+        const ERROR_MESSAGE = 'Error getting feed';
+        throw new Error(ERROR_MESSAGE);
     }
 };
 
@@ -39,7 +40,8 @@ const getUserFeed = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const currentUser = await User.findById(currentUserId).exec();
         if (!currentUser) {
-            throw new Error('User not found');
+            const ERROR_MESSAGE = 'User not found';
+            throw new Error(ERROR_MESSAGE);
         }
 
         const friendListIdArray = currentUser.friends.map((friend) =>

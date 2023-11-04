@@ -118,7 +118,6 @@ const savePollInDatabase = async (
         await savePollToUser(reqUser, savedPoll._id);
 
         res.status(200).json({
-            title: 'poll created successfully!',
             savedPoll,
         });
     } catch (err) {
@@ -159,13 +158,13 @@ const submitPollAnswer = async (
         );
 
         if (!updatedPoll) {
+            const ERROR_MESSAGE = "You've already submitted an answer!";
             return res.status(409).json({
-                errors: [{ msg: 'You already submitted an answer!' }],
+                errors: [{ msg: ERROR_MESSAGE }],
             });
         }
 
         res.status(200).json({
-            title: 'Answer submitted successfully!',
             updatedPoll,
         });
     } catch (err) {
@@ -195,17 +194,15 @@ const getSinglePollData = async (
         const postOwnerID = retrievedPoll?.owner;
 
         if (!retrievedPoll) {
-            return res
-                .status(404)
-                .json({ errors: [{ msg: 'Poll not found' }] });
+            const ERROR_MESSAGE = 'Poll not found';
+            return res.status(404).json({ errors: [{ msg: ERROR_MESSAGE }] });
         }
 
         const postOwner = await User.findById(postOwnerID).exec();
 
         if (!postOwner) {
-            return res
-                .status(404)
-                .json({ errors: [{ msg: 'Poll owner not found' }] });
+            const ERROR_MESSAGE = 'Poll owner not found';
+            return res.status(404).json({ errors: [{ msg: ERROR_MESSAGE }] });
         }
 
         const isOwner = retrievedPoll.owner.equals(reqUserID);
@@ -214,7 +211,8 @@ const getSinglePollData = async (
             postOwner.friends.includes(reqUserID);
 
         if (!isOwner && !isRetrievalAllowed) {
-            return res.status(403).json({ errors: [{ msg: 'Forbidden!' }] });
+            const ERROR_MESSAGE = 'Forbidden!';
+            return res.status(403).json({ errors: [{ msg: ERROR_MESSAGE }] });
         }
 
         return res.status(200).json({ retrievedPoll });

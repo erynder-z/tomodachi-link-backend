@@ -52,8 +52,9 @@ const getPictureList = async (
         const currentUser = await User.findById(jwtUser._id);
 
         if (await isReadOperationForbidden(currentUser, ownerId)) {
+            const ERROR_MESSAGE = 'Forbidden';
             return res.status(403).json({
-                errors: [{ msg: 'Forbidden' }],
+                errors: [{ msg: ERROR_MESSAGE }],
             });
         }
 

@@ -97,8 +97,9 @@ const performSearch = async (req: Request, res: Response): Promise<void> => {
         const query = req.query.query as string;
 
         if (!query) {
+            const ERROR_MESSAGE = 'Query parameter is required!';
             res.status(400).json({
-                errors: [{ message: 'Query parameter is required!' }],
+                errors: [{ msg: ERROR_MESSAGE }],
             });
             return;
         }
@@ -114,8 +115,11 @@ const performSearch = async (req: Request, res: Response): Promise<void> => {
 
         res.json(allResults);
     } catch (error) {
+        const ERROR_MESSAGE = 'Something went wrong while searching!';
         console.error('Error searching:', error);
-        res.status(500).json([{ message: 'Internal server error!' }]);
+        res.status(500).json({
+            errors: [{ msg: ERROR_MESSAGE }],
+        });
     }
 };
 

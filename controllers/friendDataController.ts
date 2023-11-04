@@ -12,10 +12,11 @@ const getFriendData = async (
     try {
         const currentUser = await User.findById(reqUser._id);
         if (!currentUser) {
+            const ERROR_MESSAGE = 'Something went wrong retrieving user data!';
             return res.status(404).json({
                 errors: [
                     {
-                        message: 'Something went wrong retrieving user data!',
+                        message: ERROR_MESSAGE,
                     },
                 ],
             });

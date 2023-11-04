@@ -22,9 +22,10 @@ const getUserData = async (req: Request, res: Response, next: NextFunction) => {
 
             const user = await User.findOne({ _id: id }, { password: 0 });
             if (!user) {
-                return res
-                    .status(404)
-                    .json({ errors: [{ message: 'User not found' }] }); // Error handler expects an array of errors
+                const ERROR_MESSAGE = 'User not found';
+                return res.status(404).json({
+                    errors: [{ msg: ERROR_MESSAGE }],
+                }); // Error handler expects an array of errors
             }
 
             return res.status(200).json({ user });
@@ -60,8 +61,10 @@ const updateUserData = [
         });
 
         if (!errors.isEmpty()) {
+            const ERROR_MESSAGE = 'Failed to update user!';
+
             res.status(400).json({
-                message: 'Failed to update user!',
+                message: ERROR_MESSAGE,
                 errors: errors.array(),
                 reqUser,
             });
@@ -107,8 +110,10 @@ const updateUserPassword = [
         });
 
         if (!errors.isEmpty()) {
+            const ERROR_MESSAGE = 'Failed to update user!';
+
             res.status(400).json({
-                message: 'Failed to update user!',
+                message: ERROR_MESSAGE,
                 errors: errors.array(),
                 reqUser,
             });
@@ -149,8 +154,10 @@ const updateCover = [
         });
 
         if (!errors.isEmpty()) {
+            const ERROR_MESSAGE = 'Failed to update cover!';
+
             res.status(400).json({
-                message: 'Failed to update cover!',
+                message: ERROR_MESSAGE,
                 errors: errors.array(),
                 reqUser,
             });

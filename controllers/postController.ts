@@ -21,8 +21,9 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
         const currentUser = await User.findById(jwtUser._id);
 
         if (await validateFriendshipStatus(currentUser, ownerId)) {
+            const ERROR_MESSAGE = 'Forbidden';
             return res.status(403).json({
-                errors: [{ msg: 'Forbidden' }],
+                errors: [{ msg: ERROR_MESSAGE }],
             });
         }
 
@@ -63,8 +64,9 @@ const getPostDetails = async (
         const postOwnerId = new mongoose.Types.ObjectId(postOwner?._id);
 
         if (await validateFriendshipStatus(currentUser, postOwnerId)) {
+            const ERROR_MESSAGE = 'Forbidden';
             return res.status(403).json({
-                errors: [{ msg: 'Forbidden' }],
+                errors: [{ msg: ERROR_MESSAGE }],
             });
         }
 
@@ -137,7 +139,6 @@ const savePostInDatabase = async (
         await savePostToUser(reqUser, savedPost._id);
 
         res.status(200).json({
-            title: 'Post created successfully!',
             savedPost,
         });
     } catch (err) {
@@ -168,25 +169,25 @@ const deletePost = async (req: Request, res: Response, next: NextFunction) => {
         const post = await Post.findById(postID).populate('owner');
 
         if (!post) {
+            const ERROR_MESSAGE = 'Post not found';
             return res.status(404).json({
-                errors: [{ msg: 'Post not found!' }],
+                errors: [{ msg: ERROR_MESSAGE }],
             });
         }
 
         const postOwner = post.owner;
 
         if (postOwner._id.toString() !== reqUser._id.toString()) {
+            const ERROR_MESSAGE = 'Forbidden';
             return res.status(403).json({
-                errors: [{ msg: 'Forbidden' }],
+                errors: [{ msg: ERROR_MESSAGE }],
             });
         }
 
         await Post.findByIdAndRemove(postID);
         await deletePostFromUser(reqUser, postID);
 
-        res.status(200).json({
-            title: 'Post deleted!',
-        });
+        res.status(200).json({});
     } catch (error) {
         return next(error);
     }
@@ -250,8 +251,9 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
             ).populate('owner');
 
             if (!updatedPost) {
+                const ERROR_MESSAGE = 'Post not found!';
                 return res.status(404).json({
-                    errors: [{ msg: 'Post not found!' }],
+                    errors: [{ msg: ERROR_MESSAGE }],
                 });
             }
 
@@ -259,13 +261,13 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
 
             // Check if the requesting user is the post owner
             if (postOwner._id.toString() !== reqUser._id.toString()) {
+                const ERROR_MESSAGE = 'Forbidden';
                 return res.status(403).json({
-                    errors: [{ msg: 'Forbidden' }],
+                    errors: [{ msg: ERROR_MESSAGE }],
                 });
             }
 
             res.status(200).json({
-                title: 'Post updated successfully!',
                 updatedPost,
             });
         } catch (err) {
@@ -312,7 +314,6 @@ const positiveReaction = async (
         }
 
         res.status(200).json({
-            title: 'Reacted successfully!',
             updatedPost,
         });
     } catch (err) {
@@ -342,13 +343,13 @@ const negativeReaction = async (
         );
 
         if (!updatedPost) {
+            const ERROR_MESSAGE = 'User already reacted to this post!';
             return res.status(409).json({
-                errors: [{ msg: 'User already reacted to this post!' }],
+                errors: [{ msg: ERROR_MESSAGE }],
             });
         }
 
         res.status(200).json({
-            title: 'Reacted successfully!',
             updatedPost,
         });
     } catch (err) {

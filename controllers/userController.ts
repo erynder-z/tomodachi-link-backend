@@ -26,12 +26,10 @@ const getSomeUsers = async (
     try {
         const currentUser = await User.findById(jwtUser._id);
         if (!currentUser) {
+            const ERROR_MESSAGE = 'Something went wrong retrieving user data!';
+
             return res.status(404).json({
-                errors: [
-                    {
-                        message: 'Something went wrong retrieving user data!',
-                    },
-                ],
+                errors: [{ msg: ERROR_MESSAGE }],
             });
         }
 
@@ -74,12 +72,10 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const currentUser = await User.findById(currentUserId);
         if (!currentUser) {
+            const ERROR_MESSAGE = 'Something went wrong retrieving user data!';
+
             return res.status(404).json({
-                errors: [
-                    {
-                        message: 'Something went wrong retrieving user data!',
-                    },
-                ],
+                errors: [{ msg: ERROR_MESSAGE }],
             });
         }
 
@@ -118,12 +114,10 @@ const getSomeFriendsOfFriends = async (
     try {
         const currentUser = await User.findById(jwtUser._id);
         if (!currentUser) {
+            const ERROR_MESSAGE = 'Something went wrong retrieving user data!';
+
             return res.status(404).json({
-                errors: [
-                    {
-                        message: 'Something went wrong retrieving user data!',
-                    },
-                ],
+                errors: [{ msg: ERROR_MESSAGE }],
             });
         }
 
@@ -216,12 +210,10 @@ const getOtherUserData = async (
         ]);
 
         if (!otherUser || !currentUser) {
+            const ERROR_MESSAGE = 'Something went wrong retrieving user data!';
+
             return res.status(404).json({
-                errors: [
-                    {
-                        message: 'Something went wrong retrieving user data!',
-                    },
-                ],
+                errors: [{ msg: ERROR_MESSAGE }],
             });
         }
 
@@ -342,8 +334,10 @@ const sendFriendRequest = [
         const otherUserID = req.body.otherUserId;
 
         if (!errors.isEmpty()) {
+            const ERROR_MESSAGE = 'Failed to send friend request!';
+
             res.status(400).json({
-                message: 'Failed to send friend request!',
+                message: ERROR_MESSAGE,
                 errors: errors.array(),
             });
 
@@ -361,18 +355,14 @@ const sendFriendRequest = [
             );
 
             if (!updatedUser) {
+                const ERROR_MESSAGE = 'Could not send friend request!';
+
                 return res.status(406).json({
-                    errors: [
-                        {
-                            message: 'Could not send friend request!',
-                        },
-                    ],
+                    errors: [{ msg: ERROR_MESSAGE }],
                 });
             }
 
-            res.status(200).json({
-                title: 'Friend request sent!',
-            });
+            res.status(200).json();
         } catch (err) {
             return next(err);
         }
@@ -416,8 +406,10 @@ const acceptFriendRequest = [
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
+            const ERROR_MESSAGE = 'Failed to accept friend request!';
+
             return res.status(400).json({
-                message: 'Failed to accept friend request!',
+                message: ERROR_MESSAGE,
                 errors: errors.array(),
             });
         }
@@ -433,20 +425,15 @@ const acceptFriendRequest = [
             ]);
 
             if (!canHandleFriendRequest(currentUser, otherUser)) {
+                const ERROR_MESSAGE = 'Could not accept friend request!';
                 return res.status(406).json({
-                    errors: [
-                        {
-                            message: 'Could not accept friend request!',
-                        },
-                    ],
+                    errors: [{ msg: ERROR_MESSAGE }],
                 });
             }
 
             await handleFriendRequestForUsers(currentUser, otherUser, 'accept');
 
-            return res.status(200).json({
-                title: 'Friend request accepted!',
-            });
+            return res.status(200).json({});
         } catch (err) {
             return next(err);
         }
@@ -456,7 +443,9 @@ const acceptFriendRequest = [
 const getUserById = async (id: string) => {
     const user = await User.findById(id);
     if (!user) {
-        throw new Error('User not found');
+        const ERROR_MESSAGE = 'User not found';
+
+        throw new Error(ERROR_MESSAGE);
     }
     return user;
 };
@@ -468,8 +457,10 @@ const declineFriendRequest = [
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
+            const ERROR_MESSAGE = 'Failed to decline friend request!';
+
             return res.status(400).json({
-                message: 'Failed decline friend request!',
+                message: ERROR_MESSAGE,
                 errors: errors.array(),
             });
         }
@@ -485,12 +476,10 @@ const declineFriendRequest = [
             ]);
 
             if (!canHandleFriendRequest(currentUser, otherUser)) {
+                const ERROR_MESSAGE = 'Could not decline friend request!';
+
                 return res.status(406).json({
-                    errors: [
-                        {
-                            message: 'Could not decline friend request!',
-                        },
-                    ],
+                    errors: [{ msg: ERROR_MESSAGE }],
                 });
             }
 
@@ -500,9 +489,7 @@ const declineFriendRequest = [
                 'decline'
             );
 
-            return res.status(200).json({
-                title: 'Friend request declined!',
-            });
+            return res.status(200).json();
         } catch (err) {
             return next(err);
         }
@@ -516,8 +503,10 @@ const unfriendUser = [
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
+            const ERROR_MESSAGE = 'Failed to unfriend user!';
+
             return res.status(400).json({
-                message: 'Failed to unfriend!',
+                message: ERROR_MESSAGE,
                 errors: errors.array(),
             });
         }
@@ -533,20 +522,16 @@ const unfriendUser = [
             ]);
 
             if (!canUnfriend(currentUser, otherUser)) {
+                const ERROR_MESSAGE = 'You are not friends!';
+
                 return res.status(406).json({
-                    errors: [
-                        {
-                            message: 'You are not friends!',
-                        },
-                    ],
+                    errors: [{ msg: ERROR_MESSAGE }],
                 });
             }
 
             await removeUserFromFriends(currentUser, otherUser);
 
-            return res.status(200).json({
-                title: 'You are no longer friends!',
-            });
+            return res.status(200).json();
         } catch (err) {
             return next(err);
         }

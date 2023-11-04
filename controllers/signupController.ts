@@ -40,9 +40,12 @@ const handleSignup = async (
         if (err) {
             return next(err);
         }
+
+        const SUCCESS_MESSAGE =
+            'Signed-up successfully! Please log in to explore the app!';
+
         res.json({
-            message:
-                'Signed-up successfully! Please log in to explore the app!',
+            message: SUCCESS_MESSAGE,
             user: req.user,
         });
     })(req, res, next);

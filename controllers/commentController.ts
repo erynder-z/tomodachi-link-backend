@@ -23,13 +23,17 @@ const createComment = [
         const { user } = req;
 
         try {
+            const ERROR_MESSAGE =
+                'Invalid parentItem ID. It must be a valid Post or Poll ID.';
+            const SUCCESS_MESSAGE = 'Comment created successfully!';
+
             const parentItem =
                 (await mongoose.model('Post').findById(id).exec()) ||
                 (await mongoose.model('Poll').findById(id).exec());
 
             if (!parentItem) {
                 return res.status(400).json({
-                    error: 'Invalid parentItem ID. It must be a valid Post or Poll ID.',
+                    error: ERROR_MESSAGE,
                 });
             }
 
@@ -46,7 +50,6 @@ const createComment = [
             const comment = new Comment({
                 parentItem: id,
                 owner: user,
-                /*      timestamp: Date.now(), */
                 text: censoredText,
             });
 
@@ -63,7 +66,7 @@ const createComment = [
             });
 
             res.status(200).json({
-                title: 'Comment created successfully!',
+                title: SUCCESS_MESSAGE,
                 savedComment,
             });
         } catch (err) {
