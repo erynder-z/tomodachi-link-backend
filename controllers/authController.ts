@@ -80,8 +80,8 @@ const checkToken = async (req: Request, res: Response) => {
                 .json({ error: { message: TOKEN_ERROR_MESSAGE } });
         }
 
-        const secret = process.env.TOKEN_SECRET_KEY as string;
-        const decoded = jwt.verify(token, secret);
+        const SECRET = process.env.TOKEN_SECRET_KEY as string;
+        const decoded = jwt.verify(token, SECRET);
         if (!decoded || typeof decoded !== 'object') {
             return res
                 .status(400)
@@ -97,12 +97,12 @@ const checkToken = async (req: Request, res: Response) => {
 };
 
 const getGuestLoginData = async (req: Request, res: Response) => {
-    const guestUsername = process.env.GUEST_USERNAME;
-    const guestPassword = process.env.GUEST_PASSWORD;
+    const GUEST_USERNAME = process.env.GUEST_USERNAME;
+    const GUEST_PASSWORD = process.env.GUEST_PASSWORD;
     res.status(200).json({
         guestLoginData: {
-            username: guestUsername,
-            password: guestPassword,
+            username: GUEST_USERNAME,
+            password: GUEST_PASSWORD,
         },
     });
 };

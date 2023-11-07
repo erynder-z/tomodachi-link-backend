@@ -30,7 +30,7 @@ const getPosts = async (
 
 const getUserFeed = async (req: Request, res: Response, next: NextFunction) => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
-    const batchSize = 10;
+    const BATCH_SIZE = 10;
 
     const feed: (PostType & PostDocument)[] = [];
 
@@ -60,7 +60,7 @@ const getUserFeed = async (req: Request, res: Response, next: NextFunction) => {
         feed.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
         //skip the first "skip"-number of posts and return only 10 items
-        const paginatedFeed = feed.slice(skip, skip + batchSize);
+        const paginatedFeed = feed.slice(skip, skip + BATCH_SIZE);
         res.status(200).json({ paginatedFeed });
     } catch (error) {
         return next(error);

@@ -66,6 +66,7 @@ const getSomeUsers = async (
 
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
+    const BATCH_SIZE = 10;
     const jwtUser = req.user as JwtUser;
     const currentUserId = jwtUser._id;
 
@@ -82,7 +83,7 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
         const userList = await User.find({ _id: { $ne: currentUserId } })
             .select('_id firstName lastName userpic')
             .skip(skip)
-            .limit(10)
+            .limit(BATCH_SIZE)
             .lean()
             .exec();
 

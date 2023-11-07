@@ -9,7 +9,7 @@ const getPaginatedPollCollection = async (
     next: NextFunction
 ) => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
-    const batchSize = 10;
+    const BATCH_SIZE = 10;
 
     try {
         const jwtUser = req.user as JwtUser;
@@ -69,7 +69,7 @@ const getPaginatedPollCollection = async (
 
             .sort({ createdAt: -1 })
             .skip(skip)
-            .limit(batchSize)
+            .limit(BATCH_SIZE)
             .exec();
 
         res.status(200).json({ pollCollection });

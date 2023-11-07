@@ -45,7 +45,7 @@ const getPictureList = async (
 
     try {
         const id = req.params.id;
-        const itemsPerPage = 9;
+        const ITEMS_PER_PAGE = 9;
         const ownerId = new mongoose.Types.ObjectId(id);
 
         const jwtUser = req.user as JwtUser;
@@ -65,7 +65,7 @@ const getPictureList = async (
             .select('image')
             .sort({ createdAt: -1 })
             .skip(skip)
-            .limit(itemsPerPage)
+            .limit(ITEMS_PER_PAGE)
             .exec();
 
         const images = userPosts.map((post) => post.image);

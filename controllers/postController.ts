@@ -13,6 +13,7 @@ import { randomUUID } from 'crypto';
 
 const getPosts = async (req: Request, res: Response, next: NextFunction) => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
+    const BATCH_SIZE = 10;
     try {
         const id = req.params.id;
         const ownerId = new mongoose.Types.ObjectId(id);
@@ -31,7 +32,7 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
             .select('_id')
             .sort({ createdAt: -1 })
             .skip(skip)
-            .limit(10)
+            .limit(BATCH_SIZE)
             .exec();
 
         res.status(200).json({ userPosts });
