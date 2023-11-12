@@ -9,56 +9,58 @@ const initializeConversation = async (
     res: Response,
     next: NextFunction
 ) => {
-    if (req.user) {
-        const reqUser = req.user as JwtUser;
-        const jwtUserId = reqUser._id;
-        const chatPartnerId = req.body.chatPartnerId;
+    if (!req.user) {
+        return;
+    }
 
-        try {
-            const EXISTING_CONVERSATION_MESSAGE = 'Conversation already exists';
-            const SUCCESS_MESSAGE = 'Conversation initialized';
+    const reqUser = req.user as JwtUser;
+    const jwtUserId = reqUser._id;
+    const chatPartnerId = req.body.chatPartnerId;
 
-            const partner = await User.findById(chatPartnerId);
+    try {
+        const EXISTING_CONVERSATION_MESSAGE = 'Conversation already exists';
+        const SUCCESS_MESSAGE = 'Conversation initialized';
 
-            if (partner?.accountType === 'guest') {
-                return res.status(403);
-            }
+        const partner = await User.findById(chatPartnerId);
 
-            const existingConversation = await ChatConversation.findOne({
-                members: { $all: [jwtUserId, chatPartnerId] },
-            });
-
-            if (existingConversation) {
-                return res.status(200).json({
-                    message: EXISTING_CONVERSATION_MESSAGE,
-                    existingConversation,
-                });
-            }
-
-            const newChatConversation = new ChatConversation({
-                members: [jwtUserId, chatPartnerId],
-                conversationStatus: [
-                    {
-                        member: jwtUserId,
-                        hasUnreadMessage: false,
-                        hasMutedConversation: false,
-                    },
-                    {
-                        member: chatPartnerId,
-                        hasUnreadMessage: false,
-                        hasMutedConversation: false,
-                    },
-                ],
-            });
-
-            const savedConversation = await newChatConversation.save();
-            return res.status(200).json({
-                message: SUCCESS_MESSAGE,
-                savedConversation,
-            });
-        } catch (error) {
-            return next(error);
+        if (partner?.accountType === 'guest') {
+            return res.status(403);
         }
+
+        const existingConversation = await ChatConversation.findOne({
+            members: { $all: [jwtUserId, chatPartnerId] },
+        });
+
+        if (existingConversation) {
+            return res.status(200).json({
+                message: EXISTING_CONVERSATION_MESSAGE,
+                existingConversation,
+            });
+        }
+
+        const newChatConversation = new ChatConversation({
+            members: [jwtUserId, chatPartnerId],
+            conversationStatus: [
+                {
+                    member: jwtUserId,
+                    hasUnreadMessage: false,
+                    hasMutedConversation: false,
+                },
+                {
+                    member: chatPartnerId,
+                    hasUnreadMessage: false,
+                    hasMutedConversation: false,
+                },
+            ],
+        });
+
+        const savedConversation = await newChatConversation.save();
+        return res.status(200).json({
+            message: SUCCESS_MESSAGE,
+            savedConversation,
+        });
+    } catch (error) {
+        return next(error);
     }
 };
 
