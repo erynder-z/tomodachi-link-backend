@@ -173,13 +173,19 @@ const markConversationAsRead = async (
         const reqUser = req.user as JwtUser;
         const jwtUserId = reqUser._id.toString();
 
+        const filter = {
+            _id: conversationId,
+            'conversationStatus.member': jwtUserId,
+        };
+        const update = {
+            $set: { 'conversationStatus.$.hasUnreadMessage': false },
+        };
+        const options = { new: true };
+
         const updatedConversation = await ChatConversation.findOneAndUpdate(
-            {
-                _id: conversationId,
-                'conversationStatus.member': jwtUserId,
-            },
-            { $set: { 'conversationStatus.$.hasUnreadMessage': false } },
-            { new: true }
+            filter,
+            update,
+            options
         );
 
         return res.json(updatedConversation);
