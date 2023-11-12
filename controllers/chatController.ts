@@ -114,16 +114,12 @@ const getMessagesFromConversation = async (
         let messages;
 
         if (messageScope === 'latest') {
-            messages = await query.sort({ createdAt: -1 }).limit(25).exec();
+            messages = await query.sort({ createdAt: -1 }).limit(25);
         } else if (messageScope === 'all') {
-            messages = await query.sort({ createdAt: 1 }).exec();
+            messages = await query.sort({ createdAt: 1 });
         } else {
             return res.status(400).json({
-                errors: [
-                    {
-                        msg: ERROR_MESSAGE,
-                    },
-                ],
+                errors: [{ msg: ERROR_MESSAGE }],
             });
         }
 
