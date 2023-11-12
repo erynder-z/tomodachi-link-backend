@@ -88,9 +88,8 @@ const addChatMessage = async (
     res: Response,
     next: NextFunction
 ) => {
-    const newMessage = new ChatMessage(req.body);
     try {
-        const savedMessage = await newMessage.save();
+        const savedMessage = await ChatMessage.create(req.body);
         res.status(200).json({ savedMessage });
     } catch (error) {
         return next(error);
