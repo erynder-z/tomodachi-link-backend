@@ -144,16 +144,13 @@ const markConversationAsUnread = async (
 ) => {
     try {
         const conversationId = req.params.conversationId;
-        const reqUser = req.user as JwtUser;
-        const jwtUserId = reqUser._id.toString();
+        const jwtUserId = (req.user as JwtUser)._id.toString();
 
         const updatedConversation = await ChatConversation.findOneAndUpdate(
             {
                 _id: conversationId,
                 conversationStatus: {
-                    $elemMatch: {
-                        member: { $ne: jwtUserId },
-                    },
+                    $elemMatch: { member: { $ne: jwtUserId } },
                 },
             },
             { $set: { 'conversationStatus.$.hasUnreadMessage': true } },
