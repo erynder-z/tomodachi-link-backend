@@ -230,9 +230,7 @@ const handleConversationMute = async (
 ) => {
     try {
         const conversationId = req.params.conversationId;
-        const reqUser = req.user as JwtUser;
-        const jwtUserId = reqUser._id.toString();
-
+        const jwtUserId = (req.user as JwtUser)._id.toString();
         const ERROR_MESSAGE = 'Conversation not found!';
 
         const conversation = await ChatConversation.findOne({
@@ -241,21 +239,19 @@ const handleConversationMute = async (
         });
 
         if (!conversation) {
-            return res.status(404).json({
-                errors: [
-                    {
-                        message: ERROR_MESSAGE,
-                    },
-                ],
-            });
+            return res
+                .status(404)
+                .json({ errors: [{ message: ERROR_MESSAGE }] });
         }
 
         const memberStatusIndex = conversation.conversationStatus.findIndex(
             (status) => status.member === jwtUserId
         );
-
-        const memberStatus = conversation.conversationStatus[memberStatusIndex];
-        memberStatus.hasMutedConversation = !memberStatus.hasMutedConversation;
+        conversation.conversationStatus[
+            memberStatusIndex
+        ].hasMutedConversation =
+            !conversation.conversationStatus[memberStatusIndex]
+                .hasMutedConversation;
 
         const updatedConversation = await conversation.save();
 
