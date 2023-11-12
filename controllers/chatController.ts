@@ -74,8 +74,8 @@ const getConversationOfUser = async (
             const reqUser = req.user as JwtUser;
             const jwtUserId = reqUser._id;
             const conversation = await ChatConversation.find({
-                members: { $in: [jwtUserId] },
-            });
+                members: jwtUserId,
+            }).lean();
             res.status(200).json({ conversation });
         } catch (error) {
             return next(error);
