@@ -8,10 +8,12 @@ const isReadOperationForbidden = async (
     currentUser: UserModelType | null,
     postOwnerId: mongoose.Types.ObjectId
 ): Promise<boolean> => {
+    if (!currentUser) {
+        return true;
+    }
     if (
-        !currentUser ||
-        (currentUser._id.toString() !== postOwnerId.toString() &&
-            !currentUser.friends.includes(postOwnerId))
+        currentUser._id.toString() !== postOwnerId.toString() &&
+        !currentUser.friends.includes(postOwnerId)
     ) {
         return true;
     }
@@ -25,11 +27,10 @@ const countPostsContainingImage = async (
 ) => {
     try {
         const id = req.params.id;
-        const ownerId = new mongoose.Types.ObjectId(id);
         const count = await Post.countDocuments({
-            owner: ownerId,
+            owner: new mongoose.Types.ObjectId(id),
             image: { $exists: true },
-        }).exec();
+        });
         res.status(200).json({ count });
     } catch (err) {
         return next(err);
@@ -66,6 +67,7 @@ const getPictureList = async (
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(ITEMS_PER_PAGE)
+            .lean()
             .exec();
 
         const images = userPosts.map((post) => post.image);

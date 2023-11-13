@@ -33,6 +33,7 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(BATCH_SIZE)
+            .lean()
             .exec();
 
         res.status(200).json({ userPosts });
