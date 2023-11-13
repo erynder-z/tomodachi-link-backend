@@ -53,8 +53,8 @@ const getPaginatedPollCollection = async (
             createdAt: 1,
             updatedAt: 1,
         };
-        const pollCollection = await Poll.find(filter)
-            .select(projection)
+
+        const pollCollection = await Poll.find(filter, projection)
             .populate({
                 path: 'owner',
                 select: 'firstName lastName userpic',
@@ -66,10 +66,10 @@ const getPaginatedPollCollection = async (
                     select: 'firstName lastName userpic',
                 },
             })
-
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(BATCH_SIZE)
+            .lean()
             .exec();
 
         res.status(200).json({ pollCollection });
@@ -118,17 +118,21 @@ const getSinglePoll = async (
                     select: 'firstName lastName userpic',
                 },
             })
+            .lean()
             .exec();
 
         if (!singlePoll) {
             throw new Error('Poll not found');
         }
 
-        if (
-            !singlePoll.isFriendOnly || // Condition 1: Poll is not "isFriendOnly"
-            currentUser.friends.includes(singlePoll.owner) || // Condition 2: Current user is friends with the poll owner
-            currentUserId === singlePoll.owner.toString() // Condition 3: Current user is the owner of the poll
-        ) {
+        const isFriendOnly = singlePoll.isFriendOnly;
+        const isCurrentUserOwner =
+            currentUserId === singlePoll.owner.toString();
+        const isCurrentUserFriend = currentUser.friends.includes(
+            singlePoll.owner
+        );
+
+        if (!isFriendOnly || isCurrentUserOwner || isCurrentUserFriend) {
             res.status(200).json({ singlePoll });
         } else {
             const ERROR_MESSAGE = 'Forbidden';

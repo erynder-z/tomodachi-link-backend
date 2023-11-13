@@ -141,20 +141,26 @@ const submitPollAnswer = async (
         const pollID = req.params.id;
         const optionID = req.body.optionID;
 
+        const filter = {
+            _id: pollID,
+            'options._id': optionID,
+            respondentUsers: { $ne: reqUser._id },
+        };
+
+        const update = {
+            $inc: { 'options.$.selectionCount': 1 },
+            $push: { respondentUsers: reqUser._id },
+        };
+
+        const options = {
+            new: true,
+            lean: true,
+        };
+
         const updatedPoll = await Poll.findOneAndUpdate(
-            {
-                _id: pollID,
-                'options._id': optionID,
-                respondentUsers: { $ne: reqUser._id },
-            },
-            {
-                $inc: { 'options.$.selectionCount': 1 },
-                $push: { respondentUsers: reqUser._id },
-            },
-            {
-                new: true,
-                lean: true,
-            }
+            filter,
+            update,
+            options
         );
 
         if (!updatedPoll) {
@@ -190,15 +196,17 @@ const getSinglePollData = async (
                     select: 'firstName lastName userpic',
                 },
             })
+            .lean()
             .exec();
-        const postOwnerID = retrievedPoll?.owner;
 
         if (!retrievedPoll) {
             const ERROR_MESSAGE = 'Poll not found';
             return res.status(404).json({ errors: [{ msg: ERROR_MESSAGE }] });
         }
 
-        const postOwner = await User.findById(postOwnerID).exec();
+        const postOwnerID = retrievedPoll?.owner;
+        const postOwnerPromise = User.findById(postOwnerID).exec();
+        const postOwner = await postOwnerPromise;
 
         if (!postOwner) {
             const ERROR_MESSAGE = 'Poll owner not found';
