@@ -13,25 +13,30 @@ import { JwtUser } from '../types/jwtUser';
 import { validateCoverImageName } from './validators/imageValidators/validateCoverImageName';
 
 const getUserData = async (req: Request, res: Response, next: NextFunction) => {
-    if (req.user) {
+    try {
+        if (!req.user) {
+            const ERROR_MESSAGE = 'User not found';
+            return res.status(404).json({
+                errors: [{ msg: ERROR_MESSAGE }],
+            });
+        }
+
         const reqUser = req.user as JwtUser;
         const id = reqUser._id;
 
-        try {
-            await User.findByIdAndUpdate(id, { lastSeen: new Date() });
+        await User.findByIdAndUpdate(id, { lastSeen: new Date() });
 
-            const user = await User.findOne({ _id: id }, { password: 0 });
-            if (!user) {
-                const ERROR_MESSAGE = 'User not found';
-                return res.status(404).json({
-                    errors: [{ msg: ERROR_MESSAGE }],
-                }); // Error handler expects an array of errors
-            }
-
-            return res.status(200).json({ user });
-        } catch (err) {
-            return next(err);
+        const user = await User.findOne({ _id: id }, { password: 0 });
+        if (!user) {
+            const ERROR_MESSAGE = 'User not found';
+            return res.status(404).json({
+                errors: [{ msg: ERROR_MESSAGE }],
+            });
         }
+
+        return res.status(200).json({ user });
+    } catch (err) {
+        return next(err);
     }
 };
 

@@ -25,39 +25,25 @@ const getSomeUsers = async (
 
     try {
         const currentUser = await User.findById(jwtUser._id);
+
         if (!currentUser) {
             const ERROR_MESSAGE = 'Something went wrong retrieving user data!';
-
-            return res.status(404).json({
-                errors: [{ msg: ERROR_MESSAGE }],
-            });
+            return res.status(404).json({ errors: [{ msg: ERROR_MESSAGE }] });
         }
 
         const friends = currentUser.friends.map((friend) => friend.toString());
+
         const userList = await User.aggregate([
             {
                 $match: {
-                    _id: {
-                        $nin: [
-                            currentUser._id,
-                            ...friends.map((friend) => friend.toString()),
-                        ],
-                    },
-                    friends: {
-                        $nin: [currentUser._id],
-                    },
+                    _id: { $nin: [currentUser._id, ...friends] },
+                    friends: { $nin: [currentUser._id] },
                 },
             },
             { $sample: { size: 10 } },
-            {
-                $project: {
-                    _id: 1,
-                    firstName: 1,
-                    lastName: 1,
-                    userpic: 1,
-                },
-            },
+            { $project: { _id: 1, firstName: 1, lastName: 1, userpic: 1 } },
         ]);
+
         return res.status(200).json({ userList });
     } catch (err) {
         return next(err);
@@ -71,32 +57,30 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     const currentUserId = jwtUser._id;
 
     try {
-        const currentUser = await User.findById(currentUserId);
+        const [currentUser, userList] = await Promise.all([
+            User.findById(currentUserId),
+            User.find({ _id: { $ne: currentUserId } })
+                .select('_id firstName lastName userpic')
+                .skip(skip)
+                .limit(BATCH_SIZE)
+                .lean()
+                .exec(),
+        ]);
+
         if (!currentUser) {
             const ERROR_MESSAGE = 'Something went wrong retrieving user data!';
-
             return res.status(404).json({
                 errors: [{ msg: ERROR_MESSAGE }],
             });
         }
 
-        const userList = await User.find({ _id: { $ne: currentUserId } })
-            .select('_id firstName lastName userpic')
-            .skip(skip)
-            .limit(BATCH_SIZE)
-            .lean()
-            .exec();
-
         const minimalUserList: MinimalUserTypes[] = userList.map(
-            (user: UserModelType) => {
-                const minimalUser: MinimalUserTypes = {
-                    _id: user._id,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    userpic: user.userpic,
-                };
-                return minimalUser;
-            }
+            (user: UserModelType) => ({
+                _id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                userpic: user.userpic,
+            })
         );
 
         res.status(200).json({ userList: minimalUserList });
@@ -116,10 +100,7 @@ const getSomeFriendsOfFriends = async (
         const currentUser = await User.findById(jwtUser._id);
         if (!currentUser) {
             const ERROR_MESSAGE = 'Something went wrong retrieving user data!';
-
-            return res.status(404).json({
-                errors: [{ msg: ERROR_MESSAGE }],
-            });
+            return res.status(404).json({ errors: [{ msg: ERROR_MESSAGE }] });
         }
 
         const currentUserFriends = currentUser.friends.map((friend) =>
@@ -127,17 +108,21 @@ const getSomeFriendsOfFriends = async (
         );
 
         const friendsOfFriendsSet = new Set<string>();
-        for (const friend of currentUserFriends) {
-            const currentFriend = await User.findById(friend);
-            if (currentFriend) {
-                currentFriend.friends.forEach((friendOfFriend) =>
-                    friendsOfFriendsSet.add(friendOfFriend.toString())
-                );
-            }
-        }
+
+        await Promise.all(
+            currentUserFriends.map(async (friend) => {
+                const currentFriend = await User.findById(friend);
+                if (currentFriend) {
+                    currentFriend.friends.forEach((friendOfFriend) =>
+                        friendsOfFriendsSet.add(friendOfFriend.toString())
+                    );
+                }
+            })
+        );
 
         const friendsOfFriendsArray = Array.from(friendsOfFriendsSet);
         const shuffledFriendsOfFriends = shuffleArray(friendsOfFriendsArray);
+
         const arrayOfSixFriendsOfFriends = shuffledFriendsOfFriends
             .filter((friend) => !currentUserFriends.includes(friend))
             .slice(0, 6)
@@ -188,11 +173,12 @@ const getSomeFriendsOfFriends = async (
 };
 
 const shuffleArray = (array: any[]) => {
-    for (let i = array.length - 1; i > 0; i--) {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
-    return array;
+    return newArray;
 };
 
 const getOtherUserData = async (
@@ -201,31 +187,21 @@ const getOtherUserData = async (
     next: NextFunction
 ) => {
     try {
-        const otherUserPromise = User.findById(req.params.id);
-        const jwtUser = req.user as JwtUser;
-        const currentUserPromise = User.findById(jwtUser._id);
-
         const [otherUser, currentUser] = await Promise.all([
-            otherUserPromise,
-            currentUserPromise,
+            User.findById(req.params.id),
+            User.findById((req.user as JwtUser)._id),
         ]);
 
         if (!otherUser || !currentUser) {
             const ERROR_MESSAGE = 'Something went wrong retrieving user data!';
-
-            return res.status(404).json({
-                errors: [{ msg: ERROR_MESSAGE }],
-            });
+            return res.status(404).json({ errors: [{ msg: ERROR_MESSAGE }] });
         }
 
-        const otherUserId = new mongoose.Types.ObjectId(otherUser._id);
-        const currentUserId = currentUser._id;
-
-        const isFriend = otherUser.friends.includes(currentUserId);
+        const isFriend = otherUser.friends.includes(currentUser._id);
         const isIncomingFriendRequestPending =
-            currentUser.pendingFriendRequests.includes(otherUserId);
+            currentUser.pendingFriendRequests.includes(otherUser._id);
         const isOutgoingFriendRequestPending =
-            otherUser.pendingFriendRequests.includes(currentUserId);
+            otherUser.pendingFriendRequests.includes(currentUser._id);
 
         let friends: FriendType[] = [];
         let mutualFriends = 0;
@@ -287,13 +263,16 @@ const getMutualFriends = async (userId: string, otherUserId: string) => {
         return 0;
     }
 
-    const userFriends = user.friends.map((friend) => friend.toString());
-    const otherUserFriends = otherUser.friends.map((friend) =>
-        friend.toString()
+    const userFriends = new Set(
+        user.friends.map((friend) => friend.toString())
     );
-
-    return userFriends.filter((friend) => otherUserFriends.includes(friend))
-        .length;
+    let mutualFriends = 0;
+    for (const friend of otherUser.friends) {
+        if (userFriends.has(friend.toString())) {
+            mutualFriends++;
+        }
+    }
+    return mutualFriends;
 };
 
 const formatUserData = (
@@ -397,6 +376,7 @@ const handleFriendRequestForUsers = async (
     otherUser.pendingFriendRequests = otherUser.pendingFriendRequests.filter(
         (userId) => userId.toString() !== currentUser._id.toString()
     );
+
     await Promise.all([currentUser.save(), otherUser.save()]);
 };
 
