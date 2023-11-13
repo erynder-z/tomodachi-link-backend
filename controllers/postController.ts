@@ -12,9 +12,10 @@ import { validateFriendshipStatus } from '../middleware/validateFriendshipStatus
 import { randomUUID } from 'crypto';
 
 const getPosts = async (req: Request, res: Response, next: NextFunction) => {
-    const skip = parseInt(req.query.skip as string, 10) || 0;
-    const BATCH_SIZE = 10;
     try {
+        const skip = parseInt(req.query.skip as string, 10) || 0;
+        const BATCH_SIZE = 10;
+
         const id = req.params.id;
         const ownerId = new mongoose.Types.ObjectId(id);
 
@@ -58,6 +59,7 @@ const getPostDetails = async (
                     select: 'firstName lastName userpic',
                 },
             })
+            .lean()
             .exec();
 
         const jwtUser = req.user as JwtUser;
@@ -116,20 +118,16 @@ const savePostInDatabase = async (
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({
-                errors: errors.array(),
-            });
+            return res.status(400).json({ errors: errors.array() });
         }
 
         const reqUser = req.user as JwtUser;
         const { newPost, embeddedVideoID, gifUrl } = req.body;
-        const image = req.file
-            ? {
-                  id: randomUUID(),
-                  data: req.file.buffer,
-                  contentType: req.file.mimetype,
-              }
-            : undefined;
+        const image = req.file && {
+            id: randomUUID(),
+            data: req.file.buffer,
+            contentType: req.file.mimetype,
+        };
 
         const savedPost = await createPost(
             reqUser._id,
@@ -140,11 +138,9 @@ const savePostInDatabase = async (
         );
         await savePostToUser(reqUser, savedPost._id);
 
-        res.status(200).json({
-            savedPost,
-        });
+        res.status(200).json({ savedPost });
     } catch (err) {
-        return next(err);
+        next(err);
     }
 };
 const addNewPost = [
@@ -196,85 +192,66 @@ const deletePost = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const updatePost = async (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            errors: errors.array(),
+        });
+    }
+
+    const reqUser = req.user as JwtUser;
+    const postID = req.params.id;
+    const {
+        newPost,
+        embeddedVideoID,
+        gifUrl,
+        shouldImageBeDeleted,
+        shouldGifBeDeleted,
+        shouldVideoBeDeleted,
+    } = req.body;
+
+    const image = req.file
+        ? {
+              id: randomUUID(),
+              data: req.file.buffer,
+              contentType: req.file.mimetype,
+          }
+        : undefined;
+
+    const updateData: any = {
+        text: newPost,
+        image: JSON.parse(shouldImageBeDeleted) ? undefined : image,
+        gifUrl: JSON.parse(shouldGifBeDeleted) ? undefined : gifUrl,
+        embeddedVideoID: JSON.parse(shouldVideoBeDeleted)
+            ? undefined
+            : embeddedVideoID,
+    };
+
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({
-                errors: errors.array(),
+        const updatedPost = await Post.findByIdAndUpdate(postID, updateData, {
+            new: true,
+        }).populate('owner');
+
+        if (!updatedPost) {
+            const ERROR_MESSAGE = 'Post not found!';
+            return res.status(404).json({
+                errors: [{ msg: ERROR_MESSAGE }],
             });
         }
 
-        const reqUser = req.user as JwtUser;
-        const postID = req.params.id;
-        const {
-            newPost,
-            embeddedVideoID,
-            gifUrl,
-            shouldImageBeDeleted,
-            shouldGifBeDeleted,
-            shouldVideoBeDeleted,
-        } = req.body;
+        const postOwner = updatedPost.owner;
 
-        const image = req.file
-            ? {
-                  id: randomUUID(),
-                  data: req.file.buffer,
-                  contentType: req.file.mimetype,
-              }
-            : undefined;
-
-        const updateData: any = {
-            text: newPost,
-        };
-
-        if (JSON.parse(shouldImageBeDeleted)) {
-            updateData.$unset = { image: '' };
-        } else {
-            updateData.image = image;
-        }
-
-        if (JSON.parse(shouldGifBeDeleted)) {
-            updateData.gifUrl = undefined;
-        } else {
-            updateData.gifUrl = gifUrl;
-        }
-
-        if (JSON.parse(shouldVideoBeDeleted)) {
-            updateData.embeddedVideoID = undefined;
-        } else {
-            updateData.embeddedVideoID = embeddedVideoID;
-        }
-
-        try {
-            const updatedPost = await Post.findByIdAndUpdate(
-                postID,
-                updateData,
-                { new: true }
-            ).populate('owner');
-
-            if (!updatedPost) {
-                const ERROR_MESSAGE = 'Post not found!';
-                return res.status(404).json({
-                    errors: [{ msg: ERROR_MESSAGE }],
-                });
-            }
-
-            const postOwner = updatedPost.owner;
-
-            // Check if the requesting user is the post owner
-            if (postOwner._id.toString() !== reqUser._id.toString()) {
-                const ERROR_MESSAGE = 'Forbidden';
-                return res.status(403).json({
-                    errors: [{ msg: ERROR_MESSAGE }],
-                });
-            }
-
-            res.status(200).json({
-                updatedPost,
+        // Check if the requesting user is the post owner
+        if (postOwner._id.toString() !== reqUser._id.toString()) {
+            const ERROR_MESSAGE = 'Forbidden';
+            return res.status(403).json({
+                errors: [{ msg: ERROR_MESSAGE }],
             });
-        } catch (err) {
-            return next(err);
         }
+
+        res.status(200).json({
+            updatedPost,
+        });
     } catch (err) {
         return next(err);
     }
@@ -297,16 +274,25 @@ const positiveReaction = async (
         const reqUser = req.user as JwtUser;
         const postId = req.params.id;
 
+        const filter = {
+            _id: postId,
+            'reactions.reacted_users': { $ne: reqUser._id },
+        };
+
+        const update = {
+            $inc: { 'reactions.positive': 1 },
+            $push: { 'reactions.reacted_users': reqUser._id },
+        };
+
+        const options = {
+            new: true,
+            lean: true,
+        };
+
         const updatedPost = await Post.findOneAndUpdate(
-            {
-                _id: postId,
-                'reactions.reacted_users': { $ne: reqUser._id },
-            },
-            {
-                $inc: { 'reactions.positive': 1 },
-                $push: { 'reactions.reacted_users': reqUser._id },
-            },
-            { new: true, lean: true }
+            filter,
+            update,
+            options
         );
 
         if (!updatedPost) {
@@ -315,9 +301,7 @@ const positiveReaction = async (
             });
         }
 
-        res.status(200).json({
-            updatedPost,
-        });
+        res.status(200).json({ updatedPost });
     } catch (err) {
         return next(err);
     }
@@ -332,16 +316,25 @@ const negativeReaction = async (
         const reqUser = req.user as JwtUser;
         const postId = req.params.id;
 
+        const filter = {
+            _id: postId,
+            'reactions.reacted_users': { $ne: reqUser._id },
+        };
+
+        const update = {
+            $inc: { 'reactions.negative': 1 },
+            $push: { 'reactions.reacted_users': reqUser._id },
+        };
+
+        const options = {
+            new: true,
+            lean: true,
+        };
+
         const updatedPost = await Post.findOneAndUpdate(
-            {
-                _id: postId,
-                'reactions.reacted_users': { $ne: reqUser._id },
-            },
-            {
-                $inc: { 'reactions.negative': 1 },
-                $push: { 'reactions.reacted_users': reqUser._id },
-            },
-            { new: true, lean: true }
+            filter,
+            update,
+            options
         );
 
         if (!updatedPost) {
