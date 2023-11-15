@@ -31,7 +31,7 @@ const getUserFeed = async (req: Request, res: Response, next: NextFunction) => {
     const currentUserId = (req.user as JwtUser)._id.toString();
 
     try {
-        const currentUser = await User.findById(currentUserId).exec();
+        const currentUser = await User.findById(currentUserId).lean().exec();
         if (!currentUser) {
             const ERROR_MESSAGE = 'User not found';
             throw new Error(ERROR_MESSAGE);

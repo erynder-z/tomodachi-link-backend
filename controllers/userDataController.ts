@@ -26,7 +26,8 @@ const getUserData = async (req: Request, res: Response, next: NextFunction) => {
 
         await User.findByIdAndUpdate(id, { lastSeen: new Date() });
 
-        const user = await User.findOne({ _id: id }, { password: 0 });
+        const user = await User.findOne({ _id: id }, { password: 0 }).lean();
+
         if (!user) {
             const ERROR_MESSAGE = 'User not found';
             return res.status(404).json({

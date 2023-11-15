@@ -201,7 +201,7 @@ const getChatPartnerData = async (
 ) => {
     try {
         const ERROR_MESSAGE = 'User not found!';
-        const otherUser = await User.findById(req.params.id);
+        const otherUser = await User.findById(req.params.id).lean();
 
         if (!otherUser) {
             return res.status(404).json({

@@ -295,7 +295,11 @@ const formatUserData = (
         _id,
         firstName,
         lastName,
-        userpic: userpic.data,
+        // change userpic.data to correct format
+        userpic: {
+            data: Buffer.from(userpic.data).toString('base64'),
+            contentType: userpic.contentType,
+        },
         cover,
         ...(isFriend && { joined, lastSeen, friends, mutualFriends }),
     };
