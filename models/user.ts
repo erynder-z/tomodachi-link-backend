@@ -21,7 +21,7 @@ export type UserType = {
     joined: Date;
     lastSeen: Date;
     pendingFriendRequests: Types.ObjectId[];
-    accountType: 'regularUser' | 'guest';
+    accountType: 'regularUser' | 'guest' | 'fake';
     createdAt: Date;
     updatedAt: Date;
 };
@@ -63,7 +63,7 @@ const UserSchema: Schema = new Schema(
         pendingFriendRequests: [{ type: Schema.Types.ObjectId, ref: 'User' }],
         accountType: {
             type: String,
-            enum: ['regularUser', 'guest'],
+            enum: ['regularUser', 'guest', 'fake'],
             default: 'regularUser',
             required: true,
         },
