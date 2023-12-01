@@ -40,7 +40,7 @@ const getSomeUsers = async (
                     friends: { $nin: [currentUser._id] },
                 },
             },
-            { $sample: { size: 15 } },
+            { $sample: { size: 12 } },
             { $project: { _id: 1, firstName: 1, lastName: 1, userpic: 1 } },
         ]);
 
@@ -52,7 +52,7 @@ const getSomeUsers = async (
 
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
-    const BATCH_SIZE = 15;
+    const BATCH_SIZE = 12;
     const jwtUser = req.user as JwtUser;
     const currentUserId = jwtUser._id;
 
