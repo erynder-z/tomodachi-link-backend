@@ -95,6 +95,7 @@ const performSearch = async (req: Request, res: Response): Promise<void> => {
         const jwtUser = req.user as JwtUser;
         const currentUser = await User.findById(jwtUser._id);
         const query = req.query.query as string;
+        const mode = req.query.searchMode as string;
 
         if (!query) {
             const ERROR_MESSAGE = 'Query parameter is required!';
@@ -104,14 +105,28 @@ const performSearch = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
+        let queryMode;
+
+        if (!mode) {
+            queryMode = 'all';
+        } else {
+            queryMode = mode;
+        }
+
         const terms = query.split(' ');
         const allResults: AllSearchResultsType[] = [];
 
-        await searchUsers(terms, allResults);
+        if (queryMode === 'all' || queryMode === 'users') {
+            await searchUsers(terms, allResults);
+        }
 
-        await searchPosts(terms, currentUser, allResults);
+        if (queryMode === 'all' || queryMode === 'posts') {
+            await searchPosts(terms, currentUser, allResults);
+        }
 
-        await searchPolls(terms, allResults);
+        if (queryMode === 'all' || queryMode === 'polls') {
+            await searchPolls(terms, allResults);
+        }
 
         res.json(allResults);
     } catch (error) {
