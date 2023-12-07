@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
-import User from '../models/user';
+import User, { UserModelType } from '../models/user';
 import Post, { PostModelType } from '../models/post';
 import Poll from '../models/poll';
 import { AllSearchResultsType } from '../types/searchTypes';
 import { JwtUser } from '../types/jwtUser';
+import { FlattenMaps } from 'mongoose';
 
 const filterNonEmptyTerms = (terms: string[]): string[] =>
     terms.filter((term) => term.trim() !== '');
@@ -30,7 +31,12 @@ const searchUsers = async (
         .lean();
 
     const mappedUserResults: AllSearchResultsType[] = userResults.map(
-        (result: any) => ({
+        (result: {
+            _id: string;
+            firstName: string;
+            lastName: string;
+            userpic: FlattenMaps<{ data: Buffer; contentType: string }>;
+        }) => ({
             type: 'user',
             data: result,
         })
@@ -42,7 +48,7 @@ const searchUsers = async (
 // Function to perform the post search
 const searchPosts = async (
     terms: string[],
-    currentUser: any,
+    currentUser: UserModelType | null,
     allResults: AllSearchResultsType[]
 ) => {
     const filteredTerms = filterNonEmptyTerms(terms);
@@ -98,7 +104,12 @@ const searchPolls = async (
         .lean();
 
     const mappedPollResults: AllSearchResultsType[] = pollResults.map(
-        (result: any) => ({
+        (result: {
+            _id: string;
+            question: string;
+            description: string;
+            updatedAt: Date;
+        }) => ({
             type: 'poll',
             data: result,
         })
@@ -123,13 +134,7 @@ const performSearch = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-        let queryMode;
-
-        if (!mode) {
-            queryMode = 'all';
-        } else {
-            queryMode = mode;
-        }
+        const queryMode = mode ?? 'all';
 
         const terms = query.trim().split(' ');
         const allResults: AllSearchResultsType[] = [];
