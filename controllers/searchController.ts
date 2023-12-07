@@ -5,15 +5,23 @@ import Poll from '../models/poll';
 import { AllSearchResultsType } from '../types/searchTypes';
 import { JwtUser } from '../types/jwtUser';
 
+const filterNonEmptyTerms = (terms: string[]): string[] =>
+    terms.filter((term) => term.trim() !== '');
+
 // Function to perform the user search
 const searchUsers = async (
     terms: string[],
     allResults: AllSearchResultsType[]
 ) => {
+    const filteredTerms = filterNonEmptyTerms(terms);
+    if (filteredTerms.length === 0) {
+        return;
+    }
+
     const userRegexQueries = terms.map((term) => ({
         $or: [
-            { firstName: { $regex: term, $options: 'i' } },
-            { lastName: { $regex: term, $options: 'i' } },
+            { firstName: { $regex: `\\b${term}`, $options: 'i' } },
+            { lastName: { $regex: `\\b${term}`, $options: 'i' } },
         ],
     }));
 
@@ -37,8 +45,13 @@ const searchPosts = async (
     currentUser: any,
     allResults: AllSearchResultsType[]
 ) => {
+    const filteredTerms = filterNonEmptyTerms(terms);
+    if (filteredTerms.length === 0) {
+        return;
+    }
+
     const postRegexQueries = terms.map((term) => ({
-        $or: [{ text: { $regex: term, $options: 'i' } }],
+        $or: [{ text: { $regex: `\\b${term}`, $options: 'i' } }],
     }));
 
     const postResults = await Post.find({ $or: postRegexQueries })
@@ -68,10 +81,15 @@ const searchPolls = async (
     terms: string[],
     allResults: AllSearchResultsType[]
 ) => {
+    const filteredTerms = filterNonEmptyTerms(terms);
+    if (filteredTerms.length === 0) {
+        return;
+    }
+
     const pollRegexQueries = terms.map((term) => ({
         $or: [
-            { question: { $regex: term, $options: 'i' } },
-            { description: { $regex: term, $options: 'i' } },
+            { question: { $regex: `\\b${term}`, $options: 'i' } },
+            { description: { $regex: `\\b${term}`, $options: 'i' } },
         ],
     }));
 
@@ -113,7 +131,7 @@ const performSearch = async (req: Request, res: Response): Promise<void> => {
             queryMode = mode;
         }
 
-        const terms = query.split(' ');
+        const terms = query.trim().split(' ');
         const allResults: AllSearchResultsType[] = [];
 
         if (queryMode === 'all' || queryMode === 'users') {
