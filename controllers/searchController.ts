@@ -85,6 +85,7 @@ const searchPosts = async (
 // Function to perform the poll search
 const searchPolls = async (
     terms: string[],
+    currentUser: UserModelType | null,
     allResults: AllSearchResultsType[]
 ) => {
     const filteredTerms = filterNonEmptyTerms(terms);
@@ -100,10 +101,25 @@ const searchPolls = async (
     }));
 
     const pollResults = await Poll.find({ $or: pollRegexQueries })
-        .select(['question', 'description', 'updatedAt'])
+        .select([
+            'question',
+            'description',
+            'updatedAt',
+            'owner',
+            'isFriendOnly',
+        ])
         .lean();
 
-    const mappedPollResults: AllSearchResultsType[] = pollResults.map(
+    const filteredPollResults = pollResults.filter((poll) => {
+        const pollOwner = poll.owner;
+        return (
+            !poll.isFriendOnly ||
+            pollOwner.equals(currentUser?._id) ||
+            currentUser?.friends.includes(pollOwner)
+        );
+    });
+
+    const mappedPollResults: AllSearchResultsType[] = filteredPollResults.map(
         (result: {
             _id: string;
             question: string;
@@ -148,7 +164,7 @@ const performSearch = async (req: Request, res: Response): Promise<void> => {
         }
 
         if (queryMode === 'all' || queryMode === 'polls') {
-            await searchPolls(terms, allResults);
+            await searchPolls(terms, currentUser, allResults);
         }
 
         res.json(allResults);
