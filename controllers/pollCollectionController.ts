@@ -129,7 +129,7 @@ const getSinglePoll = async (
         const isCurrentUserOwner =
             currentUserId === singlePoll.owner.toString();
         const isCurrentUserFriend = currentUser.friends.includes(
-            singlePoll.owner
+            singlePoll.owner._id
         );
 
         if (!isFriendOnly || isCurrentUserOwner || isCurrentUserFriend) {
