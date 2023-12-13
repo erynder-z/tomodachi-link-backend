@@ -22,6 +22,11 @@ export type UserType = {
     lastSeen: Date;
     pendingFriendRequests: Types.ObjectId[];
     accountType: 'regularUser' | 'guest' | 'fake';
+    provider: {
+        name: 'odin' | 'github';
+        profileId: string;
+    };
+
     createdAt: Date;
     updatedAt: Date;
 };
@@ -66,6 +71,10 @@ const UserSchema: Schema = new Schema(
             enum: ['regularUser', 'guest', 'fake'],
             default: 'regularUser',
             required: true,
+        },
+        provider: {
+            name: { type: String, enum: ['odin', 'github'], required: true },
+            profileId: { type: String },
         },
     },
     { versionKey: false }

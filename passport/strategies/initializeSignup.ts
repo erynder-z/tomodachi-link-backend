@@ -34,6 +34,9 @@ export const initializeSignup = () => {
                             firstName: firstName,
                             lastName: lastName,
                             accountType: accountType,
+                            provider: {
+                                name: 'odin',
+                            },
                         });
                         return done(null, user);
                     });

@@ -107,4 +107,39 @@ const getGuestLoginData = async (req: Request, res: Response) => {
     });
 };
 
-export { login, checkToken, getGuestLoginData };
+const handleGitHubLoginCallback = async (req: Request, res: Response) => {
+    try {
+        const user: UserModelType = req.user as UserModelType;
+
+        if (!user) {
+            return res
+                .status(400)
+                .json({ error: { message: 'Authentication failed' } });
+        }
+
+        req.login(user, { session: false }, async (error) => {
+            if (error) {
+                return res
+                    .status(400)
+                    .json({ error: { message: 'Error while logging in' } });
+            }
+
+            const token = generateToken(user);
+
+            const ONE_DAY_IN_MILLISECONDS = 86400000;
+            const REDIRECT_URL = process.env.OAUTH_CALLBACK_REDIRECT_URL || '/';
+
+            res.cookie('jwtOdinBook', token, {
+                maxAge: ONE_DAY_IN_MILLISECONDS,
+                secure: true,
+            });
+            res.redirect(REDIRECT_URL);
+        });
+    } catch (error) {
+        return res
+            .status(400)
+            .json({ error: { message: 'Error while logging in' } });
+    }
+};
+
+export { login, checkToken, getGuestLoginData, handleGitHubLoginCallback };
