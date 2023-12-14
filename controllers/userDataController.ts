@@ -4,7 +4,6 @@ import User, { UserModelType } from '../models/user';
 import { validateEmail } from './validators/profileUpdateValidators/validateEmail';
 import { validateFirstName } from './validators/profileUpdateValidators/validateFirstName';
 import { validateLastName } from './validators/profileUpdateValidators/validateLastName';
-import { validatePassword } from './validators/profileUpdateValidators/validatePassword';
 import bcrypt from 'bcrypt';
 import { validateCurrentPassword } from './validators/passwordUpdateValidators/validateCurrentPassword';
 import { validateNewPassword } from './validators/passwordUpdateValidators/validateNewPassword';
@@ -45,7 +44,6 @@ const updateUserData = [
     validateFirstName(),
     validateLastName(),
     validateEmail(),
-    validatePassword(),
 
     async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
