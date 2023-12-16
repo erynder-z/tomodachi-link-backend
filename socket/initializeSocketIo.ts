@@ -1,10 +1,9 @@
 import { Server } from 'socket.io';
+import cors from 'cors';
 import http from 'http';
 export const initializeSocketIo = (
     server: http.Server,
-    corsOptions: {
-        origin: (origin: any, callback: any) => void;
-    }
+    corsOptions: cors.CorsOptions
 ) => {
     const io = new Server(server, {
         cors: corsOptions,
