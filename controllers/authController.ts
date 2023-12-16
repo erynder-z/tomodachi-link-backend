@@ -132,6 +132,7 @@ const handleGitHubLoginCallback = async (req: Request, res: Response) => {
             res.cookie('jwtOdinBook', token, {
                 maxAge: ONE_DAY_IN_MILLISECONDS,
                 secure: true,
+                sameSite: 'strict',
             });
             res.redirect(REDIRECT_URL);
         });
