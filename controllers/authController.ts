@@ -126,11 +126,11 @@ const handleGitHubLoginCallback = async (req: Request, res: Response) => {
 
             const token = generateToken(user);
 
-            const ONE_DAY_IN_MILLISECONDS = 86400000;
+            const THIRTY_SECONDS_IN_MILLISECONDS = 30000;
             const REDIRECT_URL = process.env.OAUTH_CALLBACK_REDIRECT_URL || '/';
 
             res.cookie('jwtOdinBook', token, {
-                maxAge: ONE_DAY_IN_MILLISECONDS,
+                maxAge: THIRTY_SECONDS_IN_MILLISECONDS,
                 secure: true,
                 sameSite: 'strict',
             });
