@@ -107,7 +107,7 @@ const getGuestLoginData = async (req: Request, res: Response) => {
     });
 };
 
-const handleGitHubLoginCallback = async (req: Request, res: Response) => {
+const handleOAuthLoginCallback = async (req: Request, res: Response) => {
     try {
         const user: UserModelType = req.user as UserModelType;
 
@@ -143,4 +143,4 @@ const handleGitHubLoginCallback = async (req: Request, res: Response) => {
     }
 };
 
-export { login, checkToken, getGuestLoginData, handleGitHubLoginCallback };
+export { login, checkToken, getGuestLoginData, handleOAuthLoginCallback };

@@ -73,7 +73,11 @@ const UserSchema: Schema = new Schema(
             required: true,
         },
         provider: {
-            name: { type: String, enum: ['odin', 'github'], required: true },
+            name: {
+                type: String,
+                enum: ['odin', 'github', 'google'],
+                required: true,
+            },
             profileId: { type: String },
         },
     },

@@ -3,7 +3,7 @@ import {
     login,
     checkToken,
     getGuestLoginData,
-    handleGitHubLoginCallback,
+    handleOAuthLoginCallback,
 } from '../controllers/authController';
 import passport from 'passport';
 
@@ -19,12 +19,25 @@ authRoute.get(
 );
 
 authRoute.get(
+    '/login/google',
+    passport.authenticate('google', { scope: ['email', 'profile'] })
+);
+
+authRoute.get(
     '/login/github/callback',
     passport.authenticate('github', {
         session: false,
         failureRedirect: '/login',
     }),
-    handleGitHubLoginCallback
+    handleOAuthLoginCallback
+);
+authRoute.get(
+    '/login/google/callback',
+    passport.authenticate('google', {
+        session: false,
+        failureRedirect: '/login',
+    }),
+    handleOAuthLoginCallback
 );
 
 authRoute.get('/check-token', checkToken);
