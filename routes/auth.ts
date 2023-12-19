@@ -14,29 +14,28 @@ authRoute.get('/guest', getGuestLoginData);
 authRoute.post('/login', login);
 
 authRoute.get(
-    '/login/github',
+    '/oauth/github',
     passport.authenticate('github', { scope: ['user:email'] })
 );
 
 authRoute.get(
-    '/login/google',
+    '/oauth/google',
     passport.authenticate('google', { scope: ['email', 'profile'] })
 );
 
 authRoute.get(
-    '/login/github/callback',
-    passport.authenticate('github', {
-        session: false,
-        failureRedirect: '/login',
-    }),
-    handleOAuthLoginCallback
-);
-authRoute.get(
-    '/login/google/callback',
-    passport.authenticate('google', {
-        session: false,
-        failureRedirect: '/login',
-    }),
+    '/oauth/redirect',
+    (req, res, next) => {
+        const provider = req.query.provider as string;
+
+        if (provider !== 'github' && provider !== 'google') {
+            return res.redirect('/login');
+        }
+        passport.authenticate(provider, {
+            session: false,
+            failureRedirect: '/login',
+        })(req, res, next);
+    },
     handleOAuthLoginCallback
 );
 
