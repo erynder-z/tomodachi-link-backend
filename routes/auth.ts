@@ -24,11 +24,20 @@ authRoute.get(
 );
 
 authRoute.get(
+    '/oauth/discord',
+    passport.authenticate('discord', { scope: ['email', 'identify'] })
+);
+
+authRoute.get(
     '/oauth/redirect',
     (req, res, next) => {
         const provider = req.query.provider as string;
 
-        if (provider !== 'github' && provider !== 'google') {
+        if (
+            provider !== 'github' &&
+            provider !== 'google' &&
+            provider !== 'discord'
+        ) {
             return res.redirect('/login');
         }
         passport.authenticate(provider, {

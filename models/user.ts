@@ -75,7 +75,7 @@ const UserSchema: Schema = new Schema(
         provider: {
             name: {
                 type: String,
-                enum: ['odin', 'github', 'google'],
+                enum: ['odin', 'github', 'google', 'discord'],
                 required: true,
             },
             profileId: { type: String },

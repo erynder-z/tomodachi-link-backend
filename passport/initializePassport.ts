@@ -3,6 +3,7 @@ import { initializeSignup } from './strategies/initializeSignup';
 import { initializeLogin } from './strategies/initializeLogin';
 import { initializeGithubLogin } from './strategies/initializeGithubStrategy';
 import { initializeGoogleLogin } from './strategies/initializeGoogleStrategy';
+import { initializeDiscordLogin } from './strategies/initializeDiscordStrategy';
 
 export const initializePassport = () => {
     initializeJWT();
@@ -10,4 +11,5 @@ export const initializePassport = () => {
     initializeLogin();
     initializeGithubLogin();
     initializeGoogleLogin();
+    initializeDiscordLogin();
 };
