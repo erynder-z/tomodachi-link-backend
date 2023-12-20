@@ -38,7 +38,7 @@ export const initializeGoogleLogin = () => {
                 });
 
                 if (!user) {
-                    console.log('Adding new github user to DB..');
+                    console.log('Adding new google user to DB..');
 
                     const hashedPlaceholderPassword = await bcrypt.hash(
                         GOOGLE_OAUTH_PLACEHOLDER_PASSWORD,
@@ -63,7 +63,7 @@ export const initializeGoogleLogin = () => {
 
                     return cb(null, user);
                 } else {
-                    console.log('Github user already exist in DB..');
+                    console.log('Google user already exist in DB..');
                     return cb(null, user);
                 }
             }
