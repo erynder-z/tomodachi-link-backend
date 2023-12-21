@@ -13,6 +13,7 @@ import { chatRoute } from './chat';
 import { pollRoute } from './poll';
 import { pollCollectionRoute } from './pollCollection';
 import { searchRoute } from './search';
+import { adminRoute } from './admin';
 
 export const routes = express.Router();
 
@@ -30,3 +31,4 @@ routes.use('/api/v1', chatRoute);
 routes.use('/api/v1', pollRoute);
 routes.use('/api/v1', pollCollectionRoute);
 routes.use('/api/v1', searchRoute);
+routes.use('/api/v1', adminRoute);
