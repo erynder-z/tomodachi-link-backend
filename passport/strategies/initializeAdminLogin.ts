@@ -1,36 +1,43 @@
 import passport from 'passport';
 import { Strategy as localStrategy } from 'passport-local';
+import bcrypt from 'bcrypt';
 
 import Admin from '../../models/admin';
 
 export const initializeAdminLogin = () => {
-    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+    const ADMIN_HASHED_PASSWORD = process.env.ADMIN_HASHED_PASSWORD;
 
     passport.use(
         'adminLogin',
         new localStrategy(async (username, providedPassword, done) => {
-            try {
-                const admin = await Admin.findOne({ username });
-                if (!admin) {
-                    return done(null, false, {
-                        message: 'Invalid username',
-                    });
-                }
-                const storedPassword = ADMIN_PASSWORD;
+            if (ADMIN_HASHED_PASSWORD) {
+                try {
+                    const admin = await Admin.findOne({ username });
+                    if (!admin) {
+                        return done(null, false, {
+                            message: 'Invalid username',
+                        });
+                    }
 
-                if (providedPassword !== storedPassword) {
-                    return done(null, false, {
-                        message: 'Invalid password',
-                    });
-                }
+                    const passwordMatches = await bcrypt.compare(
+                        providedPassword,
+                        ADMIN_HASHED_PASSWORD
+                    );
 
-                return done(null, admin, {
-                    message: 'Logged in successfully!',
-                });
-            } catch (error) {
-                console.log(error);
-                return done(error);
-            }
+                    if (!passwordMatches) {
+                        return done(null, false, {
+                            message: 'Invalid password',
+                        });
+                    }
+
+                    return done(null, admin, {
+                        message: 'Logged in successfully!',
+                    });
+                } catch (error) {
+                    console.log(error);
+                    return done(error);
+                }
+            } else return done(null);
         })
     );
 };
