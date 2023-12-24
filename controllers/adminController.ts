@@ -17,7 +17,7 @@ const generateToken = (admin: AdminModelType) => {
             },
         },
         `${TOKEN_SECRET_KEY}`,
-        { expiresIn: `${TOKEN_EXPIRE_TIME}` }
+        { expiresIn: TOKEN_EXPIRE_TIME }
     );
 };
 

@@ -18,7 +18,7 @@ const generateToken = (user: UserModelType) => {
             },
         },
         `${TOKEN_SECRET_KEY}`,
-        { expiresIn: `${TOKEN_EXPIRE_TIME}` }
+        { expiresIn: TOKEN_EXPIRE_TIME }
     );
 };
 
