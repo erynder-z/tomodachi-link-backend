@@ -3,6 +3,7 @@ import passport from 'passport';
 import { LoginErrorMessage } from '../types/loginErrorMessage';
 import type { AdminModelType } from '../models/admin';
 import jwt from 'jsonwebtoken';
+import Post from '../models/post';
 
 const generateToken = (admin: AdminModelType) => {
     const TOKEN_SECRET_KEY = process.env.ADMIN_TOKEN_SECRET_KEY;
@@ -53,4 +54,29 @@ const adminLogin = async (req: Request, res: Response, next: NextFunction) => {
         }
     )(req, res, next);
 };
-export { adminLogin };
+
+const adminGetPosts = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const posts = await Post.find()
+            .populate('owner', 'firstName lastName userpic')
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'owner',
+                    select: 'firstName lastName userpic',
+                },
+            })
+            .sort({ createdAt: -1 })
+            .lean()
+            .exec();
+
+        res.status(200).json({ posts });
+    } catch (err) {
+        next(err);
+    }
+};
+export { adminLogin, adminGetPosts };
