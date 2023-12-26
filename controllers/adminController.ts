@@ -4,6 +4,10 @@ import { LoginErrorMessage } from '../types/loginErrorMessage';
 import type { AdminModelType } from '../models/admin';
 import jwt from 'jsonwebtoken';
 import Post from '../models/post';
+import User from '../models/user';
+import { Types } from 'mongoose';
+import Admin from '../models/admin';
+import { JwtAdmin } from '../types/jwtAdmin';
 
 const generateToken = (admin: AdminModelType) => {
     const TOKEN_SECRET_KEY = process.env.ADMIN_TOKEN_SECRET_KEY;
@@ -79,4 +83,42 @@ const adminGetPosts = async (
         next(err);
     }
 };
-export { adminLogin, adminGetPosts };
+
+const deletePostFromUser = async (userID: Types.ObjectId, postId: string) => {
+    return await User.updateOne({ _id: userID }, { $pull: { posts: postId } });
+};
+
+const adminDeletePost = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const reqUser = req.user as JwtAdmin;
+        const isAdmin = await Admin.exists({ _id: reqUser });
+
+        if (!isAdmin) {
+            return res.status(403).json({ errors: [{ msg: 'Forbidden' }] });
+        }
+        const postID = req.params.id;
+
+        const post = await Post.findById(postID).populate('owner');
+
+        if (!post) {
+            const ERROR_MESSAGE = 'Post not found';
+            return res.status(404).json({
+                errors: [{ msg: ERROR_MESSAGE }],
+            });
+        }
+
+        const postOwnerID = post.owner._id;
+
+        await Post.findByIdAndRemove(postID);
+        await deletePostFromUser(postOwnerID, postID);
+
+        res.status(200).json({});
+    } catch (err) {
+        next(err);
+    }
+};
+export { adminLogin, adminGetPosts, adminDeletePost };
