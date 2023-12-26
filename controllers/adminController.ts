@@ -65,6 +65,13 @@ const adminGetPosts = async (
     next: NextFunction
 ) => {
     try {
+        const reqUser = req.user as JwtAdmin;
+        const isAdmin = await Admin.exists({ _id: reqUser });
+
+        if (!isAdmin) {
+            return res.status(403).json({ errors: [{ msg: 'Forbidden' }] });
+        }
+
         const posts = await Post.find()
             .populate('owner', 'firstName lastName userpic')
             .populate({
