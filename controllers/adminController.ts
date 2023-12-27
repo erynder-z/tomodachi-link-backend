@@ -128,4 +128,30 @@ const adminDeletePost = async (
         next(err);
     }
 };
-export { adminLogin, adminGetPosts, adminDeletePost };
+
+const adminGetUsers = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const reqUser = req.user as JwtAdmin;
+        const isAdmin = await Admin.exists({ _id: reqUser });
+
+        if (!isAdmin) {
+            return res.status(403).json({ errors: [{ msg: 'Forbidden' }] });
+        }
+
+        const users = await User.find()
+
+            .sort({ createdAt: -1 })
+            .lean()
+            .exec();
+
+        res.status(200).json({ users });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export { adminLogin, adminGetPosts, adminDeletePost, adminGetUsers };

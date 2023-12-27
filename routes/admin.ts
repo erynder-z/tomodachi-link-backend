@@ -3,6 +3,7 @@ import {
     adminLogin,
     adminGetPosts,
     adminDeletePost,
+    adminGetUsers,
 } from '../controllers/adminController';
 import passport from 'passport';
 
@@ -20,4 +21,10 @@ adminRoute.delete(
     '/admin/post/:id',
     passport.authenticate('jwt', { session: false }),
     adminDeletePost
+);
+
+adminRoute.get(
+    '/admin/users',
+    passport.authenticate('jwt', { session: false }),
+    adminGetUsers
 );
