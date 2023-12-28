@@ -4,6 +4,8 @@ import {
     adminGetPosts,
     adminDeletePost,
     adminGetUsers,
+    adminGetPolls,
+    adminDeletePoll,
 } from '../controllers/adminController';
 import passport from 'passport';
 
@@ -27,4 +29,16 @@ adminRoute.get(
     '/admin/users',
     passport.authenticate('jwt', { session: false }),
     adminGetUsers
+);
+
+adminRoute.get(
+    '/admin/polls',
+    passport.authenticate('jwt', { session: false }),
+    adminGetPolls
+);
+
+adminRoute.delete(
+    '/admin/poll/:id',
+    passport.authenticate('jwt', { session: false }),
+    adminDeletePoll
 );

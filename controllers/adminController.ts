@@ -8,6 +8,7 @@ import User from '../models/user';
 import { Types } from 'mongoose';
 import Admin from '../models/admin';
 import { JwtAdmin } from '../types/jwtAdmin';
+import Poll from '../models/poll';
 
 const generateToken = (admin: AdminModelType) => {
     const TOKEN_SECRET_KEY = process.env.ADMIN_TOKEN_SECRET_KEY;
@@ -154,4 +155,81 @@ const adminGetUsers = async (
     }
 };
 
-export { adminLogin, adminGetPosts, adminDeletePost, adminGetUsers };
+const adminGetPolls = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const reqUser = req.user as JwtAdmin;
+        const isAdmin = await Admin.exists({ _id: reqUser });
+
+        if (!isAdmin) {
+            return res.status(403).json({ errors: [{ msg: 'Forbidden' }] });
+        }
+
+        const polls = await Poll.find()
+            .populate('owner', 'firstName lastName userpic')
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'owner',
+                    select: 'firstName lastName userpic',
+                },
+            })
+            .sort({ createdAt: -1 })
+            .lean()
+            .exec();
+
+        res.status(200).json({ polls });
+    } catch (err) {
+        next(err);
+    }
+};
+
+const deletePollFromUser = async (userID: Types.ObjectId, pollId: string) => {
+    return await Poll.updateOne({ _id: userID }, { $pull: { polls: pollId } });
+};
+
+const adminDeletePoll = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const reqUser = req.user as JwtAdmin;
+        const isAdmin = await Admin.exists({ _id: reqUser });
+
+        if (!isAdmin) {
+            return res.status(403).json({ errors: [{ msg: 'Forbidden' }] });
+        }
+        const pollID = req.params.id;
+
+        const poll = await Poll.findById(pollID).populate('owner');
+
+        if (!poll) {
+            const ERROR_MESSAGE = 'Post not found';
+            return res.status(404).json({
+                errors: [{ msg: ERROR_MESSAGE }],
+            });
+        }
+
+        const pollOwnerID = poll.owner._id;
+
+        await Poll.findByIdAndRemove(pollID);
+        await deletePollFromUser(pollOwnerID, pollID);
+
+        res.status(200).json({});
+    } catch (err) {
+        next(err);
+    }
+};
+
+export {
+    adminLogin,
+    adminGetPosts,
+    adminDeletePost,
+    adminGetUsers,
+    adminGetPolls,
+    adminDeletePoll,
+};
