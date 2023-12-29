@@ -6,6 +6,7 @@ import {
     adminGetUsers,
     adminGetPolls,
     adminDeletePoll,
+    adminPerformSearch,
 } from '../controllers/adminController';
 import passport from 'passport';
 
@@ -41,4 +42,10 @@ adminRoute.delete(
     '/admin/poll/:id',
     passport.authenticate('jwt', { session: false }),
     adminDeletePoll
+);
+
+adminRoute.get(
+    '/admin/search',
+    passport.authenticate('jwt', { session: false }),
+    adminPerformSearch
 );

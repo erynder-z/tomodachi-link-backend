@@ -3,12 +3,13 @@ import passport from 'passport';
 import { LoginErrorMessage } from '../types/loginErrorMessage';
 import type { AdminModelType } from '../models/admin';
 import jwt from 'jsonwebtoken';
-import Post from '../models/post';
+import Post, { PostModelType } from '../models/post';
 import User from '../models/user';
-import { Types } from 'mongoose';
+import { FlattenMaps, Types } from 'mongoose';
 import Admin from '../models/admin';
 import { JwtAdmin } from '../types/jwtAdmin';
 import Poll from '../models/poll';
+import { AllSearchResultsType } from '../types/searchTypes';
 
 const generateToken = (admin: AdminModelType) => {
     const TOKEN_SECRET_KEY = process.env.ADMIN_TOKEN_SECRET_KEY;
@@ -225,6 +226,166 @@ const adminDeletePoll = async (
     }
 };
 
+const filterNonEmptyTerms = (terms: string[]): string[] =>
+    terms.filter((term) => term.trim() !== '');
+
+// Function to perform the user search
+const searchUsers = async (
+    terms: string[],
+    allResults: AllSearchResultsType[]
+) => {
+    const filteredTerms = filterNonEmptyTerms(terms);
+    if (filteredTerms.length === 0) {
+        return;
+    }
+
+    const userRegexQueries = terms.map((term) => ({
+        $or: [
+            { firstName: { $regex: `\\b${term}`, $options: 'i' } },
+            { lastName: { $regex: `\\b${term}`, $options: 'i' } },
+        ],
+    }));
+
+    const userResults = await User.find({ $or: userRegexQueries })
+    .lean();
+
+    const mappedUserResults: AllSearchResultsType[] = userResults.map(
+        (result: {
+            _id: string;
+            firstName: string;
+            lastName: string;
+            userpic: FlattenMaps<{ data: Buffer; contentType: string }>;
+        }) => ({
+            type: 'user',
+            data: result,
+        })
+    );
+
+    allResults.push(...mappedUserResults);
+};
+
+// Function to perform the post search
+const searchPosts = async (
+    terms: string[],
+    allResults: AllSearchResultsType[]
+) => {
+    const filteredTerms = filterNonEmptyTerms(terms);
+    if (filteredTerms.length === 0) {
+        return;
+    }
+
+    const postRegexQueries = terms.map((term) => ({
+        $or: [{ text: { $regex: `\\b${term}`, $options: 'i' } }],
+    }));
+
+    const postResults = await Post.find({ $or: postRegexQueries })
+        .populate('owner', 'firstName lastName userpic')
+        .populate({
+            path: 'comments',
+            populate: {
+                path: 'owner',
+                select: 'firstName lastName userpic',
+            },
+        })
+        .lean();
+
+    const mappedPostResults: AllSearchResultsType[] = postResults.map(
+        (result: PostModelType) => ({
+            type: 'post',
+            data: result,
+        })
+    );
+
+    allResults.push(...mappedPostResults);
+};
+
+// Function to perform the poll search
+const searchPolls = async (
+    terms: string[],
+    allResults: AllSearchResultsType[]
+) => {
+    const filteredTerms = filterNonEmptyTerms(terms);
+    if (filteredTerms.length === 0) {
+        return;
+    }
+
+    const pollRegexQueries = terms.map((term) => ({
+        $or: [
+            { question: { $regex: `\\b${term}`, $options: 'i' } },
+            { description: { $regex: `\\b${term}`, $options: 'i' } },
+        ],
+    }));
+
+    const pollResults = await Poll.find({ $or: pollRegexQueries })
+        .populate('owner', 'firstName lastName userpic')
+        .populate({
+            path: 'comments',
+            populate: {
+                path: 'owner',
+                select: 'firstName lastName userpic',
+            },
+        })
+        .sort({ createdAt: -1 })
+        .lean();
+
+    const mappedPollResults: AllSearchResultsType[] = pollResults.map(
+        (result: {
+            _id: string;
+            question: string;
+            description: string;
+            updatedAt: Date;
+        }) => ({
+            type: 'poll',
+            data: result,
+        })
+    );
+
+    allResults.push(...mappedPollResults);
+};
+
+// Function to perform the query search
+const adminPerformSearch = async (
+    req: Request,
+    res: Response
+): Promise<void> => {
+    try {
+        const reqUser = req.user as JwtAdmin;
+        const isAdmin = await Admin.exists({ _id: reqUser });
+
+        if (!isAdmin) {
+            res.status(403).json({ errors: [{ msg: 'Forbidden' }] });
+            return;
+        }
+
+        const query = req.query.query as string;
+
+        if (!query) {
+            const ERROR_MESSAGE = 'Query parameter is required!';
+            res.status(400).json({
+                errors: [{ msg: ERROR_MESSAGE }],
+            });
+            return;
+        }
+
+        const terms = query.trim().split(' ');
+        const allResults: AllSearchResultsType[] = [];
+
+        await searchUsers(terms, allResults);
+
+        await searchPosts(terms, allResults);
+
+        await searchPolls(terms, allResults);
+
+        res.json(allResults);
+    } catch (error) {
+        const ERROR_MESSAGE = 'Something went wrong while searching!';
+        console.error('Error searching:', error);
+        res.status(500).json({
+            errors: [{ msg: ERROR_MESSAGE }],
+        });
+    }
+};
+
 export {
     adminLogin,
     adminGetPosts,
@@ -232,4 +393,5 @@ export {
     adminGetUsers,
     adminGetPolls,
     adminDeletePoll,
+    adminPerformSearch,
 };
