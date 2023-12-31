@@ -23,7 +23,7 @@ export type UserType = {
     pendingFriendRequests: Types.ObjectId[];
     accountType: 'regularUser' | 'guest' | 'fake';
     provider: {
-        name: 'odin' | 'github';
+        name: 'odin' | 'github' | 'google' | 'discord';
         profileId: string;
     };
 
