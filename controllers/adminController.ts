@@ -246,8 +246,7 @@ const searchUsers = async (
         ],
     }));
 
-    const userResults = await User.find({ $or: userRegexQueries })
-    .lean();
+    const userResults = await User.find({ $or: userRegexQueries }).lean();
 
     const mappedUserResults: AllSearchResultsType[] = userResults.map(
         (result: {
@@ -386,6 +385,66 @@ const adminPerformSearch = async (
     }
 };
 
+const getNumberOfUsers = async () => {
+    return await User.countDocuments();
+};
+
+const getNumberOfPosts = async () => {
+    return await Post.countDocuments();
+};
+
+const getNumberOfPolls = async () => {
+    return await Poll.countDocuments();
+};
+
+const getProviderOdinUsers = async () => {
+    return await User.countDocuments({ 'provider.name': 'odin' });
+};
+
+const getProviderGoogleUsers = async () => {
+    return await User.countDocuments({ 'provider.name': 'google' });
+};
+
+const getProviderDiscordUsers = async () => {
+    return await User.countDocuments({ 'provider.name': 'discord' });
+};
+
+const adminGetDashboardData = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    try {
+        const reqUser = req.user as JwtAdmin;
+        const isAdmin = await Admin.exists({ _id: reqUser });
+
+        if (!isAdmin) {
+            res.status(403).json({ errors: [{ msg: 'Forbidden' }] });
+            return;
+        }
+
+        const numberOfUsers = await getNumberOfUsers();
+        const numberOfPosts = await getNumberOfPosts();
+        const numberOfPolls = await getNumberOfPolls();
+        const providerOdinUsers = await getProviderOdinUsers();
+        const providerGoogleUsers = await getProviderGoogleUsers();
+        const providerDiscordUsers = await getProviderDiscordUsers();
+
+        const dashboardData = {
+            totalUsers: numberOfUsers,
+            totalPosts: numberOfPosts,
+            totalPolls: numberOfPolls,
+            providerOdinUsers: providerOdinUsers,
+            providerGoogleUsers: providerGoogleUsers,
+            providerDiscordUsers: providerDiscordUsers,
+        };
+
+        res.status(200).json({ dashboardData });
+    } catch (err) {
+        next(err);
+    }
+};
+
 export {
     adminLogin,
     adminGetPosts,
@@ -394,4 +453,5 @@ export {
     adminGetPolls,
     adminDeletePoll,
     adminPerformSearch,
+    adminGetDashboardData,
 };

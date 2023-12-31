@@ -7,12 +7,19 @@ import {
     adminGetPolls,
     adminDeletePoll,
     adminPerformSearch,
+    adminGetDashboardData,
 } from '../controllers/adminController';
 import passport from 'passport';
 
 export const adminRoute = Router();
 
 adminRoute.post('/admin/login', adminLogin);
+
+adminRoute.get(
+    '/admin/dashboard',
+    passport.authenticate('jwt', { session: false }),
+    adminGetDashboardData
+);
 
 adminRoute.get(
     '/admin/posts',
