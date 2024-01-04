@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import {
     login,
-    checkToken,
+    checkAndDecodeJwt,
     getGuestLoginData,
     handleOAuthLoginCallback,
 } from '../controllers/authController';
@@ -48,4 +48,4 @@ authRoute.get(
     handleOAuthLoginCallback
 );
 
-authRoute.get('/check-token', checkToken);
+authRoute.get('/token-user', checkAndDecodeJwt);

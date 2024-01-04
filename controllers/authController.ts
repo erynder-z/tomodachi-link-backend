@@ -55,7 +55,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     )(req, res, next);
 };
 
-const checkToken = async (req: Request, res: Response) => {
+const checkAndDecodeJwt = async (req: Request, res: Response) => {
     const TOKEN_ERROR_MESSAGE = 'Invalid token';
 
     try {
@@ -143,4 +143,9 @@ const handleOAuthLoginCallback = async (req: Request, res: Response) => {
     }
 };
 
-export { login, checkToken, getGuestLoginData, handleOAuthLoginCallback };
+export {
+    login,
+    checkAndDecodeJwt,
+    getGuestLoginData,
+    handleOAuthLoginCallback,
+};
