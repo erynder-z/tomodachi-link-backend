@@ -9,12 +9,18 @@ const upload = multer({ storage: storage, limits: { fileSize: 1000000 } }); // m
 
 export const userDataRoute = Router();
 
+/**
+ * Route for fetching user data of the authenticated user.
+ */
 userDataRoute.get(
     '/userdata',
     passport.authenticate('jwt', { session: false }),
     userDataController.getUserData
 );
 
+/**
+ * Route for updating user data of the authenticated user.
+ */
 userDataRoute.put(
     '/userdata',
     passport.authenticate('jwt', { session: false }),
@@ -23,12 +29,18 @@ userDataRoute.put(
     userDataController.updateUserData
 );
 
+/**
+ * Route for updating cover image of the authenticated user.
+ */
 userDataRoute.patch(
     '/userdata/cover',
     passport.authenticate('jwt', { session: false }),
     userDataController.updateCover
 );
 
+/**
+ * Route for updating the password of the authenticated user.
+ */
 userDataRoute.patch(
     '/password',
     passport.authenticate('jwt', { session: false }),
