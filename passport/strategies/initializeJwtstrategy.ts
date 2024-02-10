@@ -1,7 +1,12 @@
 import passport from 'passport';
 import { Strategy as JWTstrategy, ExtractJwt } from 'passport-jwt';
 
-export const initializeJWT = () => {
+/**
+ * Initializes the JWT authentication strategy using the provided token secret key.
+ *
+ * @return {void}
+ */
+export const initializeJWT = (): void => {
     passport.use(
         new JWTstrategy(
             {

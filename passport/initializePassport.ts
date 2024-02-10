@@ -6,6 +6,9 @@ import { initializeGoogleLogin } from './strategies/initializeGoogleStrategy';
 import { initializeDiscordLogin } from './strategies/initializeDiscordStrategy';
 import { initializeAdminLogin } from './strategies/initializeAdminLogin';
 
+/**
+ * Initializes the passport by initializing JWT, signup, login, admin login, github login, google login, and discord login.
+ */
 export const initializePassport = () => {
     initializeJWT();
     initializeSignup();

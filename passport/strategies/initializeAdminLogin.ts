@@ -4,7 +4,12 @@ import bcrypt from 'bcrypt';
 
 import Admin from '../../models/admin';
 
-export const initializeAdminLogin = () => {
+/**
+ * Initializes the admin login using passport local strategy.
+ *
+ * @return {void}
+ */
+export const initializeAdminLogin = (): void => {
     const ADMIN_HASHED_PASSWORD = process.env.ADMIN_HASHED_PASSWORD;
 
     passport.use(

@@ -3,7 +3,12 @@ import { Strategy as DiscordStrategy } from 'passport-discord';
 import User from '../../models/user';
 import bcrypt from 'bcrypt';
 
-export const initializeDiscordLogin = () => {
+/**
+ * Initializes Discord login using Discord OAuth strategy.
+ *
+ * @return {void}
+ */
+export const initializeDiscordLogin = (): void => {
     const DISCORD_CLIENT_ID = `${process.env.DISCORD_CLIENT_ID}`;
     const DISCORD_CLIENT_SECRET = `${process.env.DISCORD_CLIENT_SECRET}`;
     const DISCORD_CALLBACK_URL = `${process.env.DISCORD_CALLBACK_URL}`;

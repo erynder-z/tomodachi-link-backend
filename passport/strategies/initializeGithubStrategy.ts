@@ -3,7 +3,12 @@ import { Strategy as GitHubStrategy } from 'passport-github2';
 import User from '../../models/user';
 import bcrypt from 'bcrypt';
 
-export const initializeGithubLogin = () => {
+/**
+ * Initializes the GitHub login strategy using the provided environment variables for client ID, secret, and callback URL.
+ *
+ * @return {void}
+ */
+export const initializeGithubLogin = (): void => {
     const GITHUB_CLIENT_ID = `${process.env.GITHUB_CLIENT_ID}`;
     const GITHUB_CLIENT_SECRET = `${process.env.GITHUB_CLIENT_SECRET}`;
     const GITHUB_CALLBACK_URL = `${process.env.GITHUB_CALLBACK_URL}`;

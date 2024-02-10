@@ -3,7 +3,12 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../../models/user';
 import bcrypt from 'bcrypt';
 
-export const initializeGoogleLogin = () => {
+/**
+ * Initializes Google login using the provided environment variables for Google client ID, secret, and callback URL.
+ *
+ * @return {void}
+ */
+export const initializeGoogleLogin = (): void => {
     const GOOGLE_CLIENT_ID = `${process.env.GOOGLE_CLIENT_ID}`;
     const GOOGLE_CLIENT_SECRET = `${process.env.GOOGLE_CLIENT_SECRET}`;
     const GOOGLE_CALLBACK_URL = `${process.env.GOOGLE_CALLBACK_URL}`;

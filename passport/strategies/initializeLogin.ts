@@ -3,7 +3,12 @@ import { Strategy as localStrategy } from 'passport-local';
 import bcrypt from 'bcrypt';
 import User from '../../models/user';
 
-export const initializeLogin = () => {
+/**
+ * Initializes the login strategy using passport.
+ *
+ * @return {void}
+ */
+export const initializeLogin = (): void => {
     passport.use(
         'login',
         new localStrategy(async (username, password, done) => {
