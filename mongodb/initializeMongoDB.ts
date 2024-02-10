@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 
+/**
+ * Initializes MongoDB connection and sets up event handlers for graceful termination.
+ */
 export const initializeMongoDB = () => {
     const mongoDB = `${process.env.MONGODB_URI}`;
 
