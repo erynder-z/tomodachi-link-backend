@@ -11,7 +11,12 @@ import { JwtAdmin } from '../types/jwtAdmin';
 import Poll from '../models/poll';
 import { AllSearchResultsType } from '../types/searchTypes';
 
-const generateToken = (admin: AdminModelType) => {
+/**
+ * Generates a JWT token for the provided admin.
+ * @param {AdminModelType} admin The admin object for which the token is generated.
+ * @returns {string} The generated JWT token.
+ */
+const generateToken = (admin: AdminModelType): string => {
     const TOKEN_SECRET_KEY = process.env.ADMIN_TOKEN_SECRET_KEY;
     const TOKEN_EXPIRE_TIME = process.env.ADMIN_TOKEN_EXPIRE_TIME;
 
@@ -28,7 +33,18 @@ const generateToken = (admin: AdminModelType) => {
     );
 };
 
-const adminLogin = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Handles the login request for admin users.
+ * @param {Request} req The request object.
+ * @param {Response} res The response object.
+ * @param {NextFunction} next The next function in the middleware chain.
+ * @return {Promise<void>} A promise that resolves to the result of the login operation
+ */
+const adminLogin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
     const AUTH_ERROR_MESSAGE = 'Error while logging in';
 
     passport.authenticate(
@@ -61,11 +77,18 @@ const adminLogin = async (req: Request, res: Response, next: NextFunction) => {
     )(req, res, next);
 };
 
+/**
+ * Retrieves all posts from the database.
+ * @param {Request} req The request object.
+ * @param {Response} res The response object.
+ * @param {NextFunction} next The next function in the middleware chain.
+ * @returns {Promise<void | Response<any, Record<string, any>>>}
+ */
 const adminGetPosts = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const reqUser = req.user as JwtAdmin;
         const isAdmin = await Admin.exists({ _id: reqUser });
@@ -93,10 +116,26 @@ const adminGetPosts = async (
     }
 };
 
-const deletePostFromUser = async (userID: Types.ObjectId, postId: string) => {
+/**
+ * Deletes a post from the user's list of posts.
+ *
+ * @param {Types.ObjectId} userID - The ID of the user
+ * @param {string} postId - The ID of the post to be deleted
+ * @return {Promise<any>} A promise that resolves to the result of the update operation
+ */
+const deletePostFromUser = async (
+    userID: Types.ObjectId,
+    postId: string
+): Promise<any> => {
     return await User.updateOne({ _id: userID }, { $pull: { posts: postId } });
 };
 
+/**
+ * Deletes a post from the database.
+ * @param {Request} req The request object.
+ * @param {Response} res The response object.
+ * @param {NextFunction} next The next function in the middleware chain.
+ */
 const adminDeletePost = async (
     req: Request,
     res: Response,
@@ -131,6 +170,12 @@ const adminDeletePost = async (
     }
 };
 
+/**
+ * Retrieves all users from the database.
+ * @param {Request} req The request object.
+ * @param {Response} res The response object.
+ * @param {NextFunction} next The next function in the middleware chain.
+ */
 const adminGetUsers = async (
     req: Request,
     res: Response,
@@ -156,6 +201,12 @@ const adminGetUsers = async (
     }
 };
 
+/**
+ * Retrieves all polls from the database.
+ * @param {Request} req The request object.
+ * @param {Response} res The response object.
+ * @param {NextFunction} next The next function in the middleware chain.
+ */
 const adminGetPolls = async (
     req: Request,
     res: Response,
@@ -188,10 +239,26 @@ const adminGetPolls = async (
     }
 };
 
-const deletePollFromUser = async (userID: Types.ObjectId, pollId: string) => {
+/**
+ * Deletes a poll from a user's list of polls.
+ *
+ * @param {Types.ObjectId} userID - the ID of the user
+ * @param {string} pollId - the ID of the poll to be deleted
+ * @return {Promise<any>} a promise that resolves to the result of the update operation
+ */
+const deletePollFromUser = async (
+    userID: Types.ObjectId,
+    pollId: string
+): Promise<any> => {
     return await Poll.updateOne({ _id: userID }, { $pull: { polls: pollId } });
 };
 
+/**
+ * Deletes a poll from the database.
+ * @param {Request} req The request object.
+ * @param {Response} res The response object.
+ * @param {NextFunction} next The next function in the middleware chain.
+ */
 const adminDeletePoll = async (
     req: Request,
     res: Response,
@@ -226,14 +293,26 @@ const adminDeletePoll = async (
     }
 };
 
+/**
+ * Filters out non-empty terms from the input array.
+ *
+ * @param {string[]} terms - the array of terms to filter
+ * @return {string[]} the filtered array of non-empty terms
+ */
 const filterNonEmptyTerms = (terms: string[]): string[] =>
     terms.filter((term) => term.trim() !== '');
 
-// Function to perform the user search
+/**
+ * Asynchronously searches users based on the provided terms and adds the results to the given array of all search results.
+ *
+ * @param {string[]} terms - an array of search terms
+ * @param {AllSearchResultsType[]} allResults - an array of all search results
+ * @return {Promise<void>} A promise that resolves to the result of the search operation
+ */
 const searchUsers = async (
     terms: string[],
     allResults: AllSearchResultsType[]
-) => {
+): Promise<void> => {
     const filteredTerms = filterNonEmptyTerms(terms);
     if (filteredTerms.length === 0) {
         return;
@@ -263,11 +342,17 @@ const searchUsers = async (
     allResults.push(...mappedUserResults);
 };
 
-// Function to perform the post search
+/**
+ * Asynchronously search for posts based on the provided terms and update the allResults array with the matched post results.
+ *
+ * @param {string[]} terms - the search terms to filter the posts
+ * @param {AllSearchResultsType[]} allResults - the array to store the matched post results
+ * @return {Promise<void>} A promise that resolves to the result of the search operation
+ */
 const searchPosts = async (
     terms: string[],
     allResults: AllSearchResultsType[]
-) => {
+): Promise<void> => {
     const filteredTerms = filterNonEmptyTerms(terms);
     if (filteredTerms.length === 0) {
         return;
@@ -298,11 +383,17 @@ const searchPosts = async (
     allResults.push(...mappedPostResults);
 };
 
-// Function to perform the poll search
+/**
+ * Asynchronously search for polls based on the provided terms and add the results to the specified array.
+ *
+ * @param {string[]} terms - the search terms to filter polls by
+ * @param {AllSearchResultsType[]} allResults - the array to add the search results to
+ * @return {Promise<void>} A promise that resolves to the result of the search operation
+ */
 const searchPolls = async (
     terms: string[],
     allResults: AllSearchResultsType[]
-) => {
+): Promise<void> => {
     const filteredTerms = filterNonEmptyTerms(terms);
     if (filteredTerms.length === 0) {
         return;
@@ -342,7 +433,13 @@ const searchPolls = async (
     allResults.push(...mappedPollResults);
 };
 
-// Function to perform the query search
+/**
+ * Perform a search as an admin user.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @return {Promise<void>} a promise that resolves to the result of the search
+ */
 const adminPerformSearch = async (
     req: Request,
     res: Response
@@ -385,30 +482,68 @@ const adminPerformSearch = async (
     }
 };
 
-const getNumberOfUsers = async () => {
+/**
+ * Retrieves the number of users from the database.
+ *
+ * @return {Promise<number>} The number of users.
+ */
+const getNumberOfUsers = async (): Promise<number> => {
     return await User.countDocuments();
 };
 
-const getNumberOfPosts = async () => {
+/**
+ * Retrieves the number of posts from the database.
+ *
+ * @return {Promise<number>} The number of posts.
+ */
+const getNumberOfPosts = async (): Promise<number> => {
     return await Post.countDocuments();
 };
 
-const getNumberOfPolls = async () => {
+/**
+ * Retrieves the number of polls.
+ *
+ * @return {Promise<number>} The number of polls.
+ */
+const getNumberOfPolls = async (): Promise<number> => {
     return await Poll.countDocuments();
 };
 
-const getProviderOdinUsers = async () => {
+/**
+ * Retrieves the count of users with the provider name 'odin'.
+ *
+ * @return {Promise<number>} The count of users with the provider name 'odin'
+ */
+const getProviderOdinUsers = async (): Promise<number> => {
     return await User.countDocuments({ 'provider.name': 'odin' });
 };
 
-const getProviderGoogleUsers = async () => {
+/**
+ * Retrieves the count of User documents with 'provider.name' equal to 'google'.
+ *
+ * @return {Promise<number>} The count of User documents.
+ */
+const getProviderGoogleUsers = async (): Promise<number> => {
     return await User.countDocuments({ 'provider.name': 'google' });
 };
 
-const getProviderDiscordUsers = async () => {
+/**
+ * Retrieves the count of users with 'discord' as the provider name.
+ *
+ * @return {Promise<number>} The count of users with 'discord' as the provider name
+ */
+const getProviderDiscordUsers = async (): Promise<number> => {
     return await User.countDocuments({ 'provider.name': 'discord' });
 };
 
+/**
+ * Retrieves dashboard data for the admin user, including user and post statistics.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next middleware function
+ * @return {Promise<void>} a promise that resolves when the dashboard data is successfully retrieved
+ */
 const adminGetDashboardData = async (
     req: Request,
     res: Response,
