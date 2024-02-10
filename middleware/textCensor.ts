@@ -7,7 +7,11 @@ import {
     englishRecommendedTransformers,
 } from 'obscenity';
 
-const textCensorMiddleware = () => {
+/**
+ * Middleware function to censor text in the request body.
+ * @returns {import('express').RequestHandler} Express middleware function.
+ */
+const textCensorMiddleware = (): import('express').RequestHandler => {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { newPost } = req.body;

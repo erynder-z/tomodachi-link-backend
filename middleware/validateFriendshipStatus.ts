@@ -1,6 +1,13 @@
 import { UserModelType } from '../models/user';
 import mongoose from 'mongoose';
 
+/**
+ * Validates the friendship status between the current user and the owner of a post.
+ *
+ * @param {UserModelType | null} currentUser - The current user
+ * @param {mongoose.Types.ObjectId} postOwnerId - The ID of the post owner
+ * @return {Promise<boolean>} The validation result
+ */
 export const validateFriendshipStatus = async (
     currentUser: UserModelType | null,
     postOwnerId: mongoose.Types.ObjectId
