@@ -4,11 +4,19 @@ import ChatMessage from '../models/chatMessage';
 import { JwtUser } from '../types/jwtUser';
 import User, { UserModelType } from '../models/user';
 
+/**
+ * Initializes a conversation between the authenticated user and a specified chat partner.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next function in the middleware chain.
+ * @returns {Promise<void | Response<any, Record<string, any>>>}  A promise representing the completion of the conversation initialization.
+ */
 const initializeConversation = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     if (!req.user) {
         return;
     }
@@ -64,11 +72,19 @@ const initializeConversation = async (
     }
 };
 
+/**
+ * Retrieves conversations of the authenticated user.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next function in the middleware chain.
+ * @returns {Promise<void>} A promise representing the completion of the retrieval of conversations.
+ */
 const getConversationOfUser = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     if (req.user) {
         try {
             const reqUser = req.user as JwtUser;
@@ -83,11 +99,19 @@ const getConversationOfUser = async (
     }
 };
 
+/**
+ * Adds a chat message to the database.
+ *
+ * @param {Request} req - The request object containing the chat message data.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next function in the middleware chain.
+ * @returns {Promise<void>} A promise representing the completion of adding the chat message.
+ */
 const addChatMessage = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     try {
         const savedMessage = await ChatMessage.create(req.body);
         res.status(200).json({ savedMessage });
@@ -96,11 +120,19 @@ const addChatMessage = async (
     }
 };
 
+/**
+ * Retrieves messages from a conversation.
+ *
+ * @param {Request} req - The request object containing the conversation ID and optional message scope.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next function in the middleware chain.
+ * @returns {Promise<void | Response<any, Record<string, any>>>} A promise representing the completion of retrieving the messages.
+ */
 const getMessagesFromConversation = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const { conversationId } = req.params;
         const DEFAULT_MESSAGE_SCOPE = 'latest';
@@ -137,11 +169,19 @@ const getMessagesFromConversation = async (
     }
 };
 
+/**
+ * Marks a conversation as unread for the authenticated user.
+ *
+ * @param {Request} req - The request object containing the conversation ID.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next function in the middleware chain.
+ * @returns {Promise<void | Response<any, Record<string, any>>} A promise representing the completion of marking the conversation as unread.
+ */
 const markConversationAsUnread = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const conversationId = req.params.conversationId;
         const jwtUserId = (req.user as JwtUser)._id.toString();
@@ -163,11 +203,19 @@ const markConversationAsUnread = async (
     }
 };
 
+/**
+ * Marks a conversation as read for the authenticated user.
+ *
+ * @param {Request} req - The request object containing the conversation ID.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next function in the middleware chain.
+ * @returns {Promise<void | Response<any, Record<string, any>>} A promise representing the completion of marking the conversation as read.
+ */
 const markConversationAsRead = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const conversationId = req.params.conversationId;
         const reqUser = req.user as JwtUser;
@@ -194,11 +242,19 @@ const markConversationAsRead = async (
     }
 };
 
+/**
+ * Retrieves data of the chat partner.
+ *
+ * @param {Request} req - The request object containing the chat partner ID.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next function in the middleware chain.
+ * @returns {Promise<void | Response<any, Record<string, any>>} A promise representing the completion of retrieving the chat partner data.
+ */
 const getChatPartnerData = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const ERROR_MESSAGE = 'User not found!';
         const otherUser = await User.findById(req.params.id).lean();
@@ -223,11 +279,19 @@ const getChatPartnerData = async (
     }
 };
 
+/**
+ * Handles muting/unmuting of a conversation by the authenticated user.
+ *
+ * @param {Request} req - The request object containing the conversation ID.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next function in the middleware chain.
+ * @returns {Promise<void | Response<any, Record<string, any>>} A promise representing the completion of muting/unmuting the conversation.
+ */
 const handleConversationMute = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const conversationId = req.params.conversationId;
         const jwtUserId = (req.user as JwtUser)._id.toString();
@@ -261,7 +325,13 @@ const handleConversationMute = async (
     }
 };
 
-const formatUserData = (user: UserModelType) => {
+/**
+ * Formats user data to include only necessary fields.
+ *
+ * @param {UserModelType} user - The user object to be formatted.
+ * @returns {Object} The formatted user data.
+ */
+const formatUserData = (user: UserModelType): object => {
     const { _id, firstName, lastName, userpic } = user;
 
     const formattedUser = {
