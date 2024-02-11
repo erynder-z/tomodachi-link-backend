@@ -4,6 +4,12 @@ import { JwtUser } from '../types/jwtUser';
 import User from '../models/user';
 import { UserPostType } from '../types/userPostType';
 
+/**
+ * Asynchronously retrieves user posts based on the given user ID.
+ *
+ * @param {string} id - The ID of the user whose posts are being retrieved
+ * @return {Promise<{ userPosts: UserPostType[] }>} A promise that resolves to an object containing the user's formatted posts
+ */
 const getPosts = async (id: string): Promise<{ userPosts: UserPostType[] }> => {
     try {
         const userPosts = await Post.find({ owner: id })
@@ -24,7 +30,19 @@ const getPosts = async (id: string): Promise<{ userPosts: UserPostType[] }> => {
     }
 };
 
-const getUserFeed = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Asynchronous function to retrieve user feed and send paginated feed as JSON response.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next middleware function
+ * @return {Promise<void>} Promise that resolves when the feed is sent as JSON response
+ */
+const getUserFeed = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
     const BATCH_SIZE = 10;
 
