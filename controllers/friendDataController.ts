@@ -2,11 +2,19 @@ import { Request, Response, NextFunction } from 'express';
 import { JwtUser } from '../types/jwtUser';
 import User from '../models/user';
 
+/**
+ * Retrieves friend data for the current user and sends it as a JSON response.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next middleware function
+ * @return {Promise<void| Response<Record<string, any>>>} sends a JSON response with friend data or passes an error to the error handling middleware
+ */
 const getFriendData = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<Record<string, any>>> => {
     const reqUser = req.user as JwtUser;
 
     try {
