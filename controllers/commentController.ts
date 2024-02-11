@@ -9,18 +9,19 @@ import {
 } from 'obscenity';
 import mongoose from 'mongoose';
 
-const validateCreateComment = [
-    body('newComment', 'Text must not be empty.')
-        .trim()
-        .isLength({ min: 1 })
-        .escape(),
-];
-
+/**
+ * Asynchronous function for handling comment creation.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void | | Response<any, Record<string, any>>>} A promise representing the completion of the handling of comment creation.
+ */
 const createCommentHandler = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     const errors = validationResult(req);
     const { id } = req.params;
     const { newComment } = req.body;
@@ -64,7 +65,15 @@ const createCommentHandler = async (
     }
 };
 
-const findParentItem = async (id: string) => {
+/**
+ * Asynchronously finds the parent item by its ID.
+ *
+ * @param {string} id - The ID of the parent item to be found
+ * @return {Promise<Record<string, any>} A Promise that resolves to the parent item (either Post or Poll) if found, or null if not found
+ */
+const findParentItem = async (
+    id: string
+): Promise<Record<string, any> | null> => {
     const [Post, Poll] = await Promise.all([
         mongoose.model('Post').findById(id).exec(),
         mongoose.model('Poll').findById(id).exec(),
@@ -73,7 +82,13 @@ const findParentItem = async (id: string) => {
     return Post || Poll;
 };
 
-const censorText = (text: string) => {
+/**
+ * Censors text based on matching patterns and replaces them with censor characters.
+ *
+ * @param {string} text - The input text to be censored.
+ * @return {string} The censored text.
+ */
+const censorText = (text: string): string => {
     const matcher = new RegExpMatcher({
         ...englishDataset.build(),
         ...englishRecommendedTransformers,
@@ -84,6 +99,13 @@ const censorText = (text: string) => {
 
     return censor.applyTo(text, matches);
 };
+
+const validateCreateComment = [
+    body('newComment', 'Text must not be empty.')
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
+];
 
 const createComment = [...validateCreateComment, createCommentHandler];
 
