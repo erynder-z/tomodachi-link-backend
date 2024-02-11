@@ -1,4 +1,4 @@
-import { body } from 'express-validator';
+import { body, ValidationChain } from 'express-validator';
 import { CoverType } from '../../../types/coverType';
 
 const validCoverImageNames: CoverType[] = [
@@ -14,7 +14,13 @@ const validCoverImageNames: CoverType[] = [
     'cover9',
 ];
 
-export const validateCoverImageName = () => {
+/**
+ * Validates the cover image name received in the request body.
+ * Ensures the cover image name is not empty and is one of the valid predefined cover names.
+ *
+ * @return {ValidationChain} Express-validator validation chain for cover image name.
+ */
+export const validateCoverImageName = (): ValidationChain => {
     return body('coverImageName', 'Invalid cover name')
         .trim()
         .notEmpty()

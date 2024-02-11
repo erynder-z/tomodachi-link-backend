@@ -1,6 +1,13 @@
-import { body } from 'express-validator';
+import { body, ValidationChain } from 'express-validator';
 
-export const validateImage = () => {
+/**
+ * Validates the image file uploaded in the request body.
+ * Checks if the uploaded file exists, its mimetype starts with 'image/', and returns a clean file object if validation passes.
+ * Rejects the promise with an error message if the file type is invalid.
+ *
+ * @return {ValidationChain} Express-validator validation chain for image file.
+ */
+export const validateImage = (): ValidationChain => {
     return body('image').custom((value, { req }) => {
         if (req.file) {
             const file = req.file;

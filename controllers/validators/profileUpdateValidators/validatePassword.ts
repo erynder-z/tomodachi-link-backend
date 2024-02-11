@@ -1,8 +1,15 @@
-import { body } from 'express-validator';
+import { body, ValidationChain } from 'express-validator';
 import bcrypt from 'bcrypt';
 import User from '../../../models/user';
 
-export const validatePassword = () => {
+/**
+ * Validates the 'password' field in the request body.
+ * Checks if the value is a non-empty string and if it matches the user's current password.
+ * Sends an error message if the value is empty, doesn't match the current password, or if there's an error.
+ *
+ * @return {ValidationChain} Express-validator validation chain for 'password'.
+ */
+export const validatePassword = (): ValidationChain => {
     return body('password', 'Password is required!')
         .trim()
         .isLength({ min: 1 })

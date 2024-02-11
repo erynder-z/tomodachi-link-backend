@@ -1,8 +1,15 @@
-import { body } from 'express-validator';
+import { body, ValidationChain } from 'express-validator';
 import bcrypt from 'bcrypt';
 import User from '../../../models/user';
 
-export const validateCurrentPassword = () => {
+/**
+ * Validates the current password entered by the user.
+ * Checks if the provided current password matches the password stored in the database for the authenticated user.
+ * Sends an error message if the current password is incorrect.
+ *
+ * @return {ValidationChain} Express-validator validation chain for the current password.
+ */
+export const validateCurrentPassword = (): ValidationChain => {
     return body('currentPassword', 'Enter your current password!')
         .trim()
         .isLength({ min: 1 })

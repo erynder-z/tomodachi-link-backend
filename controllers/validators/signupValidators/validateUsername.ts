@@ -1,7 +1,14 @@
-import { body } from 'express-validator';
+import { ValidationChain, body } from 'express-validator';
 import user from '../../../models/user';
 
-export const validateUsername = () => {
+/**
+ * Validates the 'username' field in the request body.
+ * Checks if the value is a non-empty alphanumeric string with optional hyphens and if it's not already in use.
+ * Sends an error message if the username is invalid or already in use.
+ *
+ * @return {ValidationChain} Express-validator validation chain for 'username'.
+ */
+export const validateUsername = (): ValidationChain => {
     return body('username', 'Username must not be empty.')
         .trim()
         .isLength({ min: 1 })
