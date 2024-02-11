@@ -11,7 +11,19 @@ import { validateConfirmNewPassword } from './validators/passwordUpdateValidator
 import { JwtUser } from '../types/jwtUser';
 import { validateCoverImageName } from './validators/imageValidators/validateCoverImageName';
 
-const getUserData = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Asynchronous function to retrieve user data from the request object and send it as a JSON response, or handle errors by calling the next function.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void | Response<any, Record<string, any>>>} Promise that resolves with the user data
+ */
+const getUserData = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         if (!req.user) {
             const ERROR_MESSAGE = 'User not found';
@@ -40,6 +52,15 @@ const getUserData = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+/**
+ * Validates the first name, last name, and email, then updates user data if validation passes.
+ * Handles validation errors and sends appropriate responses.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object used to send HTTP responses.
+ * @param {NextFunction} next - The next middleware function.
+ * @return {Promise<void>} A Promise that resolves once the user data is updated or rejects with an error.
+ */
 const updateUserData = [
     validateFirstName(),
     validateLastName(),
@@ -101,6 +122,15 @@ const updateUserData = [
     },
 ];
 
+/**
+ * Validates the current password, new password, and confirms the new password, then updates the user password if validation passes.
+ * Handles validation errors and sends appropriate responses.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object used to send HTTP responses.
+ * @param {NextFunction} next - The next middleware function.
+ * @return {Promise<void>} A Promise that resolves once the user password is updated or rejects with an error.
+ */
 const updateUserPassword = [
     validateCurrentPassword(),
     validateNewPassword(),
@@ -147,6 +177,15 @@ const updateUserPassword = [
     },
 ];
 
+/**
+ * Validates the cover image name and updates the user's cover image if validation passes.
+ * Handles validation errors and sends appropriate responses.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object used to send HTTP responses.
+ * @param {NextFunction} next - The next middleware function.
+ * @return {Promise<void>} A Promise that resolves once the user's cover image is updated or rejects with an error.
+ */
 const updateCover = [
     validateCoverImageName(),
 
@@ -190,7 +229,19 @@ const updateCover = [
     },
 ];
 
-const countUsers = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Counts the number of users and returns the count in a JSON response.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next middleware function
+ * @return {Promise<void | Response<any, Record<string, any>>>} the JSON response with the number of users
+ */
+const countUsers = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const numberOfUsers = await User.countDocuments();
         return res.status(200).json({ numberOfUsers });
