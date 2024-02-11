@@ -6,14 +6,26 @@ import { AllSearchResultsType } from '../types/searchTypes';
 import { JwtUser } from '../types/jwtUser';
 import { FlattenMaps } from 'mongoose';
 
+/**
+ * Filters out the non-empty terms from the input array of strings.
+ *
+ * @param {string[]} terms - The array of strings to filter
+ * @return {string[]} The array of non-empty strings
+ */
 const filterNonEmptyTerms = (terms: string[]): string[] =>
     terms.filter((term) => term.trim() !== '');
 
-// Function to perform the user search
+/**
+ * Search for users based on given terms and add the results to the allResults array.
+ *
+ * @param {string[]} terms - The search terms to filter users by
+ * @param {AllSearchResultsType[]} allResults - The array to add the search results to
+ * @return {Promise<void>} - A promise that resolves to the result of the search
+ */
 const searchUsers = async (
     terms: string[],
     allResults: AllSearchResultsType[]
-) => {
+): Promise<void> => {
     const filteredTerms = filterNonEmptyTerms(terms);
     if (filteredTerms.length === 0) {
         return;
@@ -45,12 +57,19 @@ const searchUsers = async (
     allResults.push(...mappedUserResults);
 };
 
-// Function to perform the post search
+/**
+ * Search for posts based on given terms and add the results to the allResults array.
+ *
+ * @param {string[]} terms - Array of search terms
+ * @param {UserModelType | null} currentUser - Current user or null if not authenticated
+ * @param {AllSearchResultsType[]} allResults - Array of all search results
+ * @return {Promise<void>} - A promise that resolves to the result of the search
+ */
 const searchPosts = async (
     terms: string[],
     currentUser: UserModelType | null,
     allResults: AllSearchResultsType[]
-) => {
+): Promise<void> => {
     const filteredTerms = filterNonEmptyTerms(terms);
     if (filteredTerms.length === 0) {
         return;
@@ -82,12 +101,19 @@ const searchPosts = async (
     allResults.push(...mappedPostResults);
 };
 
-// Function to perform the poll search
+/**
+ * Search for polls based on given terms and add the results to the allResults array.
+ *
+ * @param {string[]} terms - the search terms to filter polls
+ * @param {UserModelType | null} currentUser - the current user performing the search
+ * @param {AllSearchResultsType[]} allResults - array to store the search results
+ * @return {Promise<void>} - A promise that resolves to the result of the search
+ */
 const searchPolls = async (
     terms: string[],
     currentUser: UserModelType | null,
     allResults: AllSearchResultsType[]
-) => {
+): Promise<void> => {
     const filteredTerms = filterNonEmptyTerms(terms);
     if (filteredTerms.length === 0) {
         return;
@@ -134,7 +160,13 @@ const searchPolls = async (
     allResults.push(...mappedPollResults);
 };
 
-// Function to perform the query search
+/**
+ * Perform a search based on the provided query and search mode.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @return {Promise<void>} a promise that resolves when the search is complete
+ */
 const performSearch = async (req: Request, res: Response): Promise<void> => {
     try {
         const jwtUser = req.user as JwtUser;
