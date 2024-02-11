@@ -7,7 +7,19 @@ import { FriendType } from '../types/friendType';
 import { validateOtherUserId } from './validators/requestValidators/validateOtherUserId';
 import { MinimalUserTypes } from '../types/minimalUserTypes';
 
-const countUsers = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Counts the number of users and returns the count in a JSON response with status 200.
+ *
+ * @param {Request} _req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void | Response<any, Record<string, any>>>} JSON response with the number of users and status 200
+ */
+const countUsers = async (
+    _req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const numberOfUsers = await User.countDocuments();
         return res.status(200).json({ numberOfUsers });
@@ -16,11 +28,19 @@ const countUsers = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+/**
+ * Get some users based on certain criteria.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next middleware function
+ * @return {Promise<void | Response<any, Record<string, any>>>} Promise that resolves with a list of users.
+ */
 const getSomeUsers = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     const jwtUser = req.user as JwtUser;
 
     try {
@@ -50,7 +70,19 @@ const getSomeUsers = async (
     }
 };
 
-const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Retrieves a list of users with minimal data based on the provided request parameters.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void | Response<any, Record<string, any>>>} a promise that resolves when the user list is successfully retrieved
+ */
+const getAllUsers = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void | Response<any, Record<string, any>>> => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
     const BATCH_SIZE = 12;
     const jwtUser = req.user as JwtUser;
@@ -89,11 +121,19 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+/**
+ * Retrieves a list of friends of friends for the current user.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next middleware function
+ * @return {Promise<void | Response<any, Record<string, any>>>} a Promise that resolves with the friends of friends list
+ */
 const getSomeFriendsOfFriends = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     const jwtUser = req.user as JwtUser;
 
     try {
@@ -172,7 +212,13 @@ const getSomeFriendsOfFriends = async (
     }
 };
 
-const shuffleArray = (array: any[]) => {
+/**
+ * Shuffles the elements of the input array in place.
+ *
+ * @param {any[]} array - The array to be shuffled
+ * @return {any[]} - The shuffled array
+ */
+const shuffleArray = (array: any[]): any[] => {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -181,11 +227,19 @@ const shuffleArray = (array: any[]) => {
     return newArray;
 };
 
+/**
+ * Asynchronous function to get other user data.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void | Response<any, Record<string, any>>>} a promise that resolves with the other user data
+ */
 const getOtherUserData = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const [otherUser, currentUser] = await Promise.all([
             User.findById(req.params.id),
@@ -234,7 +288,13 @@ const getOtherUserData = async (
     }
 };
 
-const getFriendData = async (user: UserModelType) => {
+/**
+ * Retrieves friend data for a given user.
+ *
+ * @param {UserModelType} user - The user for whom to retrieve friend data
+ * @return {Promise<FriendType[]>} An array of friend objects
+ */
+const getFriendData = async (user: UserModelType): Promise<FriendType[]> => {
     const friendObjects = await User.aggregate([
         {
             $match: {
@@ -255,7 +315,17 @@ const getFriendData = async (user: UserModelType) => {
     return friendObjects;
 };
 
-const getMutualFriends = async (userId: string, otherUserId: string) => {
+/**
+ * Retrieves the mutual friends between two users.
+ *
+ * @param {string} userId - The ID of the user
+ * @param {string} otherUserId - The ID of the other user
+ * @return {Promise<number>} The number of mutual friends
+ */
+const getMutualFriends = async (
+    userId: string,
+    otherUserId: string
+): Promise<number> => {
     const user = await User.findById(userId);
     const otherUser = await User.findById(otherUserId);
 
@@ -275,12 +345,21 @@ const getMutualFriends = async (userId: string, otherUserId: string) => {
     return mutualFriends;
 };
 
+/**
+ * Formats the user data and returns a user object with modified userpic data if necessary.
+ *
+ * @param {UserModelType} user - the user data to be formatted
+ * @param {boolean} isFriend - indicates if the user is a friend
+ * @param {FriendType[]} friends - the list of friends
+ * @param {number} mutualFriends - the number of mutual friends
+ * @return {object} the formatted user object
+ */
 const formatUserData = (
     user: UserModelType,
     isFriend: boolean,
     friends: FriendType[],
     mutualFriends: number
-) => {
+): object => {
     const {
         _id,
         firstName: firstName,
@@ -307,6 +386,15 @@ const formatUserData = (
     return userObj;
 };
 
+/**
+ * Validates the other user ID and sends a friend request if validation passes.
+ * Handles validation errors and sends appropriate responses.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object used to send HTTP responses.
+ * @param {NextFunction} next - The next middleware function.
+ * @return {Promise<void>} A Promise that resolves once the friend request is sent or rejects with an error.
+ */
 const sendFriendRequest = [
     validateOtherUserId(),
 
@@ -353,21 +441,36 @@ const sendFriendRequest = [
     },
 ];
 
+/**
+ * Checks if the current user can handle the friend request from another user.
+ *
+ * @param {UserModelType} currentUser - the current user
+ * @param {UserModelType} otherUser - the other user
+ * @return {boolean} indicates if the current user can handle the friend request
+ */
 const canHandleFriendRequest = (
     currentUser: UserModelType,
     otherUser: UserModelType
-) => {
+): boolean => {
     return (
         currentUser?.pendingFriendRequests.includes(otherUser._id) &&
         !otherUser?.friends.includes(currentUser._id)
     );
 };
 
+/**
+ * Handles friend request for users.
+ *
+ * @param {UserModelType} currentUser - the current user object
+ * @param {UserModelType} otherUser - the other user object
+ * @param {'accept' | 'decline'} typeOfRequest - the type of request, either 'accept' or 'decline'
+ * @return {Promise<void>} a Promise that resolves when the function completes
+ */
 const handleFriendRequestForUsers = async (
     currentUser: UserModelType,
     otherUser: UserModelType,
     typeOfRequest: 'accept' | 'decline'
-) => {
+): Promise<void> => {
     if (typeOfRequest === 'accept') {
         currentUser.friends.push(otherUser._id);
         otherUser.friends.push(currentUser._id);
@@ -384,6 +487,15 @@ const handleFriendRequestForUsers = async (
     await Promise.all([currentUser.save(), otherUser.save()]);
 };
 
+/**
+ * Validates the other user ID and accepts a friend request if validation passes.
+ * Handles validation errors and sends appropriate responses.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object used to send HTTP responses.
+ * @param {NextFunction} next - The next middleware function.
+ * @return {Promise<void>} A Promise that resolves once the friend request is accepted or rejects with an error.
+ */
 const acceptFriendRequest = [
     validateOtherUserId(),
 
@@ -425,7 +537,13 @@ const acceptFriendRequest = [
     },
 ];
 
-const getUserById = async (id: string) => {
+/**
+ * Retrieves a user by their ID.
+ *
+ * @param {string} id - The ID of the user
+ * @return {Promise<UserModelType>} The user object
+ */
+const getUserById = async (id: string): Promise<UserModelType> => {
     const user = await User.findById(id);
     if (!user) {
         const ERROR_MESSAGE = 'User not found';
@@ -481,6 +599,15 @@ const declineFriendRequest = [
     },
 ];
 
+/**
+ * Validates the other user ID and unfriends the user if validation passes.
+ * Handles validation errors and sends appropriate responses.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object used to send HTTP responses.
+ * @param {NextFunction} next - The next middleware function.
+ * @return {Promise<void>} A Promise that resolves once the user is unfriended or rejects with an error.
+ */
 const unfriendUser = [
     validateOtherUserId(),
 
@@ -523,17 +650,34 @@ const unfriendUser = [
     },
 ];
 
-const canUnfriend = (currentUser: UserModelType, otherUser: UserModelType) => {
+/**
+ * Checks if the current user can unfriend another user.
+ *
+ * @param {UserModelType} currentUser - The current user
+ * @param {UserModelType} otherUser - The other user to check against
+ * @return {boolean} Whether the current user can unfriend the other user
+ */
+const canUnfriend = (
+    currentUser: UserModelType,
+    otherUser: UserModelType
+): boolean => {
     return (
         currentUser?.friends.includes(otherUser._id) &&
         otherUser?.friends.includes(currentUser._id)
     );
 };
 
+/**
+ * Removes the otherUser from the friends list of the currentUser, and vice versa.
+ *
+ * @param {UserModelType} currentUser - the current user whose friend needs to be removed
+ * @param {UserModelType} otherUser - the user to be removed from the friend list
+ * @return {Promise<void>} a Promise that resolves once the users are saved after removing each other from the friend list
+ */
 const removeUserFromFriends = async (
     currentUser: UserModelType,
     otherUser: UserModelType
-) => {
+): Promise<void> => {
     currentUser.friends = currentUser.friends.filter(
         (userId) => userId.toString() !== otherUser._id.toString()
     );
