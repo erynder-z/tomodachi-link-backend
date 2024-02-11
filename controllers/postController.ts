@@ -11,7 +11,19 @@ import { validateImage } from './validators/imageValidators/validateImage';
 import { validateFriendshipStatus } from '../middleware/validateFriendshipStatus';
 import { randomUUID } from 'crypto';
 
-const getPosts = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Retrieves user posts based on the request parameters.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void |Response<any, Record<string, any>>>} a promise that resolves with the retrieved user posts
+ */
+const getPosts = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const skip = parseInt(req.query.skip as string, 10) || 0;
         const BATCH_SIZE = 10;
@@ -43,11 +55,19 @@ const getPosts = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+/**
+ * Retrieves post details and handles user authentication.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void | Response<any, Record<string, any>>>} a promise that resolves to nothing
+ */
 const getPostDetails = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const id = req.params.id;
         const retrievedPost = await Post.findById(id)
@@ -80,6 +100,16 @@ const getPostDetails = async (
     }
 };
 
+/**
+ * Creates a new post with the given owner, text, image, embedded video ID, and GIF URL.
+ *
+ * @param {string} owner - The owner of the post
+ * @param {string} text - The text content of the post
+ * @param {{ data: any; contentType: any; } | undefined} image - The image data and content type, or undefined if no image is included
+ * @param {string} embeddedVideoID - The ID of the embedded video
+ * @param {string} gifUrl - The URL of the GIF
+ * @return {Promise<any>} a promise that resolves with the saved post
+ */
 const createPost = async (
     owner: string,
     text: string,
@@ -91,7 +121,7 @@ const createPost = async (
         | undefined,
     embeddedVideoID: string,
     gifUrl: string
-) => {
+): Promise<any> => {
     const post = new Post({
         owner,
         text,
@@ -102,7 +132,14 @@ const createPost = async (
     return await post.save();
 };
 
-const savePostToUser = async (user: JwtUser, postId: string) => {
+/**
+ * Saves the specified post to the user's list of posts.
+ *
+ * @param {JwtUser} user - The user object
+ * @param {string} postId - The ID of the post to be saved
+ * @return {Promise<any>} A promise that resolves to the result of the update operation
+ */
+const savePostToUser = async (user: JwtUser, postId: string): Promise<any> => {
     const reqUser = user as JwtUser;
     return await User.updateOne(
         { _id: reqUser._id },
@@ -110,11 +147,19 @@ const savePostToUser = async (user: JwtUser, postId: string) => {
     );
 };
 
+/**
+ * Saves a post in the database and associates it with the current user.
+ *
+ * @param {Request} req - the HTTP request object
+ * @param {Response} res - the HTTP response object
+ * @param {NextFunction} next - the next middleware function
+ * @return {Promise<void | Response<any, Record<string, any>>>} no return value
+ */
 const savePostInDatabase = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -143,15 +188,18 @@ const savePostInDatabase = async (
         next(err);
     }
 };
-const addNewPost = [
-    validateText(),
-    validateEmbeddedVideoID(),
-    validateGifUrl(),
-    validateImage(),
-    savePostInDatabase,
-];
 
-const deletePostFromUser = async (user: JwtUser, postId: string) => {
+/**
+ * Deletes a post from the user's list of posts.
+ *
+ * @param {JwtUser} user - the user object
+ * @param {string} postId - the ID of the post to be deleted
+ * @return {Promise<any>} a promise that resolves to the update result
+ */
+const deletePostFromUser = async (
+    user: JwtUser,
+    postId: string
+): Promise<any> => {
     const reqUser = user as JwtUser;
     return await User.updateOne(
         { _id: reqUser._id },
@@ -159,7 +207,19 @@ const deletePostFromUser = async (user: JwtUser, postId: string) => {
     );
 };
 
-const deletePost = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Deletes a post if the requesting user is the owner.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void |Response<any, Record<string, any>>>} a promise that resolves to void
+ */
+const deletePost = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const reqUser = req.user as JwtUser;
         const postID = req.params.id;
@@ -191,7 +251,19 @@ const deletePost = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-const updatePost = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Asynchronously updates a post based on the request data.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void |Response<any, Record<string, any>>>} A promise that resolves after updating the post
+ */
+const updatePost = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void | Response<any, Record<string, any>>> => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({
@@ -257,19 +329,19 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-const editPost = [
-    validateText(),
-    validateEmbeddedVideoID(),
-    validateGifUrl(),
-    validateImage(),
-    updatePost,
-];
-
+/**
+ * Updates the positive reactions of a post and the list of users who reacted, then returns the updated post.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void | Response<any, Record<string, any>>>} a promise that resolves to the updated post
+ */
 const positiveReaction = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const reqUser = req.user as JwtUser;
         const postId = req.params.id;
@@ -307,11 +379,19 @@ const positiveReaction = async (
     }
 };
 
+/**
+ * Handles a negative reaction to a post.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next middleware function
+ * @return {Promise<void | Response<any, Record<string, any>>>} a promise that resolves to nothing
+ */
 const negativeReaction = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const reqUser = req.user as JwtUser;
         const postId = req.params.id;
@@ -351,6 +431,22 @@ const negativeReaction = async (
         return next(err);
     }
 };
+
+const addNewPost = [
+    validateText(),
+    validateEmbeddedVideoID(),
+    validateGifUrl(),
+    validateImage(),
+    savePostInDatabase,
+];
+
+const editPost = [
+    validateText(),
+    validateEmbeddedVideoID(),
+    validateGifUrl(),
+    validateImage(),
+    updatePost,
+];
 
 export {
     getPosts,
