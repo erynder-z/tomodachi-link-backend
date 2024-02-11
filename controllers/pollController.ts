@@ -26,11 +26,20 @@ const validatePoll = [
     validateAllowComments(),
 ];
 
+/**
+ * Handles validation errors in the Express request.
+ * Sends appropriate responses if validation fails.
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object used to send HTTP responses.
+ * @param {NextFunction} next - The next middleware function.
+ * @return {void | Response<any, Record<string, any>>} This function does not always return void; it may return a response if validation fails.
+ */
 const handleValidationErrors = (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): void | Response<any, Record<string, any>> => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({
@@ -40,6 +49,18 @@ const handleValidationErrors = (
     next();
 };
 
+/**
+ * Asynchronously creates a new poll.
+ *
+ * @param {string} owner - the owner of the poll
+ * @param {string} question - the question for the poll
+ * @param {number} numberOfOptions - the number of options for the poll
+ * @param {string[]} options - the available options for the poll
+ * @param {string} description - the description of the poll
+ * @param {boolean} isFriendOnly - indicates if the poll is for friends only
+ * @param {boolean} allowComments - indicates if comments are allowed for the poll
+ * @return {Promise<any>} a promise that resolves with the saved poll
+ */
 const createPoll = async (
     owner: string,
     question: string,
@@ -48,7 +69,7 @@ const createPoll = async (
     description: string,
     isFriendOnly: boolean,
     allowComments: boolean
-) => {
+): Promise<any> => {
     const matcher = new RegExpMatcher({
         ...englishDataset.build(),
         ...englishRecommendedTransformers,
@@ -74,7 +95,14 @@ const createPoll = async (
     return await poll.save();
 };
 
-const savePollToUser = async (user: JwtUser, pollId: string) => {
+/**
+ * Saves the poll to the user's list of polls.
+ *
+ * @param {JwtUser} user - the user for whom the poll is being saved
+ * @param {string} pollId - the ID of the poll being saved
+ * @return {Promise<any>} a promise that resolves to the result of updating the user's polls
+ */
+const savePollToUser = async (user: JwtUser, pollId: string): Promise<any> => {
     const reqUser = user as JwtUser;
     return await User.updateOne(
         { _id: reqUser._id },
@@ -82,11 +110,19 @@ const savePollToUser = async (user: JwtUser, pollId: string) => {
     );
 };
 
+/**
+ * Saves a poll in the database.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void |Response<any, Record<string, any>>>} - a promise that resolves to void
+ */
 const savePollInDatabase = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -131,11 +167,19 @@ const addNewPoll = [
     savePollInDatabase,
 ];
 
+/**
+ * Asynchronously submits a poll answer using the provided request, response, and next function.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void | Response<any, Record<string, any>>>} a Promise that resolves to void
+ */
 const submitPollAnswer = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const reqUser = req.user as JwtUser;
         const pollID = req.params.id;
@@ -178,11 +222,19 @@ const submitPollAnswer = async (
     }
 };
 
+/**
+ * Retrieves single poll data and handles authentication and authorization.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next middleware function
+ * @return {Promise<void | Response<any, Record<string, any>>>} a promise that resolves to the retrieved poll data or an error
+ */
 const getSinglePollData = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const reqUser = req.user as JwtUser;
         const reqUserID = new mongoose.Types.ObjectId(reqUser._id);
@@ -229,11 +281,19 @@ const getSinglePollData = async (
     }
 };
 
+/**
+ * Check the user's answer status for a poll.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void |Response<any, Record<string, any>>>} a promise that resolves to the user's answer status
+ */
 const checkUserAnswerStatus = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const reqUser = req.user as JwtUser;
         const pollID = req.params.id;
