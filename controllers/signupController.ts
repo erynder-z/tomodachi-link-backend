@@ -20,11 +20,19 @@ const validateSignup = [
     validateConfirmPassword(),
 ];
 
+/**
+ * Handles validation errors for incoming requests.
+ *
+ * @param {Request} req - the incoming request
+ * @param {Response} res - the outgoing response
+ * @param {NextFunction} next - the next function
+ * @return {void | Response<any, Record<string, any>>} - this function does not always return void; it may return a response if validation fails
+ */
 const handleValidationErrors = (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): void | Response<any, Record<string, any>> => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({
@@ -34,11 +42,19 @@ const handleValidationErrors = (
     next();
 };
 
+/**
+ * Handles user signup and returns a success message and user information.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void>} - a promise that resolves to void and sends the expected response
+ */
 const handleSignup = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     passport.authenticate('signup', { session: false }, (err: Error) => {
         if (err) {
             return next(err);
@@ -56,11 +72,19 @@ const handleSignup = async (
 
 const signup = [...validateSignup, handleValidationErrors, handleSignup];
 
+/**
+ * Handles fake signup process by creating a random user with fake data and saving it to the database.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next middleware function
+ * @return {Promise<void | Response<any, Record<string, any>>>} Promise that resolves with the result of the signup process
+ */
 const handleFakeSignup = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<any, Record<string, any>>> => {
     try {
         const { password } = req.body;
         const fakeSignupPassword = process.env.FAKE_SIGNUP_PASSWORD;
