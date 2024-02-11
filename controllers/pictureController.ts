@@ -4,6 +4,13 @@ import Post from '../models/post';
 import User, { UserModelType } from '../models/user';
 import { JwtUser } from '../types/jwtUser';
 
+/**
+ * Checks if the current user is allowed to perform a read operation on a post owned by another user.
+ *
+ * @param {UserModelType | null} currentUser - the current user
+ * @param {mongoose.Types.ObjectId} postOwnerId - the ID of the owner of the post
+ * @return {Promise<boolean>} whether the read operation is forbidden
+ */
 const isReadOperationForbidden = async (
     currentUser: UserModelType | null,
     postOwnerId: mongoose.Types.ObjectId
@@ -20,11 +27,19 @@ const isReadOperationForbidden = async (
     return false;
 };
 
+/**
+ * Counts the number of posts containing an image for a specific user ID.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next middleware function
+ * @return {Promise<void>} a promise that resolves with the count of posts containing an image
+ */
 const countPostsContainingImage = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     try {
         const id = req.params.id;
         const count = await Post.countDocuments({
@@ -37,11 +52,19 @@ const countPostsContainingImage = async (
     }
 };
 
+/**
+ * Asynchronous function to retrieve a list of pictures.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void | Response<Record<string, any>>>} Promise that resolves with the list of pictures
+ */
 const getPictureList = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void | Response<Record<string, any>>> => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
 
     try {
