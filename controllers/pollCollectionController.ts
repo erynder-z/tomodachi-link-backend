@@ -3,11 +3,19 @@ import { JwtUser } from '../types/jwtUser';
 import Poll from '../models/poll';
 import User from '../models/user';
 
+/**
+ * Retrieves a paginated collection of polls based on the provided request parameters.
+ *
+ * @param {Request} req - The request object
+ * @param {Response} res - The response object
+ * @param {NextFunction} next - The next middleware function
+ * @return {Promise<void>} A Promise that resolves with the paginated poll collection
+ */
 const getPaginatedPollCollection = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     const skip = parseInt(req.query.skip as string, 10) || 0;
     const BATCH_SIZE = 10;
 
@@ -78,11 +86,19 @@ const getPaginatedPollCollection = async (
     }
 };
 
+/**
+ * Retrieves a single poll based on the provided poll ID and user authentication.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {Promise<void>} a Promise that resolves to the retrieved single poll
+ */
 const getSinglePoll = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     try {
         const pollID = req.params.id;
         const jwtUser = req.user as JwtUser;
