@@ -7,9 +7,9 @@ const adminPassword = process.env.ADMIN_PASSWORD;
  * Compares the provided password with the admin password retrieved from environment variables.
  * Throws an error if the passwords do not match.
  *
- * @return {ValidationChain[]} Express-validator validation chain for 'password'.
+ * @returns {ValidationChain[]} Express-validator validation chain for 'password'.
  */
-export const validateAdminPassword = (): ValidationChain => {
+export const validateAdminPassword = (): ValidationChain[] => {
     return [
         body('password').custom((value, { req }) => {
             if (value !== adminPassword) {
