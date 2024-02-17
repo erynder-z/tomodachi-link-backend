@@ -2,6 +2,8 @@ import passport from 'passport';
 import { Strategy as GitHubStrategy } from 'passport-github2';
 import User from '../../models/user';
 import bcrypt from 'bcrypt';
+import { uniqueNamesGenerator, colors, animals } from 'unique-names-generator';
+import { generateUsernameFromEmail } from '../../helpers/generateUsernameFromEmail';
 
 /**
  * Initializes the GitHub login strategy using the provided environment variables for client ID, secret, and callback URL.
@@ -37,12 +39,12 @@ export const initializeGithubLogin = (): void => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 cb: any
             ) => {
-                const user = await User.findOne({
+                const existingUser = await User.findOne({
                     'provider.name': 'github',
                     'provider.profileId': profile._json.id,
                 });
 
-                if (!user) {
+                if (!existingUser) {
                     console.log('Adding new github user to DB..');
 
                     const getFirstName = (name: string) => {
@@ -64,8 +66,23 @@ export const initializeGithubLogin = (): void => {
                         10
                     );
 
-                    const user = await User.create({
-                        username: profile._json.login,
+                    const username =
+                        profile._json.login ||
+                        generateUsernameFromEmail(profile.email);
+                    const firstName =
+                        getFirstName(profile._json.name) ||
+                        profile.username ||
+                        uniqueNamesGenerator({
+                            dictionaries: [colors],
+                        });
+                    const lastName =
+                        getLastName(profile._json.name) ||
+                        uniqueNamesGenerator({
+                            dictionaries: [animals],
+                        });
+
+                    const newUser = await User.create({
+                        username: username,
                         password: hashedPlaceholderPassword,
                         provider: {
                             name: 'github',
@@ -73,19 +90,17 @@ export const initializeGithubLogin = (): void => {
                         },
 
                         email: profile._json.email,
-                        firstName:
-                            getFirstName(profile._json.name) ||
-                            profile.username,
-                        lastName: getLastName(profile._json.name) || 'Github',
+                        firstName: firstName,
+                        lastName: lastName,
                         accountType: 'regularUser',
                     });
 
-                    await user.save();
+                    await newUser.save();
 
-                    return cb(null, user);
+                    return cb(null, newUser);
                 } else {
                     console.log('Github user already exist in DB..');
-                    return cb(null, user);
+                    return cb(null, existingUser);
                 }
             }
         )

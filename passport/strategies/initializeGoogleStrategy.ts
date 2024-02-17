@@ -2,6 +2,8 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../../models/user';
 import bcrypt from 'bcrypt';
+import { uniqueNamesGenerator, colors, animals } from 'unique-names-generator';
+import { generateUsernameFromEmail } from '../../helpers/generateUsernameFromEmail';
 
 /**
  * Initializes Google login using the provided environment variables for Google client ID, secret, and callback URL.
@@ -37,12 +39,12 @@ export const initializeGoogleLogin = (): void => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 cb: any
             ) => {
-                const user = await User.findOne({
+                const existingUser = await User.findOne({
                     'provider.name': 'google',
                     'provider.profileId': profile.id,
                 });
 
-                if (!user) {
+                if (!existingUser) {
                     console.log('Adding new google user to DB..');
 
                     const hashedPlaceholderPassword = await bcrypt.hash(
@@ -50,8 +52,22 @@ export const initializeGoogleLogin = (): void => {
                         10
                     );
 
-                    const user = await User.create({
-                        username: profile._json.name,
+                    const username =
+                        profile._json.name ||
+                        generateUsernameFromEmail(profile._json.email);
+                    const firstName =
+                        profile._json.given_name ||
+                        uniqueNamesGenerator({
+                            dictionaries: [colors],
+                        });
+                    const lastName =
+                        profile._json.family_name ||
+                        uniqueNamesGenerator({
+                            dictionaries: [animals],
+                        });
+
+                    const newUser = await User.create({
+                        username: username,
                         password: hashedPlaceholderPassword,
                         provider: {
                             name: 'google',
@@ -59,17 +75,17 @@ export const initializeGoogleLogin = (): void => {
                         },
 
                         email: profile._json.email,
-                        firstName: profile._json.given_name || 'Google',
-                        lastName: profile._json.family_name,
+                        firstName,
+                        lastName,
                         accountType: 'regularUser',
                     });
 
-                    await user.save();
+                    await newUser.save();
 
-                    return cb(null, user);
+                    return cb(null, newUser);
                 } else {
                     console.log('Google user already exist in DB..');
-                    return cb(null, user);
+                    return cb(null, existingUser);
                 }
             }
         )

@@ -2,6 +2,8 @@ import passport from 'passport';
 import { Strategy as DiscordStrategy } from 'passport-discord';
 import User from '../../models/user';
 import bcrypt from 'bcrypt';
+import { uniqueNamesGenerator, colors, animals } from 'unique-names-generator';
+import { generateUsernameFromEmail } from '../../helpers/generateUsernameFromEmail';
 
 /**
  * Initializes Discord login using Discord OAuth strategy.
@@ -37,12 +39,12 @@ export const initializeDiscordLogin = (): void => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 cb: any
             ) => {
-                const user = await User.findOne({
+                const existingUser = await User.findOne({
                     'provider.name': 'discord',
                     'provider.profileId': profile.id,
                 });
 
-                if (!user) {
+                if (!existingUser) {
                     console.log('Adding new discord user to DB..');
 
                     const hashedPlaceholderPassword = await bcrypt.hash(
@@ -50,8 +52,20 @@ export const initializeDiscordLogin = (): void => {
                         10
                     );
 
-                    const user = await User.create({
-                        username: profile.username,
+                    const username =
+                        profile.username ||
+                        generateUsernameFromEmail(profile.email);
+                    const firstName =
+                        profile.global_name ||
+                        uniqueNamesGenerator({
+                            dictionaries: [colors],
+                        });
+                    const lastName = uniqueNamesGenerator({
+                        dictionaries: [animals],
+                    });
+
+                    const newUser = await User.create({
+                        username: username,
                         password: hashedPlaceholderPassword,
                         provider: {
                             name: 'discord',
@@ -59,17 +73,17 @@ export const initializeDiscordLogin = (): void => {
                         },
 
                         email: profile.email,
-                        firstName: profile.global_name,
-                        lastName: 'Discord',
+                        firstName: firstName,
+                        lastName: lastName,
                         accountType: 'regularUser',
                     });
 
-                    await user.save();
+                    await newUser.save();
 
-                    return cb(null, user);
+                    return cb(null, newUser);
                 } else {
                     console.log('Discord user already exist in DB..');
-                    return cb(null, user);
+                    return cb(null, existingUser);
                 }
             }
         )
