@@ -177,7 +177,7 @@ const handleOAuthLoginCallback = async (
             const THIRTY_SECONDS_IN_MILLISECONDS = 30000;
             const REDIRECT_URL = process.env.OAUTH_CALLBACK_REDIRECT_URL || '/';
 
-            res.cookie('jwtOdinBook', token, {
+            res.cookie('jwtTomodachiLink', token, {
                 maxAge: THIRTY_SECONDS_IN_MILLISECONDS,
                 secure: true,
                 sameSite: 'strict',

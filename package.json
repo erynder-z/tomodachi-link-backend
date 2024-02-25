@@ -1,5 +1,5 @@
 {
-    "name": "odin-book-backend",
+    "name": "tomodachi-link-backend",
     "version": "0.0.0",
     "private": true,
     "scripts": {
@@ -71,11 +71,11 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/erynder-z/odin-book-backend.git"
+        "url": "git+https://github.com/erynder-z/tomodachi-link-backend.git"
     },
     "bugs": {
-        "url": "https://github.com/erynder-z/odin-book-backend/issues"
+        "url": "https://github.com/erynder-z/tomodachi-link-backend/issues"
     },
-    "homepage": "https://github.com/erynder-z/odin-book-backend#readme",
+    "homepage": "https://github.com/erynder-z/tomodachi-link-backend#readme",
     "description": ""
 }

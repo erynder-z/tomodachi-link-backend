@@ -40,7 +40,7 @@ export const initializeSignup = (): void => {
                             lastName: lastName,
                             accountType: accountType,
                             provider: {
-                                name: 'odin',
+                                name: 'tomodachi',
                             },
                         });
                         return done(null, user);

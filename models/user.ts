@@ -23,7 +23,7 @@ export type UserType = {
     pendingFriendRequests: Types.ObjectId[];
     accountType: 'regularUser' | 'guest' | 'fake';
     provider: {
-        name: 'odin' | 'github' | 'google' | 'discord';
+        name: 'tomodachi' | 'github' | 'google' | 'discord';
         profileId: string;
     };
 
@@ -75,7 +75,7 @@ const UserSchema: Schema = new Schema(
         provider: {
             name: {
                 type: String,
-                enum: ['odin', 'github', 'google', 'discord'],
+                enum: ['tomodachi', 'github', 'google', 'discord'],
                 required: true,
             },
             profileId: { type: String },

@@ -510,12 +510,12 @@ const getNumberOfPolls = async (): Promise<number> => {
 };
 
 /**
- * Retrieves the count of users with the provider name 'odin'.
+ * Retrieves the count of users with the provider name 'tomodachi'.
  *
- * @return {Promise<number>} The count of users with the provider name 'odin'
+ * @return {Promise<number>} The count of users with the provider name 'tomodachi'
  */
-const getProviderOdinUsers = async (): Promise<number> => {
-    return await User.countDocuments({ 'provider.name': 'odin' });
+const getProviderTomodachiUsers = async (): Promise<number> => {
+    return await User.countDocuments({ 'provider.name': 'tomodachi' });
 };
 
 /**
@@ -561,7 +561,7 @@ const adminGetDashboardData = async (
         const numberOfUsers = await getNumberOfUsers();
         const numberOfPosts = await getNumberOfPosts();
         const numberOfPolls = await getNumberOfPolls();
-        const providerOdinUsers = await getProviderOdinUsers();
+        const providerTomodachiUsers = await getProviderTomodachiUsers();
         const providerGoogleUsers = await getProviderGoogleUsers();
         const providerDiscordUsers = await getProviderDiscordUsers();
 
@@ -569,7 +569,7 @@ const adminGetDashboardData = async (
             totalUsers: numberOfUsers,
             totalPosts: numberOfPosts,
             totalPolls: numberOfPolls,
-            providerOdinUsers: providerOdinUsers,
+            providerTomodachiUsers: providerTomodachiUsers,
             providerGoogleUsers: providerGoogleUsers,
             providerDiscordUsers: providerDiscordUsers,
         };
