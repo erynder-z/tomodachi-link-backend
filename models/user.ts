@@ -14,6 +14,7 @@ export type UserType = {
     };
     cover: CoverType;
     email: string;
+    about?: string;
     password: string;
     friends: Types.ObjectId[];
     posts: Types.ObjectId[];
@@ -54,6 +55,7 @@ const UserSchema: Schema = new Schema(
         },
         cover: { type: String, required: true, default: 'none' },
         email: { type: String, required: true },
+        about: { type: String },
         password: { type: String, required: true },
         friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
         posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],

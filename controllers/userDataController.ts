@@ -10,6 +10,7 @@ import { validateNewPassword } from './validators/passwordUpdateValidators/valid
 import { validateConfirmNewPassword } from './validators/passwordUpdateValidators/validateConfirmNewPassword';
 import { JwtUser } from '../types/jwtUser';
 import { validateCoverImageName } from './validators/imageValidators/validateCoverImageName';
+import { validateAbout } from './validators/profileUpdateValidators/validateAbout';
 
 /**
  * Asynchronous function to retrieve user data from the request object and send it as a JSON response, or handle errors by calling the next function.
@@ -65,6 +66,7 @@ const updateUserData = [
     validateFirstName(),
     validateLastName(),
     validateEmail(),
+    validateAbout(),
 
     async (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
@@ -82,6 +84,7 @@ const updateUserData = [
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             email: req.body.email,
+            about: req.body.about,
             userpic,
         });
 
@@ -105,6 +108,7 @@ const updateUserData = [
                     firstName: req.body.firstName,
                     lastName: req.body.lastName,
                     email: req.body.email,
+                    about: req.body.about,
                 };
                 if (userpic) {
                     updateData.userpic = userpic;

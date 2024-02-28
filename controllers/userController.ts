@@ -362,18 +362,20 @@ const formatUserData = (
 ): object => {
     const {
         _id,
-        firstName: firstName,
-        lastName: lastName,
+        firstName,
+        lastName,
+        about,
         userpic,
         cover,
         joined,
-        lastSeen: lastSeen,
+        lastSeen,
     } = user;
 
     const userObj = {
         _id,
         firstName,
         lastName,
+        about,
         // change userpic.data to correct format
         userpic: {
             data: Buffer.from(userpic.data).toString('base64'),
