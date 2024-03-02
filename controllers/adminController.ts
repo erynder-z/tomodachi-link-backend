@@ -537,6 +537,25 @@ const getProviderDiscordUsers = async (): Promise<number> => {
 };
 
 /**
+ * Retrieves the latest logon date from the User collection.
+ *
+ * @return {Promise<Date>} The latest logon date
+ */
+const getLatestLoginDate = async (): Promise<Date> => {
+    try {
+        const latestLogin = await User.findOne().sort({ lastSeen: -1 }).exec();
+        if (latestLogin) {
+            return latestLogin.lastSeen;
+        } else {
+            return new Date(0); // Return a default date if no posts exist
+        }
+    } catch (error) {
+        console.error('Error fetching latest activity:', error);
+        throw error;
+    }
+};
+
+/**
  * Retrieves dashboard data for the admin user, including user and post statistics.
  *
  * @param {Request} req - the request object
@@ -564,6 +583,7 @@ const adminGetDashboardData = async (
         const providerTomodachiUsers = await getProviderTomodachiUsers();
         const providerGoogleUsers = await getProviderGoogleUsers();
         const providerDiscordUsers = await getProviderDiscordUsers();
+        const latestLoginDate = await getLatestLoginDate();
 
         const dashboardData = {
             totalUsers: numberOfUsers,
@@ -572,6 +592,7 @@ const adminGetDashboardData = async (
             providerTomodachiUsers: providerTomodachiUsers,
             providerGoogleUsers: providerGoogleUsers,
             providerDiscordUsers: providerDiscordUsers,
+            latestLoginDate: latestLoginDate,
         };
 
         res.status(200).json({ dashboardData });
