@@ -10,6 +10,8 @@ import { validateConfirmPassword } from './validators/signupValidators/validateC
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
 import User from '../models/user';
+import Admin from '../models/admin';
+import { JwtAdmin } from '../types/jwtAdmin';
 
 const validateSignup = [
     validateFirstName(),
@@ -85,6 +87,14 @@ const handleFakeSignup = async (
     res: Response,
     next: NextFunction
 ): Promise<void | Response<any, Record<string, any>>> => {
+    const reqUser = req.user as JwtAdmin;
+    const isAdmin = await Admin.exists({ _id: reqUser });
+
+    if (!isAdmin) {
+        res.status(403).json({ errors: [{ msg: 'Forbidden' }] });
+        return;
+    }
+
     try {
         const { password } = req.body;
         const fakeSignupPassword = process.env.FAKE_SIGNUP_PASSWORD;
@@ -125,6 +135,9 @@ const handleFakeSignup = async (
                 password: hashedPassword,
                 userpic: convertedUserpic,
                 accountType: 'fake',
+                provider: {
+                    name: 'tomodachi',
+                },
             };
         };
 
