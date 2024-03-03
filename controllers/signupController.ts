@@ -109,6 +109,7 @@ const handleFakeSignup = async (
             const email = faker.internet.email();
             const username = faker.internet.userName();
             const userpic = faker.internet.avatar();
+            const about = faker.lorem.sentence({ min: 5, max: 15 });
 
             const fetchImage = async (
                 url: string
@@ -134,6 +135,7 @@ const handleFakeSignup = async (
                 username,
                 password: hashedPassword,
                 userpic: convertedUserpic,
+                about,
                 accountType: 'fake',
                 provider: {
                     name: 'tomodachi',
