@@ -47,3 +47,13 @@ userDataRoute.patch(
     checkAccountType('regularUser'),
     userDataController.updateUserPassword
 );
+
+/**
+ * Route for accepting some TOS for the authenticated user.
+ */
+userDataRoute.put(
+    '/tos/accept',
+    passport.authenticate('jwt', { session: false }),
+    checkAccountType('regularUser'),
+    userDataController.acceptTOS
+);

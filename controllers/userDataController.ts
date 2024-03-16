@@ -254,10 +254,37 @@ const countUsers = async (
     }
 };
 
+/**
+ * Middleware function to update user's acceptance of terms of service.
+ *
+ * @param {Request} req - the incoming request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next middleware function
+ */
+const acceptTOS = async (req: Request, res: Response, next: NextFunction) => {
+    if (req.user) {
+        const user = req.user as UserModelType;
+        const id = user._id;
+        try {
+            const updateData = {
+                hasAcceptedTOS: true,
+            };
+
+            const updatedUser = await User.findByIdAndUpdate(id, updateData, {
+                new: true,
+            });
+            res.status(200).json(updatedUser);
+        } catch (err) {
+            return next(err);
+        }
+    }
+};
+
 export {
     getUserData,
     updateUserData,
     updateUserPassword,
     updateCover,
     countUsers,
+    acceptTOS,
 };

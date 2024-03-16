@@ -27,7 +27,7 @@ export type UserType = {
         name: 'tomodachi' | 'github' | 'google' | 'discord';
         profileId: string;
     };
-
+    hasAcceptedTOS: boolean;
     createdAt: Date;
     updatedAt: Date;
 };
@@ -82,7 +82,9 @@ const UserSchema: Schema = new Schema(
             },
             profileId: { type: String },
         },
+        hasAcceptedTOS: { type: Boolean, default: false },
     },
+
     { versionKey: false }
 );
 

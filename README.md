@@ -74,6 +74,11 @@ The source code for the Tomodachi-Link Frontend can be found at [https://github.
 | /users/users/:id/request/accept      | PATCH  | Accept a friend request                       |
 | /users/users/:id/request/decline     | PATCH  | Decline a friend request                      |
 | /users/users/:id/request/unfriend    | PATCH  | Unfriend a user                               |
+| /userdata                            | GET    | Fetch user data of the authenticated user     |
+| /userdata                            | PUT    | Update user data of the authenticated user    |
+| /userdata/cover                      | PATCH  | Update cover image of the authenticated user  |
+| /password                            | PATCH  | Update the password of the authenticated user |
+| /tos/accept                          | PUT    | Accept some TOS for the authenticated user    |
 
 ## Installation
 
