@@ -18,67 +18,68 @@ The source code for the Tomodachi-Link Frontend can be found at [https://github.
 
 ## Endpoints
 
-| Endpoint                             | Method | Description                                   |
-| ------------------------------------ | ------ | --------------------------------------------- |
-| /admin/login                         | POST   | Admin login                                   |
-| /admin/dashboard                     | GET    | Fetch dashboard data                          |
-| /admin/posts                         | GET    | Fetch posts                                   |
-| /admin/post/:id                      | DELETE | Delete a post                                 |
-| /admin/users                         | GET    | Fetch users                                   |
-| /admin/polls                         | GET    | Fetch polls                                   |
-| /admin/poll/:id                      | DELETE | Delete a poll                                 |
-| /admin/search                        | GET    | Perform search                                |
-| /key/tenor                           | GET    | Retrieve Tenor API key                        |
-| /auth/guest                          | GET    | Retrieve guest login data                     |
-| /auth/login                          | POST   | User login                                    |
-| /auth/oauth/github                   | GET    | Initiate GitHub OAuth authentication          |
-| /auth/oauth/google                   | GET    | Initiate Google OAuth authentication          |
-| /auth/oauth/discord                  | GET    | Initiate Discord OAuth authentication         |
-| /auth/oauth/redirect                 | GET    | Handle OAuth authentication redirection       |
-| /auth/token-user                     | GET    | Check and decode JWT token                    |
-| /chat/chat                           | POST   | Initialize a chat conversation                |
-| /chat/chat                           | GET    | Fetch conversations of a user                 |
-| /chat/chat/user/:id                  | GET    | Fetch chat partner data                       |
-| /chat/chat/:conversationId/mute      | PATCH  | Mute/unmute a chat conversation               |
-| /chat/message                        | POST   | Add a chat message to a chat conversation     |
-| /chat/message/:conversationId        | GET    | Fetch messages from a chat conversation       |
-| /chat/message/:conversationId/unread | PATCH  | Mark a conversation as unread                 |
-| /chat/message/:conversationId/read   | PATCH  | Mark a conversation as read                   |
-| /comment/comment/:id/create          | POST   | Create a comment                              |
-| /feed/feed                           | GET    | Fetch the user feed                           |
-| /frienddata/frienddata               | GET    | Fetch friend data                             |
-| /picture/users/:id/count_pictures    | GET    | Count the number of posted pictures of a user |
-| /picture/users/:id/picture           | GET    | Fetch the picture list of a user              |
-| /poll/poll                           | POST   | Add a new poll                                |
-| /poll/poll/:id/answer                | PATCH  | Submit a poll answer                          |
-| /poll/poll/:id/check                 | GET    | Check user answer status for a poll           |
-| /poll/poll/:id/details               | GET    | Get details of a single poll                  |
-| /poll/collection                     | GET    | Fetch paginated poll collection               |
-| /poll/:id/single                     | GET    | Fetch details of a single poll                |
-| /post/users/:id/post                 | GET    | Fetch all posts of a user                     |
-| /post/post                           | POST   | Add a new post                                |
-| /post/post/:id                       | DELETE | Delete a post                                 |
-| /post/post/:id                       | PATCH  | Edit a post                                   |
-| /post/post/:id/positive              | PATCH  | Add a positive reaction to a post             |
-| /post/post/:id/negative              | PATCH  | Add a negative reaction to a post             |
-| /post/post/:id                       | GET    | Fetch details of a single post                |
-| /search/search                       | GET    | Perform a database search                     |
-| /signup/signup                       | POST   | Regular user signup                           |
-| /signup/fakesignup                   | POST   | Fake user signup for demonstration purposes   |
-| /users/users/count                   | GET    | Count all users in the database               |
-| /users/users/some                    | GET    | Fetch a selection of random users             |
-| /users/users/all                     | GET    | Fetch all users                               |
-| /users/users/maybefriends            | GET    | Fetch a selection of friends of friends       |
-| /users/users/:id                     | GET    | Fetch user data of other users                |
-| /users/users/:id/request/send        | PATCH  | Send a friend request                         |
-| /users/users/:id/request/accept      | PATCH  | Accept a friend request                       |
-| /users/users/:id/request/decline     | PATCH  | Decline a friend request                      |
-| /users/users/:id/request/unfriend    | PATCH  | Unfriend a user                               |
-| /userdata                            | GET    | Fetch user data of the authenticated user     |
-| /userdata                            | PUT    | Update user data of the authenticated user    |
-| /userdata/cover                      | PATCH  | Update cover image of the authenticated user  |
-| /password                            | PATCH  | Update the password of the authenticated user |
-| /tos/accept                          | PUT    | Accept some TOS for the authenticated user    |
+| Endpoint                             | Method | Description                                    |
+| ------------------------------------ | ------ | ---------------------------------------------- |
+| /admin/login                         | POST   | Admin login                                    |
+| /admin/dashboard                     | GET    | Fetch dashboard data                           |
+| /admin/posts                         | GET    | Fetch posts                                    |
+| /admin/post/:id                      | DELETE | Delete a post                                  |
+| /admin/users                         | GET    | Fetch users                                    |
+| /admin/polls                         | GET    | Fetch polls                                    |
+| /admin/poll/:id                      | DELETE | Delete a poll                                  |
+| /admin/search                        | GET    | Perform search                                 |
+| /key/tenor                           | GET    | Retrieve Tenor API key                         |
+| /auth/guest                          | GET    | Retrieve guest login data                      |
+| /auth/login                          | POST   | User login                                     |
+| /auth/oauth/github                   | GET    | Initiate GitHub OAuth authentication           |
+| /auth/oauth/google                   | GET    | Initiate Google OAuth authentication           |
+| /auth/oauth/discord                  | GET    | Initiate Discord OAuth authentication          |
+| /auth/oauth/redirect                 | GET    | Handle OAuth authentication redirection        |
+| /auth/token-user                     | GET    | Check and decode JWT token                     |
+| /chat/chat                           | POST   | Initialize a chat conversation                 |
+| /chat/chat                           | GET    | Fetch conversations of a user                  |
+| /chat/chat/user/:id                  | GET    | Fetch chat partner data                        |
+| /chat/chat/:conversationId/mute      | PATCH  | Mute/unmute a chat conversation                |
+| /chat/message                        | POST   | Add a chat message to a chat conversation      |
+| /chat/message/:conversationId        | GET    | Fetch messages from a chat conversation        |
+| /chat/message/:conversationId/unread | PATCH  | Mark a conversation as unread                  |
+| /chat/message/:conversationId/read   | PATCH  | Mark a conversation as read                    |
+| /comment/comment/:id/create          | POST   | Create a comment                               |
+| /feed/feed                           | GET    | Fetch the user feed                            |
+| /frienddata/frienddata               | GET    | Fetch friend data                              |
+| /picture/users/:id/count_pictures    | GET    | Count the number of posted pictures of a user  |
+| /picture/users/:id/picture           | GET    | Fetch the picture list of a user               |
+| /poll/poll                           | POST   | Add a new poll                                 |
+| /poll/poll/:id/answer                | PATCH  | Submit a poll answer                           |
+| /poll/poll/:id/check                 | GET    | Check user answer status for a poll            |
+| /poll/poll/:id/details               | GET    | Get details of a single poll                   |
+| /poll/collection                     | GET    | Fetch paginated poll collection                |
+| /poll/:id/single                     | GET    | Fetch details of a single poll                 |
+| /post/users/:id/post                 | GET    | Fetch all posts of a user                      |
+| /post/post                           | POST   | Add a new post                                 |
+| /post/post/:id                       | DELETE | Delete a post                                  |
+| /post/post/:id                       | PATCH  | Edit a post                                    |
+| /post/post/:id/positive              | PATCH  | Add a positive reaction to a post              |
+| /post/post/:id/negative              | PATCH  | Add a negative reaction to a post              |
+| /post/post/:id                       | GET    | Fetch details of a single post                 |
+| /search/search                       | GET    | Perform a database search                      |
+| /signup/signup                       | POST   | Regular user signup                            |
+| /signup/fakesignup                   | POST   | Fake user signup for demonstration purposes    |
+| /users/users/count                   | GET    | Count all users in the database                |
+| /users/users/some                    | GET    | Fetch a selection of random users              |
+| /users/users/all                     | GET    | Fetch all users                                |
+| /users/users/maybefriends            | GET    | Fetch a selection of friends of friends        |
+| /users/users/:id                     | GET    | Fetch user data of other users                 |
+| /users/users/:id/request/send        | PATCH  | Send a friend request                          |
+| /users/users/:id/request/accept      | PATCH  | Accept a friend request                        |
+| /users/users/:id/request/decline     | PATCH  | Decline a friend request                       |
+| /users/users/:id/request/unfriend    | PATCH  | Unfriend a user                                |
+| /userdata                            | GET    | Fetch user data of the authenticated user      |
+| /userdata                            | PUT    | Update user data of the authenticated user     |
+| /userdata/cover                      | PATCH  | Update cover image of the authenticated user   |
+| /defaultfriend                       | PATCH  | Add a default friend to the authenticated user |
+| /password                            | PATCH  | Update the password of the authenticated user  |
+| /tos/accept                          | PATCH  | Accept some TOS for the authenticated user     |
 
 ## Installation
 

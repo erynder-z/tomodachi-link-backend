@@ -49,9 +49,19 @@ userDataRoute.patch(
 );
 
 /**
+ * Route for automatically adding the default friend.
+ */
+userDataRoute.patch(
+    '/defaultfriend',
+    passport.authenticate('jwt', { session: false }),
+    checkAccountType('regularUser'),
+    userDataController.addDefaultFriend
+);
+
+/**
  * Route for accepting some TOS for the authenticated user.
  */
-userDataRoute.put(
+userDataRoute.patch(
     '/tos/accept',
     passport.authenticate('jwt', { session: false }),
     checkAccountType('regularUser'),

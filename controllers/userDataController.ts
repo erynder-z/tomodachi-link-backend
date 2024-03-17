@@ -254,6 +254,75 @@ const countUsers = async (
     }
 };
 
+const getUserById = async (id: string): Promise<UserModelType> => {
+    const user = await User.findById(id);
+    if (!user) {
+        const ERROR_MESSAGE = 'User not found';
+
+        throw new Error(ERROR_MESSAGE);
+    }
+    return user;
+};
+
+/**
+ * Handles saving the friend relationship between two users.
+ *
+ * @param {UserModelType} currentUser - the current user to add the friend to
+ * @param {UserModelType} otherUser - the other user to add as a friend
+ * @return {Promise<void>} a promise that resolves when the operation is complete
+ */
+const handleSaveDefaultFriend = async (
+    currentUser: UserModelType,
+    otherUser: UserModelType
+): Promise<void> => {
+    currentUser.friends.push(otherUser._id);
+    otherUser.friends.push(currentUser._id);
+
+    currentUser.pendingFriendRequests =
+        currentUser.pendingFriendRequests.filter(
+            (userId) => userId.toString() !== otherUser._id.toString()
+        );
+    otherUser.pendingFriendRequests = otherUser.pendingFriendRequests.filter(
+        (userId) => userId.toString() !== currentUser._id.toString()
+    );
+
+    await Promise.all([currentUser.save(), otherUser.save()]);
+};
+
+/**
+ * Function to add a default friend for the current user.
+ *
+ * @param {Request} req - the request object
+ * @param {Response} res - the response object
+ * @param {NextFunction} next - the next function
+ * @return {void}
+ */
+const addDefaultFriend = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    if (req.user) {
+        const jwtUser = req.user as JwtUser;
+        const currentUserId = jwtUser._id;
+        const defaultFriendId = process.env.DEFAULT_FRIEND_ID;
+        if (defaultFriendId) {
+            try {
+                const [currentUser, otherUser] = await Promise.all([
+                    getUserById(currentUserId),
+                    getUserById(defaultFriendId),
+                ]);
+
+                await handleSaveDefaultFriend(currentUser, otherUser);
+
+                res.status(200).json({});
+            } catch (err) {
+                return next(err);
+            }
+        }
+    }
+};
+
 /**
  * Middleware function to update user's acceptance of terms of service.
  *
@@ -286,5 +355,6 @@ export {
     updateUserPassword,
     updateCover,
     countUsers,
+    addDefaultFriend,
     acceptTOS,
 };
