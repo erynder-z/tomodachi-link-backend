@@ -21,7 +21,7 @@ userDataRoute.get(
 /**
  * Route for updating user data of the authenticated user.
  */
-userDataRoute.put(
+userDataRoute.patch(
     '/userdata',
     passport.authenticate('jwt', { session: false }),
     upload.single('imagePicker'),
