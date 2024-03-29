@@ -1,7 +1,6 @@
 import { body, ValidationChain } from 'express-validator';
-import { CoverType } from '../../../types/coverType';
 
-const validCoverImageNames: CoverType[] = [
+const validCoverImageNames = [
     'none',
     'cover1',
     'cover2',
@@ -12,6 +11,9 @@ const validCoverImageNames: CoverType[] = [
     'cover7',
     'cover8',
     'cover9',
+    'cover10',
+    'cover11',
+    'cover12',
 ];
 
 /**
