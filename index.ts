@@ -11,6 +11,8 @@ import { initializePassport } from './passport/initializePassport';
 import { initializeMongoDB } from './mongodb/initializeMongoDB';
 import passport from 'passport';
 import http from 'http';
+import helmet from 'helmet';
+import compression from 'compression';
 
 import { initializeSocketIo } from './socket/initializeSocketIo';
 
@@ -20,8 +22,19 @@ dotenv.config();
 initializeMongoDB();
 initializePassport();
 
+const allowedOrigins = process.env.CORS_ACCESS;
+const oauthCallbackUrls = process.env.CORS_ACCESS_OAUTH;
+
 const corsOptions: cors.CorsOptions = {
-    origin: process.env.CORS_ACCESS,
+    origin: function (origin, callback) {
+        if (!origin || oauthCallbackUrls?.includes(origin)) {
+            callback(null, true);
+        } else if (allowedOrigins?.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
 };
 
 app.use(cors(corsOptions));
@@ -32,6 +45,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(helmet());
+app.use(compression());
 
 app.use('/', routes);
 

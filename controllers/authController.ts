@@ -174,15 +174,7 @@ const handleOAuthLoginCallback = async (
 
             const token = generateToken(user);
 
-            const THIRTY_SECONDS_IN_MILLISECONDS = 30000;
-            const REDIRECT_URL = process.env.OAUTH_CALLBACK_REDIRECT_URL || '/';
-
-            res.cookie('jwtTomodachiLink', token, {
-                maxAge: THIRTY_SECONDS_IN_MILLISECONDS,
-                secure: true,
-                sameSite: 'strict',
-            });
-            res.redirect(REDIRECT_URL);
+            return res.status(200).json({ success: true, token });
         });
     } catch (error) {
         return res
