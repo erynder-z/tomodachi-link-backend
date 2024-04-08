@@ -17,8 +17,8 @@ import { AllSearchResultsType } from '../types/searchTypes';
  * @returns {string} The generated JWT token.
  */
 const generateToken = (admin: AdminModelType): string => {
-    const TOKEN_SECRET_KEY = process.env.ADMIN_TOKEN_SECRET_KEY;
-    const TOKEN_EXPIRE_TIME = process.env.ADMIN_TOKEN_EXPIRE_TIME;
+    const TOKEN_SECRET_KEY = process.env.TOKEN_SECRET_KEY;
+    const TOKEN_EXPIRE_TIME = process.env.TOKEN_EXPIRE_TIME;
 
     const { _id, username } = admin;
     return jwt.sign(
