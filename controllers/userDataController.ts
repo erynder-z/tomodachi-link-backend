@@ -275,8 +275,13 @@ const handleSaveDefaultFriend = async (
     currentUser: UserModelType,
     otherUser: UserModelType
 ): Promise<void> => {
-    currentUser.friends.push(otherUser._id);
-    otherUser.friends.push(currentUser._id);
+    if (!currentUser.friends.includes(otherUser._id)) {
+        currentUser.friends.push(otherUser._id);
+    }
+
+    if (!otherUser.friends.includes(currentUser._id)) {
+        otherUser.friends.push(currentUser._id);
+    }
 
     currentUser.pendingFriendRequests =
         currentUser.pendingFriendRequests.filter(

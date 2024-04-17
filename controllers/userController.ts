@@ -474,8 +474,13 @@ const handleFriendRequestForUsers = async (
     typeOfRequest: 'accept' | 'decline'
 ): Promise<void> => {
     if (typeOfRequest === 'accept') {
-        currentUser.friends.push(otherUser._id);
-        otherUser.friends.push(currentUser._id);
+        if (!currentUser.friends.includes(otherUser._id)) {
+            currentUser.friends.push(otherUser._id);
+        }
+
+        if (!otherUser.friends.includes(currentUser._id)) {
+            otherUser.friends.push(currentUser._id);
+        }
     }
 
     currentUser.pendingFriendRequests =
