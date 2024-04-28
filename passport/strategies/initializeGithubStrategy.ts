@@ -89,7 +89,7 @@ export const initializeGithubLogin = (): void => {
                             profileId: profile._json.id,
                         },
 
-                        email: profile._json.email,
+                        email: profile._json.email || 'none',
                         firstName: firstName,
                         lastName: lastName,
                         accountType: 'regularUser',

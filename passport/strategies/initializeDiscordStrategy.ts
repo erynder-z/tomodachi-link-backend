@@ -72,7 +72,7 @@ export const initializeDiscordLogin = (): void => {
                             profileId: profile.id,
                         },
 
-                        email: profile.email,
+                        email: profile.email || 'none',
                         firstName: firstName,
                         lastName: lastName,
                         accountType: 'regularUser',
