@@ -6,7 +6,6 @@ import { postRoute } from './post';
 import { commentRoute } from './comment';
 import { userRoute } from './user';
 import { friendDataRoute } from './friendData';
-import { getApiKeysRoute } from './apiKeys';
 import { pictureRoute } from './pictures';
 import { feedRoute } from './feed';
 import { chatRoute } from './chat';
@@ -14,6 +13,7 @@ import { pollRoute } from './poll';
 import { pollCollectionRoute } from './pollCollection';
 import { searchRoute } from './search';
 import { adminRoute } from './admin';
+import { giphyRoute } from './giphy';
 
 /**
  * Express router for defining API routes.
@@ -58,11 +58,6 @@ routes.use('/api/v1', userRoute);
 routes.use('/api/v1', friendDataRoute);
 
 /**
- * Route for private API key retrieval.
- */
-routes.use('/api/v1', getApiKeysRoute);
-
-/**
  * Route for picture-related operations.
  */
 routes.use('/api/v1', pictureRoute);
@@ -96,3 +91,8 @@ routes.use('/api/v1', searchRoute);
  * Route for admin-related operations.
  */
 routes.use('/api/v1', adminRoute);
+
+/**
+ * Route for gifhy-related operations.
+ */
+routes.use('/api/v1', giphyRoute);

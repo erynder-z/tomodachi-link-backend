@@ -28,7 +28,6 @@ The source code for the Tomodachi-Link Frontend can be found at [https://github.
 | /admin/polls                         | GET    | Fetch polls                                    |
 | /admin/poll/:id                      | DELETE | Delete a poll                                  |
 | /admin/search                        | GET    | Perform search                                 |
-| /key/tenor                           | GET    | Retrieve Tenor API key                         |
 | /auth/guest                          | GET    | Retrieve guest login data                      |
 | /auth/login                          | POST   | User login                                     |
 | /auth/oauth/github                   | GET    | Initiate GitHub OAuth authentication           |
@@ -80,6 +79,8 @@ The source code for the Tomodachi-Link Frontend can be found at [https://github.
 | /defaultfriend                       | PATCH  | Add a default friend to the authenticated user |
 | /password                            | PATCH  | Update the password of the authenticated user  |
 | /tos/accept                          | PATCH  | Accept some TOS for the authenticated user     |
+| /giphy-search                        | GET    | Performs a gif search via the Giphy-API        |
+| /giphy-trending                      | GET    | Fetches trending gifs via the Giphy-API        |
 
 ## Installation
 
@@ -100,7 +101,7 @@ MONGODB_URI=<DB_connection_string>
 TOKEN_EXPIRE_TIME=<time>
 TOKEN_SECRET_KEY=<secret_key_for_JWT_authentication>
 CORS_ACCESS=<URL_of_frontend_server>
-TENOR_API_KEY=<your_Google_Tenor_API_key>
+GIPHY_API_KEY=<your_Giphy_API_key>
 GITHUB_CLIENT_ID=<Github_OAUTH_client_id>
 GITHUB_CLIENT_SECRET=<Github_OAUTH_client_SECRET>
 GITHUB_CALLBACK_URL=<URL_for_the_Github_OAUTH_callback>
@@ -157,3 +158,4 @@ To interact with the API, you need to install and run the [Tomodachi-Link Fronte
 -   [Concurrently](https://github.com/kimmobrunfeldt/concurrently) - A tool that runs multiple commands concurrently.
 -   [Nodemon](https://nodemon.io/) - A utility that automatically restarts the node application when file changes in the directory are detected.
 -   [TypeScript](https://www.typescriptlang.org/) - A statically-typed superset of JavaScript that was used for this project.
+-   [Giphy-API](https://developers.giphy.com/) - A API to search and fetch GIFs.
