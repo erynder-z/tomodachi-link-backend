@@ -100,4 +100,110 @@ const getPictureList = async (
     }
 };
 
-export { countPostsContainingImage, getPictureList };
+/**
+ * Asynchronously searches for GIFs on Giphy based on the query parameter and sends the results as a JSON response.
+ *
+ * @param {Request} req - The request object containing query parameters for search.
+ * @param {Response} res - The response object used to send back the search results or errors.
+ * @return {Promise<void>} A promise that resolves when the search results are sent as JSON response.
+ * 
+ * - If the search query is missing, responds with a 400 status and error message.
+ * - If the Giphy API key is missing, logs an error and responds with a 500 status and error message.
+ * - Handles errors from the Giphy API and network issues, and responds with appropriate error messages.
+ */
+
+const searchGiphy = async (req: Request, res: Response) => {
+    const query = req.query.query as string;
+    const limit = req.query.limit || 24;
+    const offset = req.query.offset || 0;
+
+    const GIPHY_API_KEY = process.env.GIPHY_API_KEY;
+    const GIPHY_BASE_URL = 'https://api.giphy.com/v1/gifs';
+
+    if (!query) {
+        return res.status(400).json({ message: 'Search query is required' });
+    }
+    if (!GIPHY_API_KEY) {
+        console.error(
+            'Giphy API Key is missing from server environment variables'
+        );
+        return res.status(500).json({ message: 'Server configuration error' });
+    }
+
+    const url = `${GIPHY_BASE_URL}/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(
+        query
+    )}&limit=${limit}&offset=${offset}&rating=g&lang=en`;
+
+    try {
+        const giphyResponse = await fetch(url);
+        if (!giphyResponse.ok) {
+            console.error(
+                `Giphy API Error: ${
+                    giphyResponse.status
+                } ${await giphyResponse.text()}`
+            );
+            return res
+                .status(giphyResponse.status)
+                .json({ message: 'Error from Giphy API' });
+        }
+        const giphyData = await giphyResponse.json();
+        res.json(giphyData);
+    } catch (error) {
+        console.error('Error fetching from Giphy:', error);
+        res.status(500).json({ message: 'Failed to fetch GIFs via proxy' });
+    }
+};
+
+/**
+ * Asynchronously fetches trending GIFs from Giphy based on the query parameters and sends the results as a JSON response.
+ *
+ * @param {Request} req - The request object containing query parameters for pagination.
+ * @param {Response} res - The response object used to send back the search results or errors.
+ * @return {Promise<void>} A promise that resolves when the search results are sent as JSON response.
+ * 
+ * - If the Giphy API key is missing, logs an error and responds with a 500 status and error message.
+ * - Handles errors from the Giphy API and network issues, and responds with appropriate error messages.
+ */
+const getGiphyTrending = async (req: Request, res: Response) => {
+    const limit = req.query.limit || 24;
+    const offset = req.query.offset || 0;
+    const GIPHY_API_KEY = process.env.GIPHY_API_KEY;
+    const GIPHY_BASE_URL = 'https://api.giphy.com/v1/gifs';
+
+    if (!GIPHY_API_KEY) {
+        console.error(
+            'Giphy API Key is missing from server environment variables'
+        );
+        return res.status(500).json({ message: 'Server configuration error' });
+    }
+
+    const url = `${GIPHY_BASE_URL}/trending?api_key=${GIPHY_API_KEY}&limit=${limit}&offset=${offset}&rating=g`;
+
+    try {
+        const giphyResponse = await fetch(url);
+        if (!giphyResponse.ok) {
+            console.error(
+                `Giphy API Error: ${
+                    giphyResponse.status
+                } ${await giphyResponse.text()}`
+            );
+            return res
+                .status(giphyResponse.status)
+                .json({ message: 'Error from Giphy API' });
+        }
+        const giphyData = await giphyResponse.json();
+        res.json(giphyData);
+    } catch (error) {
+        console.error('Error fetching trending GIFs from Giphy:', error);
+        res.status(500).json({
+            message: 'Failed to fetch trending GIFs via proxy',
+        });
+    }
+};
+
+export {
+    countPostsContainingImage,
+    getPictureList,
+    searchGiphy,
+    getGiphyTrending,
+};
