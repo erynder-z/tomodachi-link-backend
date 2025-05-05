@@ -22,8 +22,14 @@ dotenv.config();
 initializeMongoDB();
 initializePassport();
 
-const allowedOrigins = JSON.parse(process.env.CORS_ACCESS || '[]');
-const oauthCallbackUrls = JSON.parse(process.env.CORS_ACCESS_OAUTH || '[]');
+const allowedOrigins = (process.env.CORS_ACCESS || '')
+    .split(',')
+    .map((url) => url.trim())
+    .filter(Boolean);
+const oauthCallbackUrls = (process.env.CORS_ACCESS_OAUTH || '')
+    .split(',')
+    .map((url) => url.trim())
+    .filter(Boolean);
 
 const corsOptions: cors.CorsOptions = {
     origin: function (origin, callback) {
