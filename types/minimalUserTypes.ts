@@ -1,5 +1,7 @@
+import { Types } from 'mongoose';
+
 export type MinimalUserTypes = {
-    _id: string;
+    _id: Types.ObjectId;
     firstName: string;
     lastName: string;
     userpic: {

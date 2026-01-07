@@ -107,8 +107,8 @@ const handleFakeSignup = async (
             const firstName = faker.person.firstName();
             const lastName = faker.person.lastName();
             const email = faker.internet.email();
-            const username = faker.internet.userName();
-            const userpic = faker.internet.avatar();
+            const username = faker.internet.username();
+            const userpic = faker.image.avatar();
             const about = faker.lorem.sentence({ min: 5, max: 15 });
 
             const fetchImage = async (
@@ -127,6 +127,8 @@ const handleFakeSignup = async (
 
             const convertedUserpic = await fetchImage(userpic);
             const hashedPassword = await bcrypt.hash(password, 10);
+            const provider: { name: 'tomodachi' } = { name: 'tomodachi' };
+            const accountType = 'fake';
 
             return {
                 firstName,
@@ -136,10 +138,8 @@ const handleFakeSignup = async (
                 password: hashedPassword,
                 userpic: convertedUserpic,
                 about,
-                accountType: 'fake',
-                provider: {
-                    name: 'tomodachi',
-                },
+                accountType,
+                provider,
             };
         };
 

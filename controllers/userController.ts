@@ -263,7 +263,10 @@ const getOtherUserData = async (
         if (isFriend) {
             const [friendObjects, sameFriends] = await Promise.all([
                 getFriendData(otherUser),
-                getMutualFriends(otherUser._id, currentUser._id),
+                getMutualFriends(
+                    otherUser._id.toString(),
+                    currentUser._id.toString()
+                ),
             ]);
 
             friends = friendObjects;

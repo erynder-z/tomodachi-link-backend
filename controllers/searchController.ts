@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import User, { UserModelType } from '../models/user';
+import User, { UserModelType, UserType } from '../models/user';
 import Post, { PostModelType } from '../models/post';
-import Poll from '../models/poll';
+import Poll, { PollType } from '../models/poll';
 import { AllSearchResultsType } from '../types/searchTypes';
 import { JwtUser } from '../types/jwtUser';
-import { FlattenMaps } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 /**
  * Filters out the non-empty terms from the input array of strings.
@@ -43,14 +43,14 @@ const searchUsers = async (
         .lean();
 
     const mappedUserResults: AllSearchResultsType[] = userResults.map(
-        (result: {
-            _id: string;
-            firstName: string;
-            lastName: string;
-            userpic: FlattenMaps<{ data: Buffer; contentType: string }>;
-        }) => ({
+        (result: UserType) => ({
             type: 'user',
-            data: result,
+            data: {
+                _id: new mongoose.Types.ObjectId(result._id.toString()),
+                firstName: result.firstName,
+                lastName: result.lastName,
+                userpic: result.userpic,
+            },
         })
     );
 
@@ -94,7 +94,12 @@ const searchPosts = async (
     const mappedPostResults: AllSearchResultsType[] = filteredPostResults.map(
         (result: PostModelType) => ({
             type: 'post',
-            data: result,
+            data: {
+                _id: result._id.toString(),
+                text: result.text,
+                updatedAt: result.updatedAt,
+                owner: result.owner,
+            },
         })
     );
 
@@ -146,14 +151,14 @@ const searchPolls = async (
     });
 
     const mappedPollResults: AllSearchResultsType[] = filteredPollResults.map(
-        (result: {
-            _id: string;
-            question: string;
-            description: string;
-            updatedAt: Date;
-        }) => ({
+        (result: PollType & { _id: Types.ObjectId }) => ({
             type: 'poll',
-            data: result,
+            data: {
+                _id: result._id.toString(),
+                question: result.question,
+                description: result.description,
+                updatedAt: result.updatedAt,
+            },
         })
     );
 

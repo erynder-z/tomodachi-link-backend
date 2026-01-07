@@ -242,7 +242,7 @@ const deletePost = async (
             });
         }
 
-        await Post.findByIdAndRemove(postID);
+        await Post.findByIdAndDelete(postID);
         await deletePostFromUser(reqUser, postID);
 
         res.status(200).json({});

@@ -4,11 +4,11 @@ import { LoginErrorMessage } from '../types/loginErrorMessage';
 import type { AdminModelType } from '../models/admin';
 import jwt from 'jsonwebtoken';
 import Post, { PostModelType } from '../models/post';
-import User from '../models/user';
-import { FlattenMaps, Types } from 'mongoose';
+import User, { UserType } from '../models/user';
+import { Types } from 'mongoose';
 import Admin from '../models/admin';
 import { JwtAdmin } from '../types/jwtAdmin';
-import Poll from '../models/poll';
+import Poll, { PollType } from '../models/poll';
 import { AllSearchResultsType } from '../types/searchTypes';
 
 /**
@@ -161,7 +161,7 @@ const adminDeletePost = async (
 
         const postOwnerID = post.owner._id;
 
-        await Post.findByIdAndRemove(postID);
+        await Post.findByIdAndDelete(postID);
         await deletePostFromUser(postOwnerID, postID);
 
         res.status(200).json({});
@@ -284,7 +284,7 @@ const adminDeletePoll = async (
 
         const pollOwnerID = poll.owner._id;
 
-        await Poll.findByIdAndRemove(pollID);
+        await Poll.findByIdAndDelete(pollID);
         await deletePollFromUser(pollOwnerID, pollID);
 
         res.status(200).json({});
@@ -328,14 +328,14 @@ const searchUsers = async (
     const userResults = await User.find({ $or: userRegexQueries }).lean();
 
     const mappedUserResults: AllSearchResultsType[] = userResults.map(
-        (result: {
-            _id: string;
-            firstName: string;
-            lastName: string;
-            userpic: FlattenMaps<{ data: Buffer; contentType: string }>;
-        }) => ({
+        (result: UserType) => ({
             type: 'user',
-            data: result,
+            data: {
+                _id: result._id as Types.ObjectId,
+                firstName: result.firstName,
+                lastName: result.lastName,
+                userpic: result.userpic,
+            },
         })
     );
 
@@ -376,7 +376,12 @@ const searchPosts = async (
     const mappedPostResults: AllSearchResultsType[] = postResults.map(
         (result: PostModelType) => ({
             type: 'post',
-            data: result,
+            data: {
+                _id: result._id.toString(),
+                text: result.text,
+                updatedAt: result.updatedAt,
+                owner: result.owner,
+            },
         })
     );
 
@@ -419,14 +424,14 @@ const searchPolls = async (
         .lean();
 
     const mappedPollResults: AllSearchResultsType[] = pollResults.map(
-        (result: {
-            _id: string;
-            question: string;
-            description: string;
-            updatedAt: Date;
-        }) => ({
+        (result: PollType & { _id: Types.ObjectId }) => ({
             type: 'poll',
-            data: result,
+            data: {
+                _id: result._id.toString(),
+                question: result.question,
+                description: result.description,
+                updatedAt: result.updatedAt,
+            },
         })
     );
 

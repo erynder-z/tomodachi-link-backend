@@ -10,7 +10,7 @@ export const initializeJWT = (): void => {
     passport.use(
         new JWTstrategy(
             {
-                secretOrKey: process.env.TOKEN_SECRET_KEY,
+                secretOrKey: process.env.TOKEN_SECRET_KEY as string,
                 jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             },
             async (token, done) => {
