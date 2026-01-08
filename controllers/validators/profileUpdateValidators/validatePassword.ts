@@ -1,6 +1,6 @@
 import { body, ValidationChain } from 'express-validator';
 import bcrypt from 'bcrypt';
-import User from '../../../models/user';
+import User from '../../../models/user.js';
 
 /**
  * Validates the 'password' field in the request body.

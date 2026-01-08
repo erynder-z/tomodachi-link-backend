@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import passport from 'passport';
-import * as pollController from '../controllers/pollController';
-import { checkAccountType } from '../middleware/checkAccountType';
+import * as pollController from '../controllers/pollController.js';
+import { checkAccountType } from '../middleware/checkAccountType.js';
 
 export const pollRoute = Router();
 

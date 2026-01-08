@@ -1,20 +1,22 @@
 import express, { Express } from 'express';
 import * as dotenv from 'dotenv';
-import * as bodyParser from 'body-parser';
-import { routes } from './routes';
-import errorMiddleware from './middleware/error-handler';
+import { routes } from './routes/index.js';
+import errorMiddleware from './middleware/error-handler.js';
 import logger from 'morgan';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import cors from 'cors';
-import { initializePassport } from './passport/initializePassport';
-import { initializeMongoDB } from './mongodb/initializeMongoDB';
+import { initializePassport } from './passport/initializePassport.js';
+import { initializeMongoDB } from './mongodb/initializeMongoDB.js';
 import passport from 'passport';
 import http from 'http';
 import helmet from 'helmet';
 import compression from 'compression';
+import { initializeSocketIo } from './socket/initializeSocketIo.js';
 
-import { initializeSocketIo } from './socket/initializeSocketIo';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app: Express = express();
 dotenv.config();
@@ -45,7 +47,6 @@ const corsOptions: cors.CorsOptions = {
 
 app.use(cors(corsOptions));
 app.use(passport.initialize());
-app.use(bodyParser.json());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

@@ -1,17 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
 import passport from 'passport';
 import { validationResult } from 'express-validator';
-import { validateFirstName } from './validators/signupValidators/validateFirstName';
-import { validateLastName } from './validators/signupValidators/validateLastName';
-import { validateEmail } from './validators/signupValidators/validateEmail';
-import { validateUsername } from './validators/signupValidators/validateUsername';
-import { validatePassword } from './validators/signupValidators/validatePassword';
-import { validateConfirmPassword } from './validators/signupValidators/validateConfirmPassword';
+import { validateFirstName } from './validators/signupValidators/validateFirstName.js';
+import { validateLastName } from './validators/signupValidators/validateLastName.js';
+import { validateEmail } from './validators/signupValidators/validateEmail.js';
+import { validateUsername } from './validators/signupValidators/validateUsername.js';
+import { validatePassword } from './validators/signupValidators/validatePassword.js';
+import { validateConfirmPassword } from './validators/signupValidators/validateConfirmPassword.js';
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
-import User from '../models/user';
-import Admin from '../models/admin';
-import { JwtAdmin } from '../types/jwtAdmin';
+import User from '../models/user.js';
+import Admin from '../models/admin.js';
+import { JwtAdmin } from '../types/jwtAdmin.js';
 
 const validateSignup = [
     validateFirstName(),

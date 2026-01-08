@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import User, { UserModelType } from '../models/user';
-import { validateEmail } from './validators/profileUpdateValidators/validateEmail';
-import { validateFirstName } from './validators/profileUpdateValidators/validateFirstName';
-import { validateLastName } from './validators/profileUpdateValidators/validateLastName';
+import User, { UserModelType } from '../models/user.js';
+import { validateEmail } from './validators/profileUpdateValidators/validateEmail.js';
+import { validateFirstName } from './validators/profileUpdateValidators/validateFirstName.js';
+import { validateLastName } from './validators/profileUpdateValidators/validateLastName.js';
 import bcrypt from 'bcrypt';
-import { validateCurrentPassword } from './validators/passwordUpdateValidators/validateCurrentPassword';
-import { validateNewPassword } from './validators/passwordUpdateValidators/validateNewPassword';
-import { validateConfirmNewPassword } from './validators/passwordUpdateValidators/validateConfirmNewPassword';
-import { JwtUser } from '../types/jwtUser';
-import { validateCoverImageName } from './validators/imageValidators/validateCoverImageName';
-import { validateAbout } from './validators/profileUpdateValidators/validateAbout';
+import { validateCurrentPassword } from './validators/passwordUpdateValidators/validateCurrentPassword.js';
+import { validateNewPassword } from './validators/passwordUpdateValidators/validateNewPassword.js';
+import { validateConfirmNewPassword } from './validators/passwordUpdateValidators/validateConfirmNewPassword.js';
+import { JwtUser } from '../types/jwtUser.js';
+import { validateCoverImageName } from './validators/imageValidators/validateCoverImageName.js';
+import { validateAbout } from './validators/profileUpdateValidators/validateAbout.js';
 
 /**
  * Asynchronous function to retrieve user data from the request object and send it as a JSON response, or handle errors by calling the next function.

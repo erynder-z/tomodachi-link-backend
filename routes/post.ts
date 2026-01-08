@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import passport from 'passport';
 import multer from 'multer';
-import * as postController from '../controllers/postController';
-import textCensorMiddleware from '../middleware/textCensor';
+import * as postController from '../controllers/postController.js';
+import textCensorMiddleware from '../middleware/textCensor.js';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage, limits: { fileSize: 1000000 } }); // max 1 mb

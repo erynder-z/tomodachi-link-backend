@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import User, { UserModelType } from '../models/user';
-import { JwtUser } from '../types/jwtUser';
+import User, { UserModelType } from '../models/user.js';
+import { JwtUser } from '../types/jwtUser.js';
 import mongoose from 'mongoose';
 import { validationResult } from 'express-validator';
-import { FriendType } from '../types/friendType';
-import { validateOtherUserId } from './validators/requestValidators/validateOtherUserId';
-import { MinimalUserTypes } from '../types/minimalUserTypes';
+import { FriendType } from '../types/friendType.js';
+import { validateOtherUserId } from './validators/requestValidators/validateOtherUserId.js';
+import { MinimalUserTypes } from '../types/minimalUserTypes.js';
 
 /**
  * Counts the number of users and returns the count in a JSON response with status 200.

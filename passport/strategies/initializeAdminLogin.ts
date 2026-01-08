@@ -1,8 +1,7 @@
 import passport from 'passport';
 import { Strategy as localStrategy } from 'passport-local';
 import bcrypt from 'bcrypt';
-
-import Admin from '../../models/admin';
+import Admin from '../../models/admin.js';
 
 /**
  * Initializes the admin login using passport local strategy.

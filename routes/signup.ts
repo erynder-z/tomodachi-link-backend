@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import { handleFakeSignup, signup } from '../controllers/signupController';
+import { handleFakeSignup, signup } from '../controllers/signupController.js';
 
 export const signupRoute = Router();
 

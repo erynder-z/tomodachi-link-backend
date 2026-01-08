@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
-import Post from '../models/post';
-import User, { UserModelType } from '../models/user';
-import { JwtUser } from '../types/jwtUser';
+import Post from '../models/post.js';
+import User, { UserModelType } from '../models/user.js';
+import { JwtUser } from '../types/jwtUser.js';
 
 /**
  * Checks if the current user is allowed to perform a read operation on a post owned by another user.

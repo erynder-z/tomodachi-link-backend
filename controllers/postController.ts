@@ -1,14 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import Post from '../models/post';
-import User from '../models/user';
-import { JwtUser } from '../types/jwtUser';
+import Post from '../models/post.js';
+import User from '../models/user.js';
+import { JwtUser } from '../types/jwtUser.js';
 import mongoose from 'mongoose';
-import { validateGifUrl } from './validators/postValidators/validateGifUrl';
-import { validateText } from './validators/postValidators/validateText';
-import { validateEmbeddedVideoID } from './validators/postValidators/validateEmbeddedVideoID';
-import { validateImage } from './validators/imageValidators/validateImage';
-import { validateFriendshipStatus } from '../middleware/validateFriendshipStatus';
+import { validateGifUrl } from './validators/postValidators/validateGifUrl.js';
+import { validateText } from './validators/postValidators/validateText.js';
+import { validateEmbeddedVideoID } from './validators/postValidators/validateEmbeddedVideoID.js';
+import { validateImage } from './validators/imageValidators/validateImage.js';
+import { validateFriendshipStatus } from '../middleware/validateFriendshipStatus.js';
 import { randomUUID } from 'crypto';
 
 /**

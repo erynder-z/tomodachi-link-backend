@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import * as feedController from '../controllers/feedController';
+import * as feedController from '../controllers/feedController.js';
 
 export const feedRoute = Router();
 

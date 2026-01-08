@@ -8,7 +8,7 @@ import {
     adminDeletePoll,
     adminPerformSearch,
     adminGetDashboardData,
-} from '../controllers/adminController';
+} from '../controllers/adminController.js';
 import passport from 'passport';
 
 export const adminRoute = Router();

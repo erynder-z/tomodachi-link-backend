@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { JwtUser } from '../types/jwtUser';
+import { JwtUser } from '../types/jwtUser.js';
 
 /**
  * Middleware to check if the account type of the user matches the expected account type.

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { JwtUser } from '../types/jwtUser';
-import User from '../models/user';
+import { JwtUser } from '../types/jwtUser.js';
+import User from '../models/user.js';
 
 /**
  * Retrieves friend data for the current user and sends it as a JSON response.

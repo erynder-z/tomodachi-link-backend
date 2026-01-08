@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
-import type { UserModelType } from '../models/user';
-import { LoginErrorMessage } from '../types/loginErrorMessage';
+import type { UserModelType } from '../models/user.js';
+import { LoginErrorMessage } from '../types/loginErrorMessage.js';
 
 /**
  * Generates a token for the given user.

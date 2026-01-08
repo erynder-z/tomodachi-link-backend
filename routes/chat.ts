@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import passport from 'passport';
-import * as chatController from '../controllers/chatController';
-import { checkAccountType } from '../middleware/checkAccountType';
+import * as chatController from '../controllers/chatController.js';
+import { checkAccountType } from '../middleware/checkAccountType.js';
 
 export const chatRoute = Router();
 

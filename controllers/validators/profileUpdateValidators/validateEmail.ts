@@ -1,5 +1,5 @@
 import { body, ValidationChain } from 'express-validator';
-import User from '../../../models/user';
+import User from '../../../models/user.js';
 
 /**
  * Validates the 'email' field in the request body.

@@ -1,9 +1,9 @@
 import passport from 'passport';
 import { Strategy as DiscordStrategy } from 'passport-discord';
-import User from '../../models/user';
+import User from '../../models/user.js';
 import bcrypt from 'bcrypt';
 import { uniqueNamesGenerator, colors, animals } from 'unique-names-generator';
-import { generateUsernameFromEmail } from '../../helpers/generateUsernameFromEmail';
+import { generateUsernameFromEmail } from '../../helpers/generateUsernameFromEmail.js';
 
 /**
  * Initializes Discord login using Discord OAuth strategy.

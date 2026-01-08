@@ -2,6 +2,7 @@
     "name": "tomodachi-link-backend",
     "version": "0.0.0",
     "private": true,
+    "type": "module",
     "scripts": {
         "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",

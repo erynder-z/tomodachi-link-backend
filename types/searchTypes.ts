@@ -1,4 +1,4 @@
-import { MinimalUserTypes } from './minimalUserTypes';
+import { MinimalUserTypes } from './minimalUserTypes.js';
 
 export type SearchResultUserType = MinimalUserTypes;
 

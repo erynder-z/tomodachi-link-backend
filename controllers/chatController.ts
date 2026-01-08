@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import ChatConversation from '../models/chatConversation';
-import ChatMessage from '../models/chatMessage';
-import { JwtUser } from '../types/jwtUser';
-import User, { UserModelType } from '../models/user';
+import ChatConversation from '../models/chatConversation.js';
+import ChatMessage from '../models/chatMessage.js';
+import { JwtUser } from '../types/jwtUser.js';
+import User, { UserModelType } from '../models/user.js';
 
 /**
  * Initializes a conversation between the authenticated user and a specified chat partner.

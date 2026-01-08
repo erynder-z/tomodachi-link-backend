@@ -1,7 +1,7 @@
 import { Server } from 'socket.io';
 import cors from 'cors';
 import http from 'http';
-import { SocketUser } from '../types/socketUser';
+import { SocketUser } from '../types/socketUser.js';
 /**
  * Initializes a socket.io server and sets up event listeners for user connection, disconnection, adding user, sending and receiving messages, and user typing.
  *

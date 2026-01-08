@@ -5,7 +5,7 @@ import {
     checkAndDecodeJwt,
     getGuestLoginData,
     handleOAuthLoginCallback,
-} from '../controllers/authController';
+} from '../controllers/authController.js';
 import passport from 'passport';
 
 export const authRoute = Router();

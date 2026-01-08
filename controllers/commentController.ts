@@ -1,6 +1,6 @@
 import { body, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
-import Comment from '../models/comment';
+import Comment from '../models/comment.js';
 import {
     RegExpMatcher,
     TextCensor,

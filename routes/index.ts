@@ -1,19 +1,19 @@
 import express from 'express';
-import { authRoute } from './auth';
-import { signupRoute } from './signup';
-import { userDataRoute } from './userData';
-import { postRoute } from './post';
-import { commentRoute } from './comment';
-import { userRoute } from './user';
-import { friendDataRoute } from './friendData';
-import { pictureRoute } from './pictures';
-import { feedRoute } from './feed';
-import { chatRoute } from './chat';
-import { pollRoute } from './poll';
-import { pollCollectionRoute } from './pollCollection';
-import { searchRoute } from './search';
-import { adminRoute } from './admin';
-import { giphyRoute } from './giphy';
+import { authRoute } from './auth.js';
+import { signupRoute } from './signup.js';
+import { userDataRoute } from './userData.js';
+import { postRoute } from './post.js';
+import { commentRoute } from './comment.js';
+import { userRoute } from './user.js';
+import { friendDataRoute } from './friendData.js';
+import { pictureRoute } from './pictures.js';
+import { feedRoute } from './feed.js';
+import { chatRoute } from './chat.js';
+import { pollRoute } from './poll.js';
+import { pollCollectionRoute } from './pollCollection.js';
+import { searchRoute } from './search.js';
+import { adminRoute } from './admin.js';
+import { giphyRoute } from './giphy.js';
 
 /**
  * Express router for defining API routes.

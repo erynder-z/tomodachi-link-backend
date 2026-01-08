@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import Post from '../models/post';
-import { JwtUser } from '../types/jwtUser';
-import User from '../models/user';
-import { UserPostType } from '../types/userPostType';
+import Post from '../models/post.js';
+import { JwtUser } from '../types/jwtUser.js';
+import User from '../models/user.js';
+import { UserPostType } from '../types/userPostType.js';
 
 /**
  * Asynchronously retrieves user posts based on the given user ID.

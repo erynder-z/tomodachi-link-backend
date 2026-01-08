@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import User, { UserModelType, UserType } from '../models/user';
-import Post, { PostModelType } from '../models/post';
-import Poll, { PollType } from '../models/poll';
-import { AllSearchResultsType } from '../types/searchTypes';
-import { JwtUser } from '../types/jwtUser';
+import User, { UserModelType, UserType } from '../models/user.js';
+import Post, { PostModelType } from '../models/post.js';
+import Poll, { PollType } from '../models/poll.js';
+import { AllSearchResultsType } from '../types/searchTypes.js';
+import { JwtUser } from '../types/jwtUser.js';
 import mongoose, { Types } from 'mongoose';
 
 /**

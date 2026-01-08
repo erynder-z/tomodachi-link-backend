@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import * as searchController from '../controllers/searchController';
+import * as searchController from '../controllers/searchController.js';
 
 export const searchRoute = Router();
 

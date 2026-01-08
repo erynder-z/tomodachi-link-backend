@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
 import passport from 'passport';
-import { LoginErrorMessage } from '../types/loginErrorMessage';
-import type { AdminModelType } from '../models/admin';
+import { LoginErrorMessage } from '../types/loginErrorMessage.js';
+import type { AdminModelType } from '../models/admin.js';
 import jwt from 'jsonwebtoken';
-import Post, { PostModelType } from '../models/post';
-import User, { UserType } from '../models/user';
+import Post, { PostModelType } from '../models/post.js';
+import User, { UserType } from '../models/user.js';
 import { Types } from 'mongoose';
-import Admin from '../models/admin';
-import { JwtAdmin } from '../types/jwtAdmin';
-import Poll, { PollType } from '../models/poll';
-import { AllSearchResultsType } from '../types/searchTypes';
+import Admin from '../models/admin.js';
+import { JwtAdmin } from '../types/jwtAdmin.js';
+import Poll, { PollType } from '../models/poll.js';
+import { AllSearchResultsType } from '../types/searchTypes.js';
 
 /**
  * Generates a JWT token for the provided admin.

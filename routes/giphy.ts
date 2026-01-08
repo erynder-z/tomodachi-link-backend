@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import * as pictureController from '../controllers/pictureController';
+import * as pictureController from '../controllers/pictureController.js';
 
 export const giphyRoute = Router();
 

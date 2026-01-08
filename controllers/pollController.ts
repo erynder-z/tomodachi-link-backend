@@ -1,20 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
-import { validateQuestion } from './validators/pollValidators/validateQuestions';
-import { validateNumberOfOptions } from './validators/pollValidators/validateNumberOfOptions';
-import { validateOptions } from './validators/pollValidators/validateOptions';
-import { validateDescription } from './validators/pollValidators/validateDescription';
-import { validateIsFriendOnly } from './validators/pollValidators/validateIsFriendOnly';
-import { validateAllowComments } from './validators/pollValidators/validateAllowComments';
+import { validateQuestion } from './validators/pollValidators/validateQuestions.js';
+import { validateNumberOfOptions } from './validators/pollValidators/validateNumberOfOptions.js';
+import { validateOptions } from './validators/pollValidators/validateOptions.js';
+import { validateDescription } from './validators/pollValidators/validateDescription.js';
+import { validateIsFriendOnly } from './validators/pollValidators/validateIsFriendOnly.js';
+import { validateAllowComments } from './validators/pollValidators/validateAllowComments.js';
 import { validationResult } from 'express-validator';
-import { JwtUser } from '../types/jwtUser';
+import { JwtUser } from '../types/jwtUser.js';
 import {
     RegExpMatcher,
     TextCensor,
     englishDataset,
     englishRecommendedTransformers,
 } from 'obscenity';
-import Poll from '../models/poll';
-import User from '../models/user';
+import Poll from '../models/poll.js';
+import User from '../models/user.js';
 import mongoose from 'mongoose';
 
 const validatePoll = [

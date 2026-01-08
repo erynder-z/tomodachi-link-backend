@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import * as pollCollectionController from '../controllers/pollCollectionController';
+import * as pollCollectionController from '../controllers/pollCollectionController.js';
 
 export const pollCollectionRoute = Router();
 

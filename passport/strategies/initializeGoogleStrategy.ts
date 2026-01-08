@@ -1,9 +1,9 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import User from '../../models/user';
+import User from '../../models/user.js';
 import bcrypt from 'bcrypt';
 import { uniqueNamesGenerator, colors, animals } from 'unique-names-generator';
-import { generateUsernameFromEmail } from '../../helpers/generateUsernameFromEmail';
+import { generateUsernameFromEmail } from '../../helpers/generateUsernameFromEmail.js';
 
 /**
  * Initializes Google login using the provided environment variables for Google client ID, secret, and callback URL.

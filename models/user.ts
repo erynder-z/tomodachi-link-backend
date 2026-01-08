@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import path from 'path';
 import fs from 'fs';
-import { CoverType } from '../types/coverType';
+import { CoverType } from '../types/coverType.js';
 
 export type UserType = {
     _id: Types.ObjectId;

@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import passport from 'passport';
-import * as userDataController from '../controllers/userDataController';
+import * as userDataController from '../controllers/userDataController.js';
 import multer from 'multer';
-import { checkAccountType } from '../middleware/checkAccountType';
+import { checkAccountType } from '../middleware/checkAccountType.js';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage, limits: { fileSize: 1000000 } }); // max 1 mb

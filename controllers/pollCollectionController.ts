@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { JwtUser } from '../types/jwtUser';
-import Poll from '../models/poll';
-import User from '../models/user';
+import { JwtUser } from '../types/jwtUser.js';
+import Poll from '../models/poll.js';
+import User from '../models/user.js';
 
 /**
  * Retrieves a paginated collection of polls based on the provided request parameters.

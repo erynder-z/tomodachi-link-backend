@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import * as commentController from '../controllers/commentController';
+import * as commentController from '../controllers/commentController.js';
 
 export const commentRoute = Router();
 

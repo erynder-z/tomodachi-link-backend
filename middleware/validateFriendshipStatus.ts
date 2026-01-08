@@ -1,4 +1,4 @@
-import { UserModelType } from '../models/user';
+import { UserModelType } from '../models/user.js';
 import mongoose from 'mongoose';
 
 /**

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import * as friendDataController from '../controllers/friendDataController';
+import * as friendDataController from '../controllers/friendDataController.js';
 
 export const friendDataRoute = Router();
 
