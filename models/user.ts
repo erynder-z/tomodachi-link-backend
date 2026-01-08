@@ -2,6 +2,10 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 import path from 'path';
 import fs from 'fs';
 import { CoverType } from '../types/coverType.js';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export type UserType = {
     _id: Types.ObjectId;
